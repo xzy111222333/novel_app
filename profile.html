@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f7f8fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-shadow { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03); }
+        .tab-bar-shadow { box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col relative text-gray-800">
+    <!-- iOS Status Bar -->
+    <div class="h-12 w-full flex justify-between items-center px-6 pt-2 text-[15px] font-medium z-50">
+        <span>09:41</span>
+        <div class="flex space-x-2 items-center">
+            <i class="fa-solid fa-signal text-xs"></i>
+            <i class="fa-solid fa-wifi text-xs"></i>
+            <i class="fa-solid fa-battery-full text-sm"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-5 mt-4 mb-4">
+        <button class="w-10 h-10 rounded-full bg-white card-shadow flex items-center justify-center text-gray-600 hover:bg-gray-50 transition">
+            <i class="fa-solid fa-headphones"></i>
+        </button>
+        <h1 class="text-xl font-bold text-gray-800">我的</h1>
+        <button class="w-10 h-10 rounded-full bg-white card-shadow flex items-center justify-center text-gray-600 hover:bg-gray-50 transition">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </div>
+
+    <!-- Main Content (Scrollable) -->
+    <div class="flex-1 overflow-y-auto hide-scrollbar pb-28 px-5">
+        
+        <!-- User Info Card -->
+        <div class="bg-white rounded-[32px] p-6 card-shadow mb-6">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-[#fcefc7] flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=fcefc7" alt="Avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">墨客</h2>
+                        <p class="text-xs text-gray-400 mt-1">已加入小灵感 128 天</p>
+                    </div>
+                </div>
+                <button class="bg-[#fcefc7] text-[#d4a017] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
+                    高级会员 <i class="fa-solid fa-crown"></i>
+                </button>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="flex justify-between items-center border-t border-gray-100 pt-5 mb-5">
+                <div class="text-center flex-1">
+                    <p class="text-xl font-bold text-gray-800">128</p>
+                    <p class="text-[10px] text-gray-400 mt-1">素材数</p>
+                </div>
+                <div class="w-px h-8 bg-gray-100"></div>
+                <div class="text-center flex-1">
+                    <p class="text-xl font-bold text-gray-800">35</p>
+                    <p class="text-[10px] text-gray-400 mt-1">词汇数</p>
+                </div>
+                <div class="w-px h-8 bg-gray-100"></div>
+                <div class="text-center flex-1">
+                    <p class="text-xl font-bold text-gray-800">8</p>
+                    <p class="text-[10px] text-gray-400 mt-1">灵感数</p>
+                </div>
+                <div class="w-px h-8 bg-gray-100"></div>
+                <div class="text-center flex-1">
+                    <p class="text-xl font-bold text-gray-800">12h</p>
+                    <p class="text-[10px] text-gray-400 mt-1">专注时长</p>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center bg-gray-50 rounded-2xl p-3">
+                <button class="flex-1 text-xs font-bold text-gray-700 text-center">
+                    数据管理 <span class="text-gray-400 font-normal ml-1">8小时前 ></span>
+                </button>
+                <div class="w-px h-4 bg-gray-200"></div>
+                <button class="flex-1 text-xs font-bold text-gray-700 text-center flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-book text-gray-400"></i> 使用指南
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid Menu -->
+        <div class="grid grid-cols-3 gap-y-8 gap-x-4 px-2 mb-8">
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-folder-tree"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">分类管理</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-tags"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">标签管理</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">收藏夹</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-file-export"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">数据导出</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">数据备份</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-palette"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">个性化</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-trash-can-arrow-up"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">最近删除</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-comment-dots"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">意见反馈</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-circle-info"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">关于我们</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="absolute bottom-0 w-full px-6 pb-8 pt-4 bg-white/90 backdrop-blur-md tab-bar-shadow rounded-t-[40px] flex justify-between items-center z-40">
+        <a href="home.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-calendar-day"></i>
+            </div>
+            <span class="text-[10px] font-medium">今日</span>
+        </a>
+        <a href="materials.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-box-archive"></i>
+            </div>
+            <span class="text-[10px] font-medium">素材</span>
+        </a>
+        <a href="focus.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition relative -top-2">
+            <div class="w-14 h-14 rounded-full bg-[#ff6b6b] text-white flex items-center justify-center text-2xl shadow-lg shadow-red-200">
+                <i class="fa-solid fa-stopwatch"></i>
+            </div>
+        </a>
+        <a href="stats.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <span class="text-[10px] font-medium">统计</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center gap-1 text-gray-800">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <span class="text-[10px] font-bold">我的</span>
+        </a>
+    </div>
+
+</body>
+</html>

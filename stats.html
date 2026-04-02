@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统计页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f7f8fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-shadow { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03); }
+        .tab-bar-shadow { box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col relative text-gray-800">
+    <!-- iOS Status Bar -->
+    <div class="h-12 w-full flex justify-between items-center px-6 pt-2 text-[15px] font-medium z-50">
+        <span>09:41</span>
+        <div class="flex space-x-2 items-center">
+            <i class="fa-solid fa-signal text-xs"></i>
+            <i class="fa-solid fa-wifi text-xs"></i>
+            <i class="fa-solid fa-battery-full text-sm"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-5 mt-4 mb-4">
+        <button class="w-10 h-10 rounded-full bg-white card-shadow flex items-center justify-center text-gray-600 hover:bg-gray-50 transition">
+            <i class="fa-solid fa-sparkles"></i>
+        </button>
+        <h1 class="text-xl font-bold text-gray-800">统计</h1>
+        <button class="w-10 h-10 rounded-full bg-white card-shadow flex items-center justify-center text-gray-600 hover:bg-gray-50 transition">
+            <i class="fa-solid fa-ellipsis"></i>
+        </button>
+    </div>
+
+    <!-- Main Content (Scrollable) -->
+    <div class="flex-1 overflow-y-auto hide-scrollbar pb-28 px-5">
+        
+        <!-- Sub Tabs -->
+        <div class="bg-gray-200/60 p-1 rounded-full flex relative w-4/5 mx-auto mb-6">
+            <div class="absolute left-1 top-1 bottom-1 w-[48%] bg-white rounded-full shadow-sm transition-all"></div>
+            <button class="flex-1 py-2 text-sm font-bold text-gray-800 z-10 text-center">输入积累</button>
+            <button class="flex-1 py-2 text-sm font-medium text-gray-500 z-10 text-center">番茄专注</button>
+        </div>
+
+        <!-- Time Range & Date Selector -->
+        <div class="bg-white rounded-[32px] p-5 card-shadow mb-6">
+            <div class="flex justify-center space-x-2 mb-6">
+                <button class="px-6 py-1.5 rounded-full bg-gray-800 text-white text-xs font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-calendar-week text-[10px]"></i> 周
+                </button>
+                <button class="px-6 py-1.5 rounded-full bg-gray-50 text-gray-500 text-xs font-medium flex items-center gap-1 border border-gray-100">
+                    <i class="fa-solid fa-calendar-days text-[10px]"></i> 月
+                </button>
+                <button class="px-6 py-1.5 rounded-full bg-gray-50 text-gray-500 text-xs font-medium flex items-center gap-1 border border-gray-100">
+                    <i class="fa-solid fa-calendar text-[10px]"></i> 年
+                </button>
+            </div>
+
+            <div class="flex justify-between items-center mb-6">
+                <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                <div class="text-center">
+                    <p class="text-[10px] text-gray-400 font-medium mb-1">本周</p>
+                    <p class="text-sm font-bold text-gray-800">03/30 <i class="fa-solid fa-arrow-right text-[10px] text-gray-300 mx-1"></i> 04/05</p>
+                </div>
+                <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-gray-100">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Heatmap / Grid -->
+            <div class="flex justify-between items-center mb-4 px-2">
+                <button class="text-xs font-bold text-gray-700 flex items-center gap-1">
+                    <i class="fa-solid fa-list-ul text-gray-400"></i> 全部
+                </button>
+                <div class="flex space-x-3 text-[10px] font-medium text-gray-400">
+                    <span class="w-6 text-center">一</span>
+                    <span class="w-6 text-center">二</span>
+                    <span class="w-6 text-center">三</span>
+                    <span class="w-6 text-center">四</span>
+                    <span class="w-6 text-center">五</span>
+                    <span class="w-6 text-center">六</span>
+                    <span class="w-6 text-center">日</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Row 1: 素材 -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 w-24">
+                        <div class="w-5 h-5 rounded-full bg-[#d5e8d4] flex items-center justify-center text-[#5b8a5a] text-[10px]">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 truncate">素材</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <div class="w-6 h-6 rounded-md bg-[#d5e8d4] flex items-center justify-center text-[#5b8a5a]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md bg-[#d5e8d4] flex items-center justify-center text-[#5b8a5a]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                    </div>
+                </div>
+
+                <!-- Row 2: 词汇 -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 w-24">
+                        <div class="w-5 h-5 rounded-full bg-[#f8d7da] flex items-center justify-center text-[#a94442] text-[10px]">
+                            <i class="fa-solid fa-language"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 truncate">词汇</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <div class="w-6 h-6 rounded-md bg-[#f8d7da] flex items-center justify-center text-[#a94442]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md bg-[#f8d7da] flex items-center justify-center text-[#a94442]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md bg-[#f8d7da] flex items-center justify-center text-[#a94442]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                    </div>
+                </div>
+
+                <!-- Row 3: 灵感 -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 w-24">
+                        <div class="w-5 h-5 rounded-full bg-[#d0e8f2] flex items-center justify-center text-[#4a8b9f] text-[10px]">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 truncate">灵感</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <div class="w-6 h-6 rounded-md bg-[#d0e8f2] flex items-center justify-center text-[#4a8b9f]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                    </div>
+                </div>
+
+                <!-- Row 4: 拆解 -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 w-24">
+                        <div class="w-5 h-5 rounded-full bg-[#fcefc7] flex items-center justify-center text-[#d4a017] text-[10px]">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 truncate">拆解</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <div class="w-6 h-6 rounded-md bg-[#fcefc7] flex items-center justify-center text-[#d4a017]"><i class="fa-solid fa-check text-[10px]"></i></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                        <div class="w-6 h-6 rounded-md border border-gray-200"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center text-xs text-gray-400 font-medium">
+                总计: 8 项记录
+            </div>
+        </div>
+
+        <!-- Overview Cards -->
+        <div class="flex justify-between items-center mb-4">
+            <button class="flex items-center gap-2 text-sm font-bold text-gray-700 bg-white px-4 py-2 rounded-full card-shadow">
+                <i class="fa-solid fa-medal text-yellow-400"></i> 收集成就徽章 <i class="fa-solid fa-chevron-right text-[10px] text-gray-400 ml-1"></i>
+            </button>
+            <button class="flex items-center gap-1 text-sm font-medium text-gray-600">
+                <i class="fa-solid fa-arrow-up-from-bracket text-gray-400"></i> 分享周报
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="absolute bottom-0 w-full px-6 pb-8 pt-4 bg-white/90 backdrop-blur-md tab-bar-shadow rounded-t-[40px] flex justify-between items-center z-40">
+        <a href="home.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-calendar-day"></i>
+            </div>
+            <span class="text-[10px] font-medium">今日</span>
+        </a>
+        <a href="materials.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-box-archive"></i>
+            </div>
+            <span class="text-[10px] font-medium">素材</span>
+        </a>
+        <a href="focus.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition relative -top-2">
+            <div class="w-14 h-14 rounded-full bg-[#ff6b6b] text-white flex items-center justify-center text-2xl shadow-lg shadow-red-200">
+                <i class="fa-solid fa-stopwatch"></i>
+            </div>
+        </a>
+        <a href="stats.html" class="flex flex-col items-center gap-1 text-gray-800">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <span class="text-[10px] font-bold">统计</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+
+</body>
+</html>
