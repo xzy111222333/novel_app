@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的页</title>
+    <title>我的</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -14,7 +14,7 @@
         .tab-bar-shadow { box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
-<body class="h-screen w-full overflow-hidden flex flex-col relative text-gray-800">
+<body class="h-screen overflow-hidden flex flex-col relative text-gray-800">
     <!-- iOS Status Bar -->
     <div class="h-12 w-full flex justify-between items-center px-6 pt-2 text-[15px] font-medium z-50">
         <span>09:41</span>
@@ -38,7 +38,7 @@
 
     <!-- Main Content (Scrollable) -->
     <div class="flex-1 overflow-y-auto hide-scrollbar pb-28 px-5">
-        
+
         <!-- User Info Card -->
         <div class="bg-white rounded-[32px] p-6 card-shadow mb-6">
             <div class="flex justify-between items-start mb-6">
@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <button class="bg-[#fcefc7] text-[#d4a017] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1">
-                    高级会员 <i class="fa-solid fa-crown"></i>
+                    <i class="fa-solid fa-crown"></i> 高级会员
                 </button>
             </div>
 
@@ -64,21 +64,22 @@
                 </div>
                 <div class="w-px h-8 bg-gray-100"></div>
                 <div class="text-center flex-1">
-                    <p class="text-xl font-bold text-gray-800">35</p>
+                    <p class="text-xl font-bold text-gray-800">86</p>
                     <p class="text-[10px] text-gray-400 mt-1">词汇数</p>
                 </div>
                 <div class="w-px h-8 bg-gray-100"></div>
                 <div class="text-center flex-1">
-                    <p class="text-xl font-bold text-gray-800">8</p>
+                    <p class="text-xl font-bold text-gray-800">35</p>
                     <p class="text-[10px] text-gray-400 mt-1">灵感数</p>
                 </div>
                 <div class="w-px h-8 bg-gray-100"></div>
                 <div class="text-center flex-1">
-                    <p class="text-xl font-bold text-gray-800">12h</p>
-                    <p class="text-[10px] text-gray-400 mt-1">专注时长</p>
+                    <p class="text-xl font-bold text-gray-800">42</p>
+                    <p class="text-[10px] text-gray-400 mt-1">剧情数</p>
                 </div>
             </div>
 
+            <!-- Action Strip -->
             <div class="flex justify-between items-center bg-gray-50 rounded-2xl p-3">
                 <button class="flex-1 text-xs font-bold text-gray-700 text-center">
                     数据管理 <span class="text-gray-400 font-normal ml-1">8小时前 ></span>
@@ -90,7 +91,7 @@
             </div>
         </div>
 
-        <!-- Grid Menu -->
+        <!-- Function Grid -->
         <div class="grid grid-cols-3 gap-y-8 gap-x-4 px-2 mb-8">
             <button class="flex flex-col items-center gap-3 group">
                 <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
@@ -112,6 +113,12 @@
             </button>
             <button class="flex flex-col items-center gap-3 group">
                 <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">全局搜索</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
                     <i class="fa-solid fa-file-export"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">数据导出</span>
@@ -121,6 +128,12 @@
                     <i class="fa-solid fa-cloud-arrow-up"></i>
                 </div>
                 <span class="text-xs font-medium text-gray-700">数据备份</span>
+            </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-grip"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">模块化设置</span>
             </button>
             <button class="flex flex-col items-center gap-3 group">
                 <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
@@ -146,6 +159,12 @@
                 </div>
                 <span class="text-xs font-medium text-gray-700">关于我们</span>
             </button>
+            <button class="flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-2xl bg-white card-shadow flex items-center justify-center text-gray-600 text-xl group-hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-700">设置</span>
+            </button>
         </div>
 
     </div>
@@ -153,32 +172,23 @@
     <!-- Bottom Tab Bar -->
     <div class="absolute bottom-0 w-full px-6 pb-8 pt-4 bg-white/90 backdrop-blur-md tab-bar-shadow rounded-t-[40px] flex justify-between items-center z-40">
         <a href="home.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
-            <div class="w-10 h-10 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-calendar-day"></i>
-            </div>
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-day"></i></div>
             <span class="text-[10px] font-medium">今日</span>
         </a>
         <a href="materials.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
-            <div class="w-10 h-10 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-box-archive"></i>
-            </div>
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-book-open"></i></div>
             <span class="text-[10px] font-medium">素材</span>
         </a>
-        <a href="focus.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition relative -top-2">
-            <div class="w-14 h-14 rounded-full bg-[#ff6b6b] text-white flex items-center justify-center text-2xl shadow-lg shadow-red-200">
-                <i class="fa-solid fa-stopwatch"></i>
-            </div>
+        <a href="inspiration.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-pen-nib"></i></div>
+            <span class="text-[10px] font-medium">灵感</span>
         </a>
         <a href="stats.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
-            <div class="w-10 h-10 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-chart-simple"></i>
-            </div>
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-chart-simple"></i></div>
             <span class="text-[10px] font-medium">统计</span>
         </a>
         <a href="profile.html" class="flex flex-col items-center gap-1 text-gray-800">
-            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg">
-                <i class="fa-solid fa-user"></i>
-            </div>
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg"><i class="fa-solid fa-user"></i></div>
             <span class="text-[10px] font-bold">我的</span>
         </a>
     </div>

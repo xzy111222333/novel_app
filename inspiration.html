@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵感日记</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f7f8fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-shadow { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03); }
+        .tab-bar-shadow { box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col relative text-gray-800">
+    <!-- iOS Status Bar -->
+    <div class="h-12 w-full flex justify-between items-center px-6 pt-2 text-[15px] font-medium z-50">
+        <span>09:41</span>
+        <div class="flex space-x-2 items-center">
+            <i class="fa-solid fa-signal text-xs"></i>
+            <i class="fa-solid fa-wifi text-xs"></i>
+            <i class="fa-solid fa-battery-full text-sm"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-5 mt-2 mb-4">
+        <div class="w-10"></div>
+        <h1 class="text-xl font-bold">灵感日记</h1>
+        <div class="flex items-center gap-2">
+            <button class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition">
+                <i class="fa-solid fa-magnifying-glass text-base"></i>
+            </button>
+            <button class="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-white text-lg hover:bg-gray-700 transition">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content (Scrollable) -->
+    <div class="flex-1 overflow-y-auto hide-scrollbar pb-28 px-5">
+
+        <!-- Today Section -->
+        <div class="mb-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <h2 class="text-base font-bold text-gray-800">今天 · 4月2日 周四</h2>
+            </div>
+
+            <!-- Inspiration Card 1 -->
+            <div class="bg-white rounded-3xl p-5 card-shadow mb-4">
+                <div class="flex items-center gap-1.5 mb-3">
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+                        <i class="fa-solid fa-sun text-[10px]"></i> 11:37
+                    </span>
+                </div>
+                <h3 class="text-[15px] font-bold text-gray-800 mb-2">女主出场的灵感</h3>
+                <p class="text-sm text-gray-700 leading-relaxed line-clamp-3 mb-3">女主第一次见男主的场景：雨夜，巷口，一把黑色的伞遮住了半张脸，只露出冷冽的下颌线...</p>
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">#初见</span>
+                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">#氛围感</span>
+                </div>
+                <div class="flex items-center gap-4 pt-3 border-t border-gray-50">
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i> 转素材
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-language text-[11px]"></i> 转词汇
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-regular fa-bookmark text-[11px]"></i> 收藏
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition ml-auto">
+                        <i class="fa-solid fa-ellipsis text-[11px]"></i> 更多
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inspiration Card 2 -->
+            <div class="bg-white rounded-3xl p-5 card-shadow mb-4">
+                <div class="flex items-center gap-1.5 mb-3">
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+                        <i class="fa-solid fa-moon text-[10px]"></i> 02:09
+                    </span>
+                </div>
+                <p class="text-sm text-gray-700 leading-relaxed line-clamp-3 mb-3">反派的动机不能太单薄，需要增加一段童年被抛弃的回忆，让他对'信任'产生病态的渴望。</p>
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">#人物设计</span>
+                </div>
+                <div class="flex items-center gap-4 pt-3 border-t border-gray-50">
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i> 转素材
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-language text-[11px]"></i> 转词汇
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-regular fa-bookmark text-[11px]"></i> 收藏
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition ml-auto">
+                        <i class="fa-solid fa-ellipsis text-[11px]"></i> 更多
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yesterday Section -->
+        <div class="mb-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="w-2 h-2 rounded-full bg-violet-400"></span>
+                <h2 class="text-base font-bold text-gray-800">昨天 · 4月1日 周三</h2>
+            </div>
+
+            <!-- Inspiration Card 3 -->
+            <div class="bg-white rounded-3xl p-5 card-shadow mb-4">
+                <div class="flex items-center gap-1.5 mb-3">
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                        16:40
+                    </span>
+                </div>
+                <h3 class="text-[15px] font-bold text-gray-800 mb-2">剧情节奏的思考</h3>
+                <p class="text-sm text-gray-700 leading-relaxed line-clamp-3 mb-3">前三章太平了，需要在第一章末尾就埋下一个悬念，让读者有继续翻下去的欲望。可以用一个反转...</p>
+                <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">#节奏</span>
+                    <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">#结构</span>
+                </div>
+                <div class="flex items-center gap-4 pt-3 border-t border-gray-50">
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i> 转素材
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-language text-[11px]"></i> 转词汇
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-regular fa-bookmark text-[11px]"></i> 收藏
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition ml-auto">
+                        <i class="fa-solid fa-ellipsis text-[11px]"></i> 更多
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Earlier Section -->
+        <div class="mb-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <h2 class="text-base font-bold text-gray-800">3月30日 · 周一</h2>
+            </div>
+
+            <!-- Inspiration Card 4 -->
+            <div class="bg-white rounded-3xl p-5 card-shadow mb-4">
+                <div class="flex items-center gap-1.5 mb-3">
+                    <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                        21:31
+                    </span>
+                    <span class="text-[10px] font-medium text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full ml-auto">随机回顾</span>
+                </div>
+                <h3 class="text-[15px] font-bold text-orange-500 mb-2">美女印象</h3>
+                <p class="text-sm text-gray-700 leading-relaxed line-clamp-3 mb-3">看到美女了对吧</p>
+                <div class="flex items-center gap-4 pt-3 border-t border-gray-50">
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i> 转素材
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-language text-[11px]"></i> 转词汇
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-regular fa-bookmark text-[11px]"></i> 收藏
+                    </button>
+                    <button class="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition ml-auto">
+                        <i class="fa-solid fa-ellipsis text-[11px]"></i> 更多
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="absolute bottom-0 w-full px-6 pb-8 pt-4 bg-white/90 backdrop-blur-md tab-bar-shadow rounded-t-[40px] flex justify-between items-center z-40">
+        <a href="home.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-day"></i></div>
+            <span class="text-[10px] font-medium">今日</span>
+        </a>
+        <a href="materials.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-book-open"></i></div>
+            <span class="text-[10px] font-medium">素材</span>
+        </a>
+        <a href="inspiration.html" class="flex flex-col items-center gap-1 text-gray-800">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg"><i class="fa-solid fa-pen-nib"></i></div>
+            <span class="text-[10px] font-bold">灵感</span>
+        </a>
+        <a href="stats.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-chart-simple"></i></div>
+            <span class="text-[10px] font-medium">统计</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-user"></i></div>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+
+</body>
+</html>

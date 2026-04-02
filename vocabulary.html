@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词汇库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f7f8fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .card-shadow { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03); }
+        .tab-bar-shadow { box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="h-screen w-full overflow-hidden flex flex-col relative text-gray-800">
+    <!-- iOS Status Bar -->
+    <div class="h-12 w-full flex justify-between items-center px-6 pt-2 text-[15px] font-medium z-50">
+        <span>09:41</span>
+        <div class="flex space-x-2 items-center">
+            <i class="fa-solid fa-signal text-xs"></i>
+            <i class="fa-solid fa-wifi text-xs"></i>
+            <i class="fa-solid fa-battery-full text-sm"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-5 mt-4 mb-4">
+        <h1 class="text-2xl font-bold text-gray-800">词汇库</h1>
+        <div class="flex space-x-3">
+            <button class="w-9 h-9 rounded-full bg-white card-shadow flex items-center justify-center text-gray-600 hover:bg-gray-50 transition">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button class="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-gray-700 transition">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="px-5 mb-4">
+        <div class="relative">
+            <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="搜索词汇、分类、标签..." class="w-full bg-white card-shadow rounded-2xl py-3 pl-10 pr-4 text-sm focus:outline-none text-gray-700 placeholder-gray-400">
+        </div>
+    </div>
+
+    <!-- Categories Scroll -->
+    <div class="flex space-x-2 overflow-x-auto hide-scrollbar px-5 pb-2 mb-2">
+        <button class="px-4 py-1.5 rounded-full bg-gray-800 text-white text-xs font-medium whitespace-nowrap">全部</button>
+        <button class="px-4 py-1.5 rounded-full bg-white text-gray-600 text-xs font-medium whitespace-nowrap border border-gray-100">人物描写</button>
+        <button class="px-4 py-1.5 rounded-full bg-white text-gray-600 text-xs font-medium whitespace-nowrap border border-gray-100">环境描写</button>
+        <button class="px-4 py-1.5 rounded-full bg-white text-gray-600 text-xs font-medium whitespace-nowrap border border-gray-100">情绪描写</button>
+        <button class="px-4 py-1.5 rounded-full bg-white text-gray-600 text-xs font-medium whitespace-nowrap border border-gray-100">动作描写</button>
+        <button class="px-4 py-1.5 rounded-full bg-white text-gray-600 text-xs font-medium whitespace-nowrap border border-gray-100">颜色词汇</button>
+        <button class="px-4 py-1.5 rounded-full bg-white text-gray-600 text-xs font-medium whitespace-nowrap border border-gray-100"><i class="fa-solid fa-plus text-gray-400"></i></button>
+    </div>
+
+    <!-- Main Content (Scrollable) -->
+    <div class="flex-1 overflow-y-auto hide-scrollbar pb-28 px-5 space-y-3">
+
+        <!-- Filter/Sort -->
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-xs text-gray-400 font-medium">共 86 条词汇</span>
+            <button class="text-xs text-gray-500 flex items-center gap-1 bg-white px-3 py-1 rounded-full card-shadow">
+                按时间最新 <i class="fa-solid fa-sort-down"></i>
+            </button>
+        </div>
+
+        <!-- Vocabulary Card 1 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">环境描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#氛围</span>
+                </div>
+                <button class="text-yellow-400"><i class="fa-solid fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">幽暗的房间</p>
+            <div class="text-[10px] text-gray-400">
+                <span>今天 09:30</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 2 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-md">人物描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#五官</span>
+                </div>
+                <button class="text-gray-300 hover:text-yellow-400"><i class="fa-regular fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">弯弯的眉毛像月牙</p>
+            <div class="text-[10px] text-gray-400">
+                <span>今天 08:15</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 3 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-md">人物描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#眼神</span>
+                </div>
+                <button class="text-yellow-400"><i class="fa-solid fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">清冷的目光</p>
+            <div class="text-[10px] text-gray-400">
+                <span>昨天 22:40</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 4 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md">情绪描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#开心</span>
+                </div>
+                <button class="text-gray-300 hover:text-yellow-400"><i class="fa-regular fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">肆意的笑容</p>
+            <div class="text-[10px] text-gray-400">
+                <span>昨天 18:05</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 5 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">动作描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#小心</span>
+                </div>
+                <button class="text-gray-300 hover:text-yellow-400"><i class="fa-regular fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">蹑手蹑脚地走过去</p>
+            <div class="text-[10px] text-gray-400">
+                <span>3月28日</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 6 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">环境描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#黄昏</span>
+                </div>
+                <button class="text-yellow-400"><i class="fa-solid fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">暮色四合</p>
+            <div class="text-[10px] text-gray-400">
+                <span>3月27日</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 7 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">颜色词汇</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#红色系</span>
+                </div>
+                <button class="text-gray-300 hover:text-yellow-400"><i class="fa-regular fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">殷红的</p>
+            <div class="text-[10px] text-gray-400">
+                <span>3月26日</span>
+            </div>
+        </div>
+
+        <!-- Vocabulary Card 8 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow space-y-3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-2">
+                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">环境描写</span>
+                    <span class="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-md">#冬天</span>
+                </div>
+                <button class="text-gray-300 hover:text-yellow-400"><i class="fa-regular fa-star"></i></button>
+            </div>
+            <p class="text-sm font-medium text-gray-800">冷冽的寒风</p>
+            <div class="text-[10px] text-gray-400">
+                <span>3月25日</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <div class="absolute bottom-0 w-full px-6 pb-8 pt-4 bg-white/90 backdrop-blur-md tab-bar-shadow rounded-t-[40px] flex justify-between items-center z-40">
+        <a href="home.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-day"></i></div>
+            <span class="text-[10px] font-medium">今日</span>
+        </a>
+        <a href="materials.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-book-open"></i></div>
+            <span class="text-[10px] font-medium">素材</span>
+        </a>
+        <a href="inspiration.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-pen-nib"></i></div>
+            <span class="text-[10px] font-medium">灵感</span>
+        </a>
+        <a href="stats.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-chart-simple"></i></div>
+            <span class="text-[10px] font-medium">统计</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-800 transition">
+            <div class="w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-user"></i></div>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+
+</body>
+</html>
