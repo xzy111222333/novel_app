@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../utils/share_card_util.dart';
-import '../widgets/search_bar_widget.dart';
 import '../widgets/category_pills.dart';
 import '../models/vocabulary_item.dart';
 import '../services/data_service.dart';
@@ -102,7 +101,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('添加分类',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         content: TextField(
@@ -158,7 +158,9 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
               Navigator.pop(ctx);
               Clipboard.setData(ClipboardData(text: item.content));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                const SnackBar(
+                    content: Text('已复制'),
+                    behavior: SnackBarBehavior.floating),
               );
             }),
             _menuTile(Icons.image_outlined, '分享为图片', () {
@@ -188,11 +190,12 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
           color: isDestructive ? Colors.redAccent : AppTheme.textSecondary),
       title: Text(label,
           style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               color:
                   isDestructive ? Colors.redAccent : AppTheme.textPrimary)),
       onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 
@@ -215,26 +218,21 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                 children: [
                   // Search icon
                   GestureDetector(
-                    onTap: () => setState(() => _showSearch = !_showSearch),
+                    onTap: () => setState(() {
+                      _showSearch = !_showSearch;
+                      if (!_showSearch) _searchQuery = '';
+                    }),
                     child: Container(
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
                         color: _showSearch
                             ? AppTheme.textPrimary
-                            : Colors.white,
+                            : const Color(0xFFF3F4F6),
                         shape: BoxShape.circle,
-                        boxShadow: _showSearch
-                            ? null
-                            : [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
                       ),
-                      child: Icon(Icons.search,
+                      child: Icon(
+                          _showSearch ? Icons.close : Icons.search,
                           size: 16,
                           color: _showSearch
                               ? Colors.white
@@ -244,10 +242,10 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        '词汇库',
+                        '词汇',
                         style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -259,7 +257,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                     child: Container(
                       width: 32,
                       height: 32,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppTheme.textPrimary,
                         shape: BoxShape.circle,
                       ),
@@ -273,9 +271,33 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
 
             // ── Search Bar ────────────────────────────────────────────────
             if (_showSearch) ...[
-              SearchBarWidget(
-                placeholder: '搜索词汇、分类、标签...',
-                onChanged: (v) => setState(() => _searchQuery = v),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Container(
+                  height: 36,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFD5D5D5)),
+                  ),
+                  child: TextField(
+                    autofocus: true,
+                    onChanged: (v) =>
+                        setState(() => _searchQuery = v),
+                    style: const TextStyle(fontSize: 12),
+                    decoration: const InputDecoration(
+                      hintText: '搜索词汇、分类、标签...',
+                      hintStyle: TextStyle(
+                          color: AppTheme.textTertiary, fontSize: 11),
+                      prefixIcon: Icon(Icons.search,
+                          color: AppTheme.textTertiary, size: 16),
+                      prefixIconConstraints:
+                          BoxConstraints(minWidth: 36),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
             ],
@@ -284,7 +306,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
             CategoryPills(
               categories: _categories,
               selected: _selectedCategory,
-              onSelect: (cat) => setState(() => _selectedCategory = cat),
+              onSelect: (cat) =>
+                  setState(() => _selectedCategory = cat),
               onAdd: _showAddCategoryDialog,
             ),
             const SizedBox(height: 12),
@@ -308,16 +331,17 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFF0F0F0)),
+                      border:
+                          Border.all(color: const Color(0xFFF0F0F0)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('最新',
+                      children: const [
+                        Text('最新',
                             style: TextStyle(
                                 fontSize: 10,
                                 color: AppTheme.textSecondary)),
-                        const SizedBox(width: 2),
+                        SizedBox(width: 2),
                         Icon(Icons.keyboard_arrow_down,
                             size: 12, color: AppTheme.textSecondary),
                       ],
@@ -333,7 +357,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
               child: items.isEmpty
                   ? _buildEmptyState()
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 100),
+                      padding:
+                          const EdgeInsets.fromLTRB(14, 0, 14, 100),
                       itemCount: items.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 8),
@@ -367,12 +392,12 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
           ),
           const SizedBox(height: 16),
           const Text('暂无词汇',
-              style:
-                  TextStyle(fontSize: 15, color: AppTheme.textSecondary)),
+              style: TextStyle(
+                  fontSize: 13, color: AppTheme.textSecondary)),
           const SizedBox(height: 6),
           const Text('点击右上角 + 添加',
-              style:
-                  TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+              style: TextStyle(
+                  fontSize: 11, color: AppTheme.textTertiary)),
         ],
       ),
     );
@@ -381,9 +406,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
   // ── Vocabulary Card ─────────────────────────────────────────────────────
 
   Widget _buildVocabularyCard(VocabularyItem item) {
-    final catColor = AppTheme.getCategoryColor(item.category);
-    final catBgColor = AppTheme.getCategoryBgColor(item.category);
-
     return GestureDetector(
       onTap: () => showAddVocabularySheet(context, item: item),
       onLongPress: () => _showOptionsSheet(item),
@@ -399,44 +421,68 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
             ),
           ],
         ),
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
           children: [
-            // Top: category + tags + star + menu
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.content,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary)),
+                  const SizedBox(height: 6),
+                  Row(
                     children: [
                       Container(
-                        height: 20,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        height: 18,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6),
                         decoration: BoxDecoration(
-                          color: catBgColor,
-                          borderRadius: BorderRadius.circular(6),
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         alignment: Alignment.center,
                         child: Text(item.category,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: catColor)),
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.textSecondary)),
                       ),
-                      ...item.tags.map((tag) => Text('#$tag',
+                      if (item.tags.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        ...item.tags.take(2).map((tag) => Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 4),
+                              child: Text('#$tag',
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      color:
+                                          AppTheme.textTertiary)),
+                            )),
+                      ],
+                      const Spacer(),
+                      Text(_formatRelativeDate(item.createdAt),
                           style: const TextStyle(
                               fontSize: 10,
-                              color: AppTheme.textTertiary))),
+                              color: AppTheme.textTertiary)),
                     ],
                   ),
-                ),
-                const SizedBox(width: 6),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Star + menu
+            Column(
+              children: [
                 GestureDetector(
-                  onTap: () =>
-                      DataService.instance.toggleVocabularyFavorite(item.id),
+                  onTap: () => DataService.instance
+                      .toggleVocabularyFavorite(item.id),
                   child: Icon(
                     item.isFavorite
                         ? Icons.star_rounded
@@ -447,7 +493,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                         : AppTheme.textTertiary.withValues(alpha: 0.4),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item),
                   child: const Icon(Icons.more_horiz,
@@ -455,22 +501,6 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-
-            // Content
-            Text(item.content,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.textPrimary)),
-            const SizedBox(height: 6),
-
-            // Timestamp
-            Text(_formatRelativeDate(item.createdAt),
-                style: const TextStyle(
-                    fontSize: 10, color: AppTheme.textTertiary)),
           ],
         ),
       ),

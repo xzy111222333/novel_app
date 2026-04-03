@@ -7,26 +7,26 @@ void showAddPlotSheet(BuildContext context, {PlotItem? item}) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => _AddPlotSheet(item: item),
+      builder: (context) => _AddPlotPage(item: item),
     ),
   );
 }
 
-class _AddPlotSheet extends StatefulWidget {
+class _AddPlotPage extends StatefulWidget {
   final PlotItem? item;
-  const _AddPlotSheet({this.item});
+  const _AddPlotPage({this.item});
 
   @override
-  State<_AddPlotSheet> createState() => _AddPlotSheetState();
+  State<_AddPlotPage> createState() => _AddPlotPageState();
 }
 
-class _AddPlotSheetState extends State<_AddPlotSheet> {
+class _AddPlotPageState extends State<_AddPlotPage> {
   final _freeContentController = TextEditingController();
   final _tagController = TextEditingController();
   final List<String> _tags = [];
   final List<TextEditingController> _stepControllers = [];
   String _selectedCategory = '';
-  String _type = 'steps'; // 'steps' or 'free'
+  String _type = 'steps';
 
   @override
   void initState() {
@@ -38,13 +38,13 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
       _tags.addAll(widget.item!.tags);
       _freeContentController.text = widget.item!.freeContent;
       if (widget.item!.steps.isNotEmpty) {
-        _stepControllers.addAll(widget.item!.steps.map((s) => TextEditingController(text: s)));
+        _stepControllers.addAll(
+            widget.item!.steps.map((s) => TextEditingController(text: s)));
       } else {
         _stepControllers.add(TextEditingController());
       }
     } else {
       if (cats.isNotEmpty) _selectedCategory = cats.first;
-      // Start with 2 empty steps
       _stepControllers.add(TextEditingController());
       _stepControllers.add(TextEditingController());
     }
@@ -98,7 +98,9 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
           decoration: const InputDecoration(hintText: '输入分类名称'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('取消')),
           TextButton(
             onPressed: () {
               final name = controller.text.trim();
@@ -127,7 +129,7 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
         );
         return;
       }
-      
+
       if (widget.item != null) {
         final updated = widget.item!.copyWith(
           type: 'steps',
@@ -156,7 +158,7 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
         );
         return;
       }
-      
+
       if (widget.item != null) {
         final updated = widget.item!.copyWith(
           type: 'free',
@@ -181,7 +183,9 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
 
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(widget.item != null ? '剧情已更新' : '剧情添加成功')),
+      SnackBar(
+          content:
+              Text(widget.item != null ? '剧情已更新' : '剧情添加成功')),
     );
   }
 
@@ -202,16 +206,15 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
         leadingWidth: 70,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
-            '取消',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
-          ),
+          child: const Text('取消',
+              style: TextStyle(
+                  color: AppTheme.textSecondary, fontSize: 14)),
         ),
         title: Text(
           widget.item != null ? '编辑情节' : '新建情节',
           style: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -219,14 +222,11 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
         actions: [
           TextButton(
             onPressed: _submit,
-            child: const Text(
-              '完成',
-              style: TextStyle(
-                color: AppTheme.plotColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text('完成',
+                style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -239,9 +239,10 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    // Type toggle
+                    // Type toggle — dark style
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                       child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF3F4F6),
@@ -252,14 +253,17 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                           children: [
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => setState(() => _type = 'steps'),
+                                onTap: () =>
+                                    setState(() => _type = 'steps'),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8),
                                   decoration: BoxDecoration(
                                     color: _type == 'steps'
-                                        ? AppTheme.plotColor
+                                        ? const Color(0xFF1A1A1A)
                                         : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius:
+                                        BorderRadius.circular(8),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -277,14 +281,17 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                             ),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => setState(() => _type = 'free'),
+                                onTap: () =>
+                                    setState(() => _type = 'free'),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 8),
                                   decoration: BoxDecoration(
                                     color: _type == 'free'
-                                        ? AppTheme.plotColor
+                                        ? const Color(0xFF1A1A1A)
                                         : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius:
+                                        BorderRadius.circular(8),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -307,7 +314,8 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                     const SizedBox(height: 16),
                     // Content area based on type
                     if (_type == 'steps') ...[
-                      ...List.generate(_stepControllers.length, (index) {
+                      ...List.generate(_stepControllers.length,
+                          (index) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 4),
@@ -317,8 +325,9 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                                 width: 24,
                                 height: 24,
                                 decoration: BoxDecoration(
-                                  color: AppTheme.plotBg,
-                                  borderRadius: BorderRadius.circular(12),
+                                  color: const Color(0xFFF5F5F5),
+                                  borderRadius:
+                                      BorderRadius.circular(12),
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
@@ -326,7 +335,7 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: AppTheme.plotColor,
+                                    color: AppTheme.textSecondary,
                                   ),
                                 ),
                               ),
@@ -335,19 +344,25 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFF9FAFB),
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius:
+                                        BorderRadius.circular(10),
                                   ),
                                   child: TextField(
-                                    controller: _stepControllers[index],
-                                    style: const TextStyle(fontSize: 14),
+                                    controller:
+                                        _stepControllers[index],
+                                    style: const TextStyle(
+                                        fontSize: 14),
                                     decoration: InputDecoration(
                                       hintText: '步骤 ${index + 1}',
                                       hintStyle: const TextStyle(
-                                          color: AppTheme.textTertiary,
+                                          color:
+                                              AppTheme.textTertiary,
                                           fontSize: 14),
                                       border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10),
                                     ),
                                   ),
                                 ),
@@ -356,9 +371,14 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                                 GestureDetector(
                                   onTap: () => _removeStep(index),
                                   child: const Padding(
-                                    padding: EdgeInsets.only(left: 8),
-                                    child: Icon(Icons.remove_circle_outline,
-                                        size: 20, color: AppTheme.textTertiary),
+                                    padding:
+                                        EdgeInsets.only(left: 8),
+                                    child: Icon(
+                                        Icons
+                                            .remove_circle_outline,
+                                        size: 20,
+                                        color:
+                                            AppTheme.textTertiary),
                                   ),
                                 ),
                             ],
@@ -371,24 +391,28 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                         child: GestureDetector(
                           onTap: _addStep,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10),
                             decoration: BoxDecoration(
-                              color: AppTheme.plotBg,
-                              borderRadius: BorderRadius.circular(10),
+                              color: const Color(0xFFF5F5F5),
+                              borderRadius:
+                                  BorderRadius.circular(10),
                             ),
                             alignment: Alignment.center,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
                               children: const [
                                 Icon(Icons.add,
-                                    size: 16, color: AppTheme.plotColor),
+                                    size: 16,
+                                    color: AppTheme.textSecondary),
                                 SizedBox(width: 4),
                                 Text(
                                   '添加步骤',
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
-                                    color: AppTheme.plotColor,
+                                    color: AppTheme.textSecondary,
                                   ),
                                 ),
                               ],
@@ -398,11 +422,13 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                       ),
                     ] else ...[
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16),
                         child: Container(
                           decoration: BoxDecoration(
                             color: const Color(0xFFF9FAFB),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(12),
                           ),
                           child: TextField(
                             controller: _freeContentController,
@@ -411,7 +437,8 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                             decoration: const InputDecoration(
                               hintText: '自由描述你的剧情构思...',
                               hintStyle: TextStyle(
-                                  color: AppTheme.textTertiary, fontSize: 14),
+                                  color: AppTheme.textTertiary,
+                                  fontSize: 14),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(16),
                             ),
@@ -422,46 +449,52 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                     const SizedBox(height: 16),
                     // Category label
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        '分类',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('分类',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary)),
                     ),
                     const SizedBox(height: 8),
-                    // Category pills
+                    // Category pills — gray style
                     SizedBox(
                       height: 32,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16),
                         children: [
                           ...categories.map((cat) {
-                            final isSelected = cat == _selectedCategory;
-                            final color = AppTheme.getCategoryColor(cat);
+                            final isSelected =
+                                cat == _selectedCategory;
                             return Padding(
-                              padding: const EdgeInsets.only(right: 8),
+                              padding:
+                                  const EdgeInsets.only(right: 8),
                               child: GestureDetector(
-                                onTap: () => setState(() => _selectedCategory = cat),
+                                onTap: () => setState(
+                                    () => _selectedCategory = cat),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? AppTheme.plotColor
-                                        : color.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(16),
+                                        ? const Color(0xFF1A1A1A)
+                                        : const Color(0xFFF5F5F5),
+                                    borderRadius:
+                                        BorderRadius.circular(16),
                                   ),
                                   child: Text(
                                     cat,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: isSelected ? Colors.white : color,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppTheme.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -475,10 +508,12 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF3F4F6),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius:
+                                    BorderRadius.circular(16),
                               ),
                               child: const Icon(Icons.add,
-                                  size: 16, color: AppTheme.textTertiary),
+                                  size: 16,
+                                  color: AppTheme.textTertiary),
                             ),
                           ),
                         ],
@@ -487,44 +522,51 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                     const SizedBox(height: 16),
                     // Tags
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        '标签',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('标签',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary)),
                     ),
                     const SizedBox(height: 8),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16),
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: _tags
                             .map((tag) => Container(
                                   height: 28,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.plotBg,
-                                    borderRadius: BorderRadius.circular(14),
+                                    color:
+                                        const Color(0xFFF5F5F5),
+                                    borderRadius:
+                                        BorderRadius.circular(14),
                                   ),
                                   child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisSize:
+                                        MainAxisSize.min,
                                     children: [
                                       Text(tag,
                                           style: const TextStyle(
                                               fontSize: 12,
-                                              color: AppTheme.textPrimary)),
+                                              color: AppTheme
+                                                  .textPrimary)),
                                       const SizedBox(width: 6),
                                       GestureDetector(
-                                        onTap: () => _removeTag(tag),
-                                        child: const Icon(Icons.close,
+                                        onTap: () =>
+                                            _removeTag(tag),
+                                        child: const Icon(
+                                            Icons.close,
                                             size: 14,
-                                            color: AppTheme.textTertiary),
+                                            color: AppTheme
+                                                .textTertiary),
                                       ),
                                     ],
                                   ),
@@ -532,13 +574,16 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                             .toList(),
                       ),
                     ),
-                    if (_tags.isNotEmpty) const SizedBox(height: 8),
+                    if (_tags.isNotEmpty)
+                      const SizedBox(height: 8),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16),
                       child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF9FAFB),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius:
+                              BorderRadius.circular(10),
                         ),
                         child: TextField(
                           controller: _tagController,
@@ -546,10 +591,13 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                           decoration: const InputDecoration(
                             hintText: '输入标签后按回车添加',
                             hintStyle: TextStyle(
-                                color: AppTheme.textTertiary, fontSize: 14),
+                                color: AppTheme.textTertiary,
+                                fontSize: 14),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
+                            contentPadding:
+                                EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10),
                           ),
                           onSubmitted: (_) => _addTag(),
                         ),
@@ -562,12 +610,13 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
             ),
             // Bottom Toolbar
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border(
                   top: BorderSide(
-                    color: Colors.grey.withValues(alpha: 0.2),
+                    color: const Color(0xFFF3F4F6),
                     width: 0.5,
                   ),
                 ),
@@ -578,18 +627,16 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                     _formatDate(createdAt),
                     style: const TextStyle(
                       color: AppTheme.textTertiary,
-                      fontSize: 12,
+                      fontSize: 11,
                     ),
                   ),
                   const Spacer(),
                   if (widget.item != null) ...[
                     GestureDetector(
                       onTap: () {
-                        DataService.instance.togglePlotFavorite(widget.item!.id);
-                        setState(() {
-                          // To reflect the change immediately in the UI if needed
-                          // However, widget.item is final, so we might just pop
-                        });
+                        DataService.instance
+                            .togglePlotFavorite(widget.item!.id);
+                        setState(() {});
                         Navigator.pop(context);
                       },
                       child: Icon(
@@ -605,14 +652,12 @@ class _AddPlotSheetState extends State<_AddPlotSheet> {
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () {
-                        DataService.instance.deletePlot(widget.item!.id);
+                        DataService.instance
+                            .deletePlot(widget.item!.id);
                         Navigator.pop(context);
                       },
-                      child: const Icon(
-                        Icons.delete_outline,
-                        size: 24,
-                        color: Colors.redAccent,
-                      ),
+                      child: const Icon(Icons.delete_outline,
+                          size: 24, color: Colors.redAccent),
                     ),
                   ],
                 ],

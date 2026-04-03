@@ -5,7 +5,6 @@ import '../theme/app_theme.dart';
 import '../models/inspiration_item.dart';
 import '../services/data_service.dart';
 import '../utils/share_card_util.dart';
-import '../widgets/search_bar_widget.dart';
 import '../widgets/add_inspiration_sheet.dart';
 
 class InspirationScreen extends StatefulWidget {
@@ -58,19 +57,33 @@ class _InspirationScreenState extends State<InspirationScreen> {
     for (final item in items) {
       final itemDate = DateTime(
           item.createdAt.year, item.createdAt.month, item.createdAt.day);
-      final dateStr =
-          '${item.createdAt.month}月${item.createdAt.day}日 ${_weekday(item.createdAt.weekday)}';
+      final ymd =
+          '${item.createdAt.year}-${item.createdAt.month.toString().padLeft(2, '0')}-${item.createdAt.day.toString().padLeft(2, '0')}';
       String key;
       if (itemDate == today) {
-        key = '今天 · $dateStr';
+        key = '$ymd 今天';
       } else if (itemDate == yesterday) {
-        key = '昨天 · $dateStr';
+        key = '$ymd 昨天';
       } else {
-        key = '${item.createdAt.month}月${item.createdAt.day}日 · ${_weekday(item.createdAt.weekday)}';
+        key = ymd;
       }
       grouped.putIfAbsent(key, () => []).add(item);
     }
     return grouped;
+  }
+
+  String _cardTimestamp(InspirationItem item) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final itemDate = DateTime(
+        item.createdAt.year, item.createdAt.month, item.createdAt.day);
+    final time = DateFormat('HH:mm').format(item.createdAt);
+    final base =
+        '${item.createdAt.month}月${item.createdAt.day}日·${_weekday(item.createdAt.weekday)} ${item.createdAt.year} $time';
+    if (itemDate == today) return '$base (今天)';
+    if (itemDate == yesterday) return '$base (昨天)';
+    return base;
   }
 
   Future<void> _shareItemAsImage(InspirationItem item) async {
@@ -108,42 +121,100 @@ class _InspirationScreenState extends State<InspirationScreen> {
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
               child: Row(
                 children: [
-                  _HeaderIconButton(
-                    icon: _showSearch ? Icons.close : Icons.search,
-                    onTap: () => setState(() {
-                      _showSearch = !_showSearch;
-                      if (!_showSearch) _searchQuery = '';
-                    }),
+                  GestureDetector(
+                    onTap: () => _showGlobalMenu(context),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF3F4F6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.more_horiz,
+                          size: 16, color: AppTheme.textSecondary),
+                    ),
                   ),
                   const Expanded(
                     child: Center(
                       child: Text(
-                        '灵感日记',
+                        '灵感',
                         style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
                         ),
                       ),
                     ),
                   ),
-                  _HeaderIconButton(
-                    icon: Icons.add,
-                    filled: true,
+                  GestureDetector(
                     onTap: () => showAddInspirationSheet(context),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.textPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add,
+                          size: 16, color: Colors.white),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Search bar
-            if (_showSearch) ...[
-              SearchBarWidget(
-                placeholder: '搜索标题、内容、标签...',
-                onChanged: (v) => setState(() => _searchQuery = v),
+            // Search box — dashed border style
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: GestureDetector(
+                onTap: () => setState(() => _showSearch = !_showSearch),
+                child: Container(
+                  height: 36,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: _showSearch
+                          ? AppTheme.textSecondary
+                          : const Color(0xFFD5D5D5),
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: _showSearch
+                      ? TextField(
+                          autofocus: true,
+                          onChanged: (v) =>
+                              setState(() => _searchQuery = v),
+                          style: const TextStyle(fontSize: 12),
+                          decoration: const InputDecoration(
+                            hintText: '输入笔记内容',
+                            hintStyle: TextStyle(
+                                color: AppTheme.textTertiary,
+                                fontSize: 11),
+                            prefixIcon: Icon(Icons.search,
+                                color: AppTheme.textTertiary, size: 16),
+                            prefixIconConstraints:
+                                BoxConstraints(minWidth: 36),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.search,
+                                size: 14, color: AppTheme.textTertiary),
+                            SizedBox(width: 4),
+                            Text('输入笔记内容',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textTertiary)),
+                          ],
+                        ),
+                ),
               ),
-              const SizedBox(height: 12),
-            ],
+            ),
+            const SizedBox(height: 12),
 
             // Content
             Expanded(
@@ -162,8 +233,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                             _searchQuery.isNotEmpty
                                 ? '没有找到匹配的灵感'
                                 : '记录你的第一个灵感吧 ✨',
-                            style: TextStyle(
-                              fontSize: 15,
+                            style: const TextStyle(
+                              fontSize: 13,
                               color: AppTheme.textTertiary,
                               fontWeight: FontWeight.w500,
                             ),
@@ -175,15 +246,15 @@ class _InspirationScreenState extends State<InspirationScreen> {
                                   showAddInspirationSheet(context),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 12),
+                                    horizontal: 24, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: AppTheme.textPrimary,
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Text('记录灵感',
                                     style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w600)),
                               ),
                             ),
@@ -205,32 +276,20 @@ class _InspirationScreenState extends State<InspirationScreen> {
                             children: [
                               // Date header
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFFBBF24),
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      key,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.textPrimary,
-                                      ),
-                                    ),
-                                  ],
+                                padding:
+                                    const EdgeInsets.only(bottom: 8, left: 2),
+                                child: Text(
+                                  key,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppTheme.textSecondary,
+                                  ),
                                 ),
                               ),
                               // Cards
-                              ...sectionItems.map((item) =>
-                                  _buildInspirationCard(item)),
+                              ...sectionItems.map(
+                                  (item) => _buildInspirationCard(item)),
                             ],
                           ),
                         );
@@ -244,7 +303,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
   }
 
   Widget _buildInspirationCard(InspirationItem item) {
-    final timeStr = DateFormat('HH:mm').format(item.createdAt);
+    final random = DataService.instance.getRandomPastInspiration();
+    final isRandom = random != null && random.id == item.id;
 
     return GestureDetector(
       onTap: () => showAddInspirationSheet(context, item: item),
@@ -261,127 +321,132 @@ class _InspirationScreenState extends State<InspirationScreen> {
             ),
           ],
         ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Time badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7F8FA),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              timeStr,
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textTertiary,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Title
-          if (item.title != null && item.title!.isNotEmpty) ...[
-            Text(
-              item.title!,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 4),
-          ],
-
-          // Content
-          Text(
-            item.content,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-              height: 1.5,
-            ),
-          ),
-
-          // Tags
-          if (item.tags.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: item.tags.map((tag) {
-                return Text(
-                  '#$tag',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.textTertiary,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Timestamp row with yellow dot
+            Row(
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFBBF24),
+                    shape: BoxShape.circle,
                   ),
-                );
-              }).toList(),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    _cardTimestamp(item),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(item),
+                  child: const Icon(Icons.more_horiz,
+                      size: 18, color: AppTheme.textTertiary),
+                ),
+              ],
             ),
-          ],
+            const SizedBox(height: 8),
 
-          // Action row
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildActionBtn(
-                Icons.arrow_forward_rounded,
-                '转素材',
-                () {
-                  DataService.instance
-                      .convertInspirationToMaterial(item);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('已转为素材'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(width: 12),
-              _buildActionBtn(
-                Icons.translate_rounded,
-                '转词汇',
-                () {
-                  DataService.instance
-                      .convertInspirationToVocabulary(item);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('已转为词汇'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () => DataService.instance
-                    .toggleInspirationFavorite(item.id),
-                child: Icon(
-                  item.isFavorite
-                      ? Icons.bookmark_rounded
-                      : Icons.bookmark_border_rounded,
-                  size: 14,
-                  color: item.isFavorite
-                      ? const Color(0xFFFBBF24)
-                      : AppTheme.textTertiary,
+            // Title
+            if (item.title != null && item.title!.isNotEmpty) ...[
+              Text(
+                item.title!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
                 ),
               ),
-              const Spacer(),
-              _buildMoreMenu(item),
+              const SizedBox(height: 4),
             ],
-          ),
-        ],
+
+            // Content
+            Text(
+              item.content,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.textPrimary,
+                height: 1.5,
+              ),
+            ),
+
+            // Tags + action row
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                // Convert buttons
+                _buildActionBtn(Icons.arrow_forward_rounded, '转素材', () {
+                  DataService.instance.convertInspirationToMaterial(item);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('已转为素材'),
+                        behavior: SnackBarBehavior.floating),
+                  );
+                }),
+                const SizedBox(width: 12),
+                _buildActionBtn(Icons.translate_rounded, '转词汇', () {
+                  DataService.instance.convertInspirationToVocabulary(item);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('已转为词汇'),
+                        behavior: SnackBarBehavior.floating),
+                  );
+                }),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () => DataService.instance
+                      .toggleInspirationFavorite(item.id),
+                  child: Icon(
+                    item.isFavorite
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                    size: 14,
+                    color: item.isFavorite
+                        ? const Color(0xFFFBBF24)
+                        : AppTheme.textTertiary,
+                  ),
+                ),
+                const Spacer(),
+                if (isRandom)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text('随机回顾',
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.textSecondary)),
+                  ),
+                if (item.tags.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  ...item.tags.take(2).map((tag) => Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text('#$tag',
+                            style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.textTertiary)),
+                      )),
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildActionBtn(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
@@ -391,11 +456,49 @@ class _InspirationScreenState extends State<InspirationScreen> {
         children: [
           Icon(icon, size: 12, color: AppTheme.textTertiary),
           const SizedBox(width: 2),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
-          ),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 10, color: AppTheme.textTertiary)),
         ],
+      ),
+    );
+  }
+
+  void _showGlobalMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 32,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.notes, size: 22,
+                  color: AppTheme.textSecondary),
+              title: const Text('查看其它笔记',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showOtherNotes();
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -422,35 +525,49 @@ class _InspirationScreenState extends State<InspirationScreen> {
             ),
             const SizedBox(height: 8),
             ListTile(
-              leading: const Icon(Icons.copy, size: 22, color: AppTheme.textSecondary),
-              title: const Text('复制内容', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.copy,
+                  size: 22, color: AppTheme.textSecondary),
+              title: const Text('复制内容',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () {
                 Navigator.pop(ctx);
                 Clipboard.setData(ClipboardData(text: item.content));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                  const SnackBar(
+                      content: Text('已复制'),
+                      behavior: SnackBarBehavior.floating),
                 );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.image_outlined, size: 22, color: AppTheme.textSecondary),
-              title: const Text('分享为图片', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.image_outlined,
+                  size: 22, color: AppTheme.textSecondary),
+              title: const Text('分享为图片',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _shareItemAsImage(item);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.notes, size: 22, color: AppTheme.textSecondary),
-              title: const Text('查看其它笔记', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.notes,
+                  size: 22, color: AppTheme.textSecondary),
+              title: const Text('查看其它笔记',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () {
                 Navigator.pop(ctx);
                 _showOtherNotes();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, size: 22, color: Colors.redAccent),
-              title: const Text('删除灵感', style: TextStyle(fontSize: 15, color: Colors.redAccent)),
+              leading: const Icon(Icons.delete_outline,
+                  size: 22, color: Colors.redAccent),
+              title: const Text('删除灵感',
+                  style: TextStyle(
+                      fontSize: 14, color: Colors.redAccent)),
               onTap: () {
                 Navigator.pop(ctx);
                 DataService.instance.deleteInspiration(item.id);
@@ -458,45 +575,6 @@ class _InspirationScreenState extends State<InspirationScreen> {
             ),
             const SizedBox(height: 8),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMoreMenu(InspirationItem item) {
-    return GestureDetector(
-      onTap: () => _showOptionsSheet(item),
-      child: const Icon(Icons.more_horiz_rounded, size: 18, color: AppTheme.textTertiary),
-    );
-  }
-}
-
-class _HeaderIconButton extends StatelessWidget {
-  final IconData icon;
-  final bool filled;
-  final VoidCallback onTap;
-
-  const _HeaderIconButton({
-    required this.icon,
-    this.filled = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: filled ? AppTheme.textPrimary : const Color(0xFFF3F4F6),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          size: 16,
-          color: filled ? Colors.white : AppTheme.textSecondary,
         ),
       ),
     );

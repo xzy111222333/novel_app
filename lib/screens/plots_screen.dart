@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../utils/share_card_util.dart';
 import '../widgets/category_pills.dart';
-import '../widgets/search_bar_widget.dart';
 import '../widgets/add_plot_sheet.dart';
 import '../models/plot_item.dart';
 import '../services/data_service.dart';
@@ -80,7 +79,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('新增剧情分类'),
         content: TextField(
           controller: controller,
@@ -89,7 +89,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('取消')),
           TextButton(
             onPressed: () {
               final name = controller.text.trim();
@@ -105,7 +106,6 @@ class _PlotsScreenState extends State<PlotsScreen> {
     );
   }
 
-  // ── Edit bottom sheet ──
   void _showEditPlotSheet(PlotItem item) {
     showAddPlotSheet(context, item: item);
   }
@@ -125,22 +125,53 @@ class _PlotsScreenState extends State<PlotsScreen> {
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
               child: Row(
                 children: [
-                  _buildHeaderButton(Icons.search, () {
-                    setState(() => _showSearch = !_showSearch);
-                  }),
-                  const Spacer(),
-                  const Text(
-                    '剧情库',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
+                  GestureDetector(
+                    onTap: () => setState(() {
+                      _showSearch = !_showSearch;
+                      if (!_showSearch) _searchQuery = '';
+                    }),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: _showSearch
+                            ? AppTheme.textPrimary
+                            : const Color(0xFFF3F4F6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                          _showSearch ? Icons.close : Icons.search,
+                          size: 16,
+                          color: _showSearch
+                              ? Colors.white
+                              : AppTheme.textSecondary),
                     ),
                   ),
-                  const Spacer(),
-                  _buildHeaderButton(Icons.add, () {
-                    showAddPlotSheet(context);
-                  }),
+                  const Expanded(
+                    child: Center(
+                      child: Text(
+                        '剧情',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => showAddPlotSheet(context),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: AppTheme.textPrimary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add,
+                          size: 16, color: Colors.white),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -148,9 +179,33 @@ class _PlotsScreenState extends State<PlotsScreen> {
 
             // ── Toggleable search bar ──
             if (_showSearch) ...[
-              SearchBarWidget(
-                placeholder: '搜索剧情内容、分类、标签...',
-                onChanged: (v) => setState(() => _searchQuery = v),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Container(
+                  height: 36,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFD5D5D5)),
+                  ),
+                  child: TextField(
+                    autofocus: true,
+                    onChanged: (v) =>
+                        setState(() => _searchQuery = v),
+                    style: const TextStyle(fontSize: 12),
+                    decoration: const InputDecoration(
+                      hintText: '搜索剧情内容、分类、标签...',
+                      hintStyle: TextStyle(
+                          color: AppTheme.textTertiary, fontSize: 11),
+                      prefixIcon: Icon(Icons.search,
+                          color: AppTheme.textTertiary, size: 16),
+                      prefixIconConstraints:
+                          BoxConstraints(minWidth: 36),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
             ],
@@ -159,7 +214,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
             CategoryPills(
               categories: categories,
               selected: _selectedCategory,
-              onSelect: (cat) => setState(() => _selectedCategory = cat),
+              onSelect: (cat) =>
+                  setState(() => _selectedCategory = cat),
               onAdd: _showAddCategoryDialog,
             ),
             const SizedBox(height: 12),
@@ -188,12 +244,14 @@ class _PlotsScreenState extends State<PlotsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.auto_stories_outlined,
-                              size: 56, color: AppTheme.textTertiary.withValues(alpha: 0.5)),
+                              size: 56,
+                              color: AppTheme.textTertiary
+                                  .withValues(alpha: 0.5)),
                           const SizedBox(height: 16),
                           const Text(
                             '暂无剧情，点击右上角 + 添加',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: AppTheme.textTertiary,
                             ),
                           ),
@@ -201,7 +259,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 100),
                       itemCount: plots.length,
                       itemBuilder: (context, index) =>
                           _buildPlotCard(plots[index]),
@@ -209,22 +267,6 @@ class _PlotsScreenState extends State<PlotsScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ── Dark circular header button ──
-  Widget _buildHeaderButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: AppTheme.textPrimary,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(icon, size: 16, color: Colors.white),
       ),
     );
   }
@@ -251,35 +293,50 @@ class _PlotsScreenState extends State<PlotsScreen> {
             ),
             const SizedBox(height: 8),
             ListTile(
-              leading: const Icon(Icons.copy, size: 22, color: AppTheme.textSecondary),
-              title: const Text('复制内容', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.copy,
+                  size: 22, color: AppTheme.textSecondary),
+              title: const Text('复制内容',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () {
                 Navigator.pop(ctx);
-                Clipboard.setData(ClipboardData(text: item.displayContent));
+                Clipboard.setData(
+                    ClipboardData(text: item.displayContent));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                  const SnackBar(
+                      content: Text('已复制'),
+                      behavior: SnackBarBehavior.floating),
                 );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.image_outlined, size: 22, color: AppTheme.textSecondary),
-              title: const Text('分享为图片', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.image_outlined,
+                  size: 22, color: AppTheme.textSecondary),
+              title: const Text('分享为图片',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _shareItemAsImage(item);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.notes, size: 22, color: AppTheme.textSecondary),
-              title: const Text('查看全部剧情', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.notes,
+                  size: 22, color: AppTheme.textSecondary),
+              title: const Text('查看全部剧情',
+                  style: TextStyle(
+                      fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () {
                 Navigator.pop(ctx);
                 _showAllPlots();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, size: 22, color: Colors.redAccent),
-              title: const Text('删除剧情', style: TextStyle(fontSize: 15, color: Colors.redAccent)),
+              leading: const Icon(Icons.delete_outline,
+                  size: 22, color: Colors.redAccent),
+              title: const Text('删除剧情',
+                  style: TextStyle(
+                      fontSize: 14, color: Colors.redAccent)),
               onTap: () {
                 Navigator.pop(ctx);
                 DataService.instance.deletePlot(item.id);
@@ -294,10 +351,9 @@ class _PlotsScreenState extends State<PlotsScreen> {
 
   // ── Plot card ──
   Widget _buildPlotCard(PlotItem item) {
-    final categoryColor = AppTheme.getCategoryColor(item.category);
-
     return GestureDetector(
       onTap: () => _showEditPlotSheet(item),
+      onLongPress: () => _showOptionsSheet(item),
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
@@ -312,85 +368,79 @@ class _PlotsScreenState extends State<PlotsScreen> {
             ),
           ],
         ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Category tag + popup menu
-          Row(
-            children: [
-              Container(
-                height: 20,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: categoryColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  item.category,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: categoryColor,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () =>
-                    DataService.instance.togglePlotFavorite(item.id),
-                child: Icon(
-                  item.isFavorite ? Icons.star : Icons.star_border,
-                  size: 16,
-                  color: item.isFavorite
-                      ? const Color(0xFFF59E0B)
-                      : AppTheme.textTertiary,
-                ),
-              ),
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: () => _showOptionsSheet(item),
-                child: const Icon(Icons.more_horiz,
-                    size: 16, color: AppTheme.textTertiary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Content
-          if (item.type == 'steps')
-            _buildStepsContent(item)
-          else
-            _buildFreeContent(item),
-
-          // Tags row
-          if (item.tags.isNotEmpty) ...[
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Content
+            if (item.type == 'steps')
+              _buildStepsContent(item)
+            else
+              _buildFreeContent(item),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: item.tags.map((tag) {
-                return Text(
-                  '#$tag',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.textTertiary,
+
+            // Bottom: category tag + tags + star + menu
+            Row(
+              children: [
+                Container(
+                  height: 20,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                );
-              }).toList(),
+                  alignment: Alignment.center,
+                  child: Text(
+                    item.category,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+                if (item.tags.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  ...item.tags.take(2).map((tag) => Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text('#$tag',
+                            style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.textTertiary)),
+                      )),
+                ],
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => DataService.instance
+                      .togglePlotFavorite(item.id),
+                  child: Icon(
+                    item.isFavorite
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
+                    size: 16,
+                    color: item.isFavorite
+                        ? const Color(0xFFF59E0B)
+                        : AppTheme.textTertiary,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(item),
+                  child: const Icon(Icons.more_horiz,
+                      size: 16, color: AppTheme.textTertiary),
+                ),
+              ],
             ),
           ],
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  // ── Steps content (max 4 visible) ──
+  // ── Steps content (max 3 visible) ──
   Widget _buildStepsContent(PlotItem item) {
-    final showSteps = item.steps.length > 3
-        ? item.steps.sublist(0, 3)
-        : item.steps;
+    final showSteps =
+        item.steps.length > 3 ? item.steps.sublist(0, 3) : item.steps;
     final hasMore = item.steps.length > 3;
 
     return Column(
@@ -407,16 +457,16 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   width: 18,
                   height: 18,
                   decoration: BoxDecoration(
-                    color: AppTheme.getCategoryColor(item.category).withValues(alpha: 0.1),
+                    color: const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: Center(
                     child: Text(
                       '${e.key + 1}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.getCategoryColor(item.category),
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ),
@@ -426,8 +476,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   child: Text(
                     e.value,
                     style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                      color: AppTheme.textPrimary,
                       height: 1.4,
                     ),
                   ),
@@ -441,24 +491,23 @@ class _PlotsScreenState extends State<PlotsScreen> {
             padding: EdgeInsets.only(top: 4),
             child: Text('...',
                 style: TextStyle(
-                    fontSize: 12, color: AppTheme.textTertiary)),
+                    fontSize: 13, color: AppTheme.textTertiary)),
           ),
       ],
     );
   }
 
-  // ── Free text content (max 4 lines) ──
+  // ── Free text content (max 3 lines) ──
   Widget _buildFreeContent(PlotItem item) {
     return Text(
       item.freeContent,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(
-        fontSize: 12,
-        color: AppTheme.textSecondary,
+        fontSize: 13,
+        color: AppTheme.textPrimary,
         height: 1.5,
       ),
     );
   }
 }
-

@@ -136,7 +136,8 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
 
   Widget _buildBottomToolbar() {
     final createdAt = widget.item?.createdAt ?? DateTime.now();
-    final dateStr = '${createdAt.year}年${createdAt.month.toString().padLeft(2, '0')}月${createdAt.day.toString().padLeft(2, '0')}日 ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
+    final dateStr =
+        '${createdAt.year}年${createdAt.month.toString().padLeft(2, '0')}月${createdAt.day.toString().padLeft(2, '0')}日 ${createdAt.hour.toString().padLeft(2, '0')}:${createdAt.minute.toString().padLeft(2, '0')}';
 
     return Container(
       padding: EdgeInsets.only(
@@ -145,27 +146,25 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
         top: 12,
         bottom: 12 + MediaQuery.of(context).padding.bottom,
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
+        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: Row(
         children: [
           Text(
             dateStr,
-            style: const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
+            style: const TextStyle(color: AppTheme.textTertiary, fontSize: 11),
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () {
-              setState(() {
-                _isFavorite = !_isFavorite;
-              });
-            },
+            onTap: () => setState(() => _isFavorite = !_isFavorite),
             child: Icon(
               _isFavorite ? Icons.star_rounded : Icons.star_border_rounded,
               size: 24,
-              color: _isFavorite ? const Color(0xFFF59E0B) : AppTheme.textTertiary,
+              color: _isFavorite
+                  ? const Color(0xFFF59E0B)
+                  : AppTheme.textTertiary,
             ),
           ),
           if (widget.item != null) ...[
@@ -175,11 +174,8 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                 DataService.instance.deleteMaterial(widget.item!.id);
                 Navigator.pop(context);
               },
-              child: const Icon(
-                Icons.delete_outline,
-                size: 24,
-                color: Colors.redAccent,
-              ),
+              child: const Icon(Icons.delete_outline,
+                  size: 24, color: Colors.redAccent),
             ),
           ],
         ],
@@ -199,17 +195,26 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
         leadingWidth: 80,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+          child: const Text('取消',
+              style: TextStyle(
+                  color: AppTheme.textSecondary, fontSize: 14)),
         ),
         title: Text(
           widget.item != null ? '编辑素材' : '新建素材',
-          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
         actions: [
           TextButton(
             onPressed: _submit,
-            child: const Text('完成', style: TextStyle(color: AppTheme.materialColor, fontSize: 16, fontWeight: FontWeight.w600)),
+            child: const Text('完成',
+                style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 8),
         ],
@@ -237,7 +242,8 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                         style: const TextStyle(fontSize: 14),
                         decoration: const InputDecoration(
                           hintText: '输入素材内容...',
-                          hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 14),
+                          hintStyle: TextStyle(
+                              color: AppTheme.textTertiary, fontSize: 14),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(16),
                         ),
@@ -248,17 +254,14 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                   // Category label
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      '分类',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
+                    child: Text('分类',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary)),
                   ),
                   const SizedBox(height: 8),
-                  // Category pills
+                  // Category pills — gray style
                   SizedBox(
                     height: 32,
                     child: ListView(
@@ -267,18 +270,18 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                       children: [
                         ...categories.map((cat) {
                           final isSelected = cat == _selectedCategory;
-                          final color = AppTheme.getCategoryColor(cat);
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: GestureDetector(
-                              onTap: () => setState(() => _selectedCategory = cat),
+                              onTap: () =>
+                                  setState(() => _selectedCategory = cat),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? AppTheme.materialColor
-                                      : color.withValues(alpha: 0.1),
+                                      ? const Color(0xFF1A1A1A)
+                                      : const Color(0xFFF5F5F5),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
@@ -286,7 +289,9 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: isSelected ? Colors.white : color,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppTheme.textSecondary,
                                   ),
                                 ),
                               ),
@@ -313,14 +318,11 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                   // Tags
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      '标签',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
+                    child: Text('标签',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary)),
                   ),
                   const SizedBox(height: 8),
                   Padding(
@@ -331,19 +333,26 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                       children: _tags
                           .map((tag) => Container(
                                 height: 28,
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.materialBg,
+                                  color: const Color(0xFFF5F5F5),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(tag, style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
+                                    Text(tag,
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                AppTheme.textPrimary)),
                                     const SizedBox(width: 4),
                                     GestureDetector(
                                       onTap: () => _removeTag(tag),
-                                      child: const Icon(Icons.close, size: 14, color: AppTheme.textTertiary),
+                                      child: const Icon(Icons.close,
+                                          size: 14,
+                                          color: AppTheme.textTertiary),
                                     ),
                                   ],
                                 ),
@@ -364,10 +373,11 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                         style: const TextStyle(fontSize: 14),
                         decoration: const InputDecoration(
                           hintText: '输入标签后按回车添加',
-                          hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 14),
+                          hintStyle: TextStyle(
+                              color: AppTheme.textTertiary, fontSize: 14),
                           border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                         ),
                         onSubmitted: (_) => _addTag(),
                       ),
@@ -377,14 +387,11 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                   // Source
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      '来源',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
+                    child: Text('来源',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary)),
                   ),
                   const SizedBox(height: 8),
                   Padding(
@@ -399,10 +406,11 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                         style: const TextStyle(fontSize: 14),
                         decoration: const InputDecoration(
                           hintText: '来源（选填）',
-                          hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 14),
+                          hintStyle: TextStyle(
+                              color: AppTheme.textTertiary, fontSize: 14),
                           border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                         ),
                       ),
                     ),

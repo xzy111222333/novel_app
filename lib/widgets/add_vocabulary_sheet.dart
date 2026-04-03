@@ -7,20 +7,20 @@ void showAddVocabularySheet(BuildContext context, {VocabularyItem? item}) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => _AddVocabularySheet(item: item),
+      builder: (context) => _AddVocabularyPage(item: item),
     ),
   );
 }
 
-class _AddVocabularySheet extends StatefulWidget {
+class _AddVocabularyPage extends StatefulWidget {
   final VocabularyItem? item;
-  const _AddVocabularySheet({this.item});
+  const _AddVocabularyPage({this.item});
 
   @override
-  State<_AddVocabularySheet> createState() => _AddVocabularySheetState();
+  State<_AddVocabularyPage> createState() => _AddVocabularyPageState();
 }
 
-class _AddVocabularySheetState extends State<_AddVocabularySheet> {
+class _AddVocabularyPageState extends State<_AddVocabularyPage> {
   final _contentController = TextEditingController();
   final _tagController = TextEditingController();
   final List<String> _tags = [];
@@ -152,7 +152,7 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
           widget.item != null ? '编辑词汇' : '新建词汇',
           style: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -160,14 +160,11 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
         actions: [
           TextButton(
             onPressed: _submit,
-            child: const Text(
-              '完成',
-              style: TextStyle(
-                color: AppTheme.vocabularyColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text('完成',
+                style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -225,7 +222,6 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
                       children: [
                         ...categories.map((cat) {
                           final isSelected = cat == _selectedCategory;
-                          final color = AppTheme.getCategoryColor(cat);
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: GestureDetector(
@@ -236,8 +232,8 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? AppTheme.vocabularyColor
-                                      : color.withValues(alpha: 0.1),
+                                      ? const Color(0xFF1A1A1A)
+                                      : const Color(0xFFF5F5F5),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
@@ -245,7 +241,9 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: isSelected ? Colors.white : color,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppTheme.textSecondary,
                                   ),
                                 ),
                               ),
@@ -293,7 +291,7 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.vocabularyBg,
+                                  color: const Color(0xFFF5F5F5),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: Row(
@@ -360,7 +358,7 @@ class _AddVocabularySheetState extends State<_AddVocabularySheet> {
                 Text(
                   dateString,
                   style: const TextStyle(
-                      color: AppTheme.textTertiary, fontSize: 12),
+                      color: AppTheme.textTertiary, fontSize: 11),
                 ),
                 const Spacer(),
                 GestureDetector(

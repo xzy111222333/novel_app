@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../utils/share_card_util.dart';
-import '../widgets/search_bar_widget.dart';
 import '../widgets/category_pills.dart';
 import '../models/material_item.dart';
 import '../services/data_service.dart';
@@ -81,7 +80,9 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
       context,
       typeLabel: '素材',
       content: item.content,
-      meta: item.source.isEmpty ? item.category : '${item.category} · ${item.source}',
+      meta: item.source.isEmpty
+          ? item.category
+          : '${item.category} · ${item.source}',
       tags: item.tags,
       accentColor: AppTheme.getCategoryColor(item.category),
     );
@@ -102,7 +103,8 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('添加分类',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         content: TextField(
@@ -110,8 +112,8 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
           autofocus: true,
           decoration: InputDecoration(
             hintText: '输入分类名称',
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12)),
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
         actions: [
@@ -158,7 +160,9 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
               Navigator.pop(ctx);
               Clipboard.setData(ClipboardData(text: item.content));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                const SnackBar(
+                    content: Text('已复制'),
+                    behavior: SnackBarBehavior.floating),
               );
             }),
             _menuTile(Icons.image_outlined, '分享为图片', () {
@@ -188,11 +192,12 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
           color: isDestructive ? Colors.redAccent : AppTheme.textSecondary),
       title: Text(label,
           style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               color:
                   isDestructive ? Colors.redAccent : AppTheme.textPrimary)),
       onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 
@@ -215,26 +220,21 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                 children: [
                   // Search icon
                   GestureDetector(
-                    onTap: () => setState(() => _showSearch = !_showSearch),
+                    onTap: () => setState(() {
+                      _showSearch = !_showSearch;
+                      if (!_showSearch) _searchQuery = '';
+                    }),
                     child: Container(
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
                         color: _showSearch
                             ? AppTheme.textPrimary
-                            : Colors.white,
+                            : const Color(0xFFF3F4F6),
                         shape: BoxShape.circle,
-                        boxShadow: _showSearch
-                            ? null
-                            : [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ],
                       ),
-                      child: Icon(Icons.search,
+                      child: Icon(
+                          _showSearch ? Icons.close : Icons.search,
                           size: 16,
                           color: _showSearch
                               ? Colors.white
@@ -244,10 +244,10 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        '素材库',
+                        '素材',
                         style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -259,7 +259,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                     child: Container(
                       width: 32,
                       height: 32,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppTheme.textPrimary,
                         shape: BoxShape.circle,
                       ),
@@ -273,9 +273,33 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
 
             // ── Search Bar ────────────────────────────────────────────────
             if (_showSearch) ...[
-              SearchBarWidget(
-                placeholder: '搜索素材正文、分类、标签...',
-                onChanged: (v) => setState(() => _searchQuery = v),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Container(
+                  height: 36,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFD5D5D5)),
+                  ),
+                  child: TextField(
+                    autofocus: true,
+                    onChanged: (v) =>
+                        setState(() => _searchQuery = v),
+                    style: const TextStyle(fontSize: 12),
+                    decoration: const InputDecoration(
+                      hintText: '搜索素材正文、分类、标签...',
+                      hintStyle: TextStyle(
+                          color: AppTheme.textTertiary, fontSize: 11),
+                      prefixIcon: Icon(Icons.search,
+                          color: AppTheme.textTertiary, size: 16),
+                      prefixIconConstraints:
+                          BoxConstraints(minWidth: 36),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
             ],
@@ -284,7 +308,8 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
             CategoryPills(
               categories: _categories,
               selected: _selectedCategory,
-              onSelect: (cat) => setState(() => _selectedCategory = cat),
+              onSelect: (cat) =>
+                  setState(() => _selectedCategory = cat),
               onAdd: _showAddCategoryDialog,
             ),
             const SizedBox(height: 12),
@@ -308,16 +333,17 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFF0F0F0)),
+                      border:
+                          Border.all(color: const Color(0xFFF0F0F0)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('最新',
+                      children: const [
+                        Text('最新',
                             style: TextStyle(
                                 fontSize: 10,
                                 color: AppTheme.textSecondary)),
-                        const SizedBox(width: 2),
+                        SizedBox(width: 2),
                         Icon(Icons.keyboard_arrow_down,
                             size: 12, color: AppTheme.textSecondary),
                       ],
@@ -333,7 +359,8 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
               child: items.isEmpty
                   ? _buildEmptyState()
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 100),
+                      padding:
+                          const EdgeInsets.fromLTRB(14, 0, 14, 100),
                       itemCount: items.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 8),
@@ -367,12 +394,12 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
           ),
           const SizedBox(height: 16),
           const Text('暂无素材',
-              style:
-                  TextStyle(fontSize: 15, color: AppTheme.textSecondary)),
+              style: TextStyle(
+                  fontSize: 13, color: AppTheme.textSecondary)),
           const SizedBox(height: 6),
           const Text('点击右上角 + 添加',
-              style:
-                  TextStyle(fontSize: 12, color: AppTheme.textTertiary)),
+              style: TextStyle(
+                  fontSize: 11, color: AppTheme.textTertiary)),
         ],
       ),
     );
@@ -381,9 +408,6 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
   // ── Material Card ───────────────────────────────────────────────────────
 
   Widget _buildMaterialCard(MaterialItem item) {
-    final catColor = AppTheme.getCategoryColor(item.category);
-    final catBgColor = AppTheme.getCategoryBgColor(item.category);
-
     return GestureDetector(
       onTap: () => showAddMaterialSheet(context, item: item),
       onLongPress: () => _showOptionsSheet(item),
@@ -403,40 +427,62 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top row: category + tags + star + menu
+            // Content
+            Text(item.content,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.textPrimary,
+                    height: 1.6)),
+            const SizedBox(height: 8),
+
+            // Bottom: category tag + tags + star + menu
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      Container(
-                        height: 20,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          color: catBgColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(item.category,
-                            style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: catColor)),
-                      ),
-                      ...item.tags.map((tag) => Text('#$tag',
-                          style: const TextStyle(
-                              fontSize: 10,
-                              color: AppTheme.textTertiary))),
-                    ],
+                Container(
+                  height: 20,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(4),
                   ),
+                  alignment: Alignment.center,
+                  child: Text(item.category,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textSecondary)),
                 ),
-                const SizedBox(width: 6),
+                if (item.tags.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  ...item.tags.take(2).map((tag) => Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text('#$tag',
+                            style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.textTertiary)),
+                      )),
+                ],
+                const Spacer(),
+                if (item.source.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(item.source,
+                        style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.textTertiary)),
+                  ),
+                Text(_formatRelativeDate(item.createdAt),
+                    style: const TextStyle(
+                        fontSize: 10,
+                        color: AppTheme.textTertiary)),
+                const SizedBox(width: 8),
                 GestureDetector(
-                  onTap: () =>
-                      DataService.instance.toggleMaterialFavorite(item.id),
+                  onTap: () => DataService.instance
+                      .toggleMaterialFavorite(item.id),
                   child: Icon(
                     item.isFavorite
                         ? Icons.star_rounded
@@ -453,32 +499,6 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                   child: const Icon(Icons.more_horiz,
                       size: 16, color: AppTheme.textTertiary),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // Content
-            Text(item.content,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                    height: 1.6)),
-            const SizedBox(height: 8),
-
-            // Bottom: source + time
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (item.source.isNotEmpty)
-                  Text('来源：${item.source}',
-                      style: const TextStyle(
-                          fontSize: 10, color: AppTheme.textTertiary)),
-                const Spacer(),
-                Text(_formatRelativeDate(item.createdAt),
-                    style: const TextStyle(
-                        fontSize: 10, color: AppTheme.textTertiary)),
               ],
             ),
           ],
