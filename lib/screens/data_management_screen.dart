@@ -148,7 +148,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
         title: const Text(
           '数据管理',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -231,7 +231,7 @@ class _StatChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +290,7 @@ class _ActionCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(icon,
                     color: destructive ? AppTheme.danger : AppTheme.textSecondary,

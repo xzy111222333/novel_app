@@ -116,7 +116,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         title: const Text('全局搜索',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
             )),
       ),

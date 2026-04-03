@@ -1,17 +1,462 @@
-# novel_app
+# 小灵感
 
-A new Flutter project.
+小灵感是一个面向小说作者和文字创作者的 Flutter 应用。  
+它不负责正文码字，而是负责创作前的输入管理和积累，包括素材收集、词汇积累、灵感记录、剧情拆解、统计回顾和个人资料管理。
 
-## Getting Started
+项目的 UI 风格参考了「小日常」的简洁白底布局，但功能设计是围绕小说作者的实际工作流定制的。
 
-This project is a starting point for a Flutter application.
+## 项目定位
 
-A few resources to get you started if this is your first Flutter project:
+这个项目不是作家助手、橙瓜码字那类正文编辑器。
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+它解决的是这些问题：
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 平时看到好句子、好段落，不方便快速保存和分类
+- 灵感、碎念、观察记录容易散落在微信、备忘录、截图里
+- 词汇、短句、描写表达积累下来以后很难检索
+- 想按日期回看“我哪天记了什么”，普通笔记软件不够顺手
+- 想把创作输入做成长期沉淀，而不是一次性记录
+
+因此，小灵感的核心是：
+
+- 收集
+- 分类
+- 检索
+- 回顾
+- 统计
+- 沉淀
+
+## 当前功能总览
+
+### 1. 今日页
+
+今日页是整个 App 的首页工作台，聚合当天内容。
+
+功能包括：
+
+- 顶部日期横向切换，可以查看不同日期的内容
+- 可收起/展开的日期条
+- 快速新增入口：素材、词汇、灵感、剧情
+- 随机回顾卡片：从过去记录里抽一条灵感回看
+- 今日词汇区
+- 今日素材区
+- 今日灵感区
+- 今日剧情区
+- 每个卡片都支持：
+  - 进入编辑
+  - 复制内容
+  - 分享为图片
+  - 删除
+  - 跳转到对应列表页
+
+### 2. 素材库
+
+素材库用于保存较长的段落级内容，例如：
+
+- 对话
+- 动作描写
+- 心理描写
+- 人物描写
+- 环境描写
+- 桥段片段
+
+支持的能力：
+
+- 新增素材
+- 编辑素材
+- 删除素材
+- 收藏素材
+- 搜索正文、分类、标签
+- 分类筛选
+- 自定义素材分类
+- 标签管理
+- 来源字段
+- 分享为图片
+
+### 3. 词汇库
+
+词汇库用于保存短表达和词句级内容，例如：
+
+- 描写词
+- 短句
+- 小表达
+- 意象词
+- 情绪词
+
+支持的能力：
+
+- 新增词汇
+- 编辑词汇
+- 删除词汇
+- 收藏词汇
+- 搜索词汇、分类、标签
+- 分类筛选
+- 自定义词汇分类
+- 标签管理
+- 分享为图片
+
+### 4. 灵感页
+
+灵感页用于记录创作者自己的即时输出，而不是外部摘抄。
+
+适合记录：
+
+- 一句话灵感
+- 角色念头
+- 情节想法
+- 生活观察
+- 情绪碎念
+
+支持的能力：
+
+- 新增灵感
+- 编辑灵感
+- 删除灵感
+- 收藏灵感
+- 搜索标题、内容、标签
+- 标签管理
+- 灵感转素材
+- 灵感转词汇
+- 分享为图片
+
+### 5. 剧情页
+
+剧情页用于记录桥段和拆解，不是正文写作。
+
+支持两种模式：
+
+- 步骤拆解
+- 自由描述
+
+适合用来保存：
+
+- 一段桥段的推进步骤
+- 某类套路模板
+- 一个情节点的结构草稿
+
+支持的能力：
+
+- 新增剧情
+- 编辑剧情
+- 删除剧情
+- 收藏剧情
+- 搜索剧情内容、分类、标签
+- 分类筛选
+- 自定义剧情分类
+- 标签管理
+- 分享为图片
+
+### 6. 统计页
+
+统计页按时间范围展示创作输入，而不是统计正文码字。
+
+支持的范围：
+
+- 周
+- 月
+- 年
+
+支持的统计内容：
+
+- 当前时间范围新增字数
+- 总累计字数
+- 各模块字数分布
+- 各模块条目数量
+- 周活动点阵
+- 月历热力视图
+
+统计对象来源于真实本地数据，不是硬编码展示。
+
+### 7. 我的页
+
+“我的”页是项目的管理中心。
+
+包含：
+
+- 个人信息展示
+- 素材/词汇/灵感/剧情数量摘要
+- 收藏夹快捷入口
+- 数据管理入口
+- 使用指南入口
+- 功能网格入口
+
+### 8. 收藏夹
+
+收藏夹会聚合四类收藏内容：
+
+- 素材
+- 词汇
+- 灵感
+- 剧情
+
+支持：
+
+- 按类型分组查看
+- 点击进入对应编辑页
+- 快速取消收藏
+
+### 9. 全局搜索
+
+全局搜索会跨模块检索：
+
+- 素材
+- 词汇
+- 灵感
+- 剧情
+
+支持：
+
+- 搜索正文/标题/分类/标签
+- 按类型分组展示
+- 点击结果进入对应编辑页
+
+### 10. 分类管理
+
+分类管理支持对素材、词汇、剧情三类分类进行维护。
+
+支持：
+
+- 新增分类
+- 重命名分类
+- 删除分类
+- 自动把旧分类内容迁移到新分类
+
+### 11. 标签管理
+
+标签管理是全局标签管理页。
+
+支持：
+
+- 查看全局所有标签
+- 查看某个标签关联的所有内容
+- 重命名标签
+- 删除标签
+- 点击关联内容进入对应编辑页
+
+### 12. 模块化设置
+
+模块化设置会真实影响底部导航，而不是假开关。
+
+当前可切换模块：
+
+- 词汇页
+- 剧情页
+
+也就是说，底部导航栏会根据设置动态显示或隐藏对应 Tab。
+
+### 13. 个性化
+
+个性化目前是轻量版，支持：
+
+- 修改昵称
+- 切换轻量背景主题
+
+这里保留的是实用管理，不做花哨视觉系统。
+
+### 14. 最近删除
+
+删除内容不会立刻永久消失，而是会先进入最近删除。
+
+支持：
+
+- 恢复被删除内容
+- 彻底删除单条内容
+- 一键清空最近删除
+
+支持的对象：
+
+- 素材
+- 词汇
+- 灵感
+- 剧情
+
+### 15. 数据管理
+
+数据管理页是整个项目的数据安全中心。
+
+支持：
+
+- 复制完整 JSON 备份
+- 粘贴 JSON 并导入恢复
+- 清空当前所有数据
+
+### 16. 数据导出
+
+导出页当前支持：
+
+- 导出全部本地内容为 JSON
+- 复制到剪贴板
+- 查看各模块条目数量
+
+### 17. 使用指南
+
+使用指南是内置的简要帮助页，方便用户快速理解：
+
+- 今日页怎么用
+- 收藏和回收站怎么用
+- 数据备份怎么用
+- 模块显示怎么切换
+
+## 编辑页交互
+
+素材、词汇、灵感、剧情四种内容都使用统一的全屏编辑页交互。
+
+编辑页特征：
+
+- 顶部 `取消`
+- 中间标题
+- 右侧 `完成`
+- 底部显示创建时间
+- 支持收藏
+- 支持删除
+
+这几类编辑页分别位于：
+
+- [lib/widgets/add_material_sheet.dart](lib/widgets/add_material_sheet.dart)
+- [lib/widgets/add_vocabulary_sheet.dart](lib/widgets/add_vocabulary_sheet.dart)
+- [lib/widgets/add_inspiration_sheet.dart](lib/widgets/add_inspiration_sheet.dart)
+- [lib/widgets/add_plot_sheet.dart](lib/widgets/add_plot_sheet.dart)
+
+虽然文件名里保留了 `sheet`，但现在实际上是全屏页面跳转，不再是底部弹窗。
+
+## 数据与持久化
+
+所有内容都保存在本地，核心数据服务是：
+
+- [lib/services/data_service.dart](lib/services/data_service.dart)
+
+目前持久化方案：
+
+- `SharedPreferences`
+- JSON 序列化
+
+当前管理的数据包括：
+
+- 素材列表
+- 词汇列表
+- 灵感列表
+- 剧情列表
+- 分类配置
+- 可选 Tab 配置
+- 用户昵称
+- 主题预设
+- 最近删除记录
+
+### 预设数据
+
+首次启动时，如果本地完全没有数据，会注入一小批演示数据，方便直接体验。
+
+对应文件：
+
+- [lib/services/sample_data.dart](lib/services/sample_data.dart)
+
+这批数据是轻量的，只用于空库初始化，不会无限追加。
+
+## 主要目录结构
+
+```text
+lib/
+├─ main.dart                       # 应用入口、底部导航、Tab 装配
+├─ models/                         # 数据模型
+│  ├─ material_item.dart
+│  ├─ vocabulary_item.dart
+│  ├─ inspiration_item.dart
+│  ├─ plot_item.dart
+│  └─ deleted_record.dart
+├─ services/                       # 数据服务和预设数据
+│  ├─ data_service.dart
+│  └─ sample_data.dart
+├─ screens/                        # 主要页面
+│  ├─ home_screen.dart
+│  ├─ materials_screen.dart
+│  ├─ vocabulary_screen.dart
+│  ├─ inspiration_screen.dart
+│  ├─ plots_screen.dart
+│  ├─ stats_screen.dart
+│  ├─ profile_screen.dart
+│  ├─ favorites_screen.dart
+│  ├─ global_search_screen.dart
+│  ├─ category_manage_screen.dart
+│  ├─ tag_manage_screen.dart
+│  ├─ modular_settings_screen.dart
+│  ├─ personalization_screen.dart
+│  ├─ recent_deleted_screen.dart
+│  ├─ data_management_screen.dart
+│  ├─ export_screen.dart
+│  └─ guide_screen.dart
+├─ widgets/                        # 可复用组件和编辑页
+│  ├─ app_bottom_nav.dart
+│  ├─ search_bar_widget.dart
+│  ├─ category_pills.dart
+│  ├─ section_header.dart
+│  ├─ add_material_sheet.dart
+│  ├─ add_vocabulary_sheet.dart
+│  ├─ add_inspiration_sheet.dart
+│  └─ add_plot_sheet.dart
+├─ theme/
+│  └─ app_theme.dart
+└─ utils/
+   └─ share_card_util.dart
+```
+
+## 当前底部导航
+
+基础 Tab：
+
+- 今日
+- 素材
+- 灵感
+- 统计
+- 我的
+
+可选 Tab：
+
+- 词汇
+- 剧情
+
+这些都由 [lib/main.dart](lib/main.dart) 动态装配。
+
+## 运行方式
+
+### 1. 获取依赖
+
+```bash
+flutter pub get
+```
+
+### 2. 本地运行
+
+```bash
+flutter run
+```
+
+### 3. Android 调试包
+
+```bash
+flutter build apk --debug
+```
+
+## 已完成但仍建议继续优化的方向
+
+当前项目已经具备完整可运行功能，但如果要朝上架质量继续推进，建议优先补这些：
+
+- 完善单元测试和页面测试
+- 优化导出格式，支持文件导出而不只是复制 JSON
+- 增加数据导入时的冲突处理
+- 细化统计页维度，比如按分类统计
+- 优化搜索高亮和结果排序
+- 为回收站增加过期策略
+- 补充应用图标、启动页、隐私政策、订阅文案
+- 对 iOS 上架补齐 Apple 要求的权限说明和元数据
+
+## 项目说明
+
+这个项目的界面风格参考了「小日常」的简约白底布局，但并不复刻其产品功能。  
+小灵感的核心目标是服务小说作者的输入管理，而不是做泛习惯打卡或正文写作。
+
+如果你后续继续扩展，本项目最稳的方向仍然是：
+
+- 强化素材、词汇、灵感三大核心
+- 保持功能真实可用
+- 避免做“看起来很多、实际上开发中”的假入口
+- 在不破坏使用效率的前提下，再逐步微调视觉

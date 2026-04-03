@@ -43,7 +43,7 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
         title: const Text('模块设置',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
             )),
       ),

@@ -56,7 +56,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         title: const Text(
           '个性化',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -111,7 +111,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                     ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),

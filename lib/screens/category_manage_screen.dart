@@ -153,7 +153,7 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
         title: Text(_title,
             style: const TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
             )),
       ),
@@ -167,16 +167,8 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.folder_outlined,
-                        color: AppTheme.textTertiary, size: 24),
-                  ),
+                  const Icon(Icons.folder_outlined,
+                      color: AppTheme.textTertiary, size: 32),
                   const SizedBox(height: 12),
                   const Text('暂无分类',
                       style: TextStyle(

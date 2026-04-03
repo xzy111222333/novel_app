@@ -112,7 +112,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
         title: const Text(
           '最近删除',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -137,18 +137,10 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.delete_outline_rounded,
-                      color: AppTheme.textTertiary,
-                      size: 24,
-                    ),
+                  const Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppTheme.textTertiary,
+                    size: 32,
                   ),
                   const SizedBox(height: 12),
                   const Text(

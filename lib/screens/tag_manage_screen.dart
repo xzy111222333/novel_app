@@ -180,7 +180,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
         title: const Text('标签管理',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
             )),
       ),
@@ -189,16 +189,8 @@ class _TagManageScreenState extends State<TagManageScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.label_outlined,
-                        color: AppTheme.textTertiary, size: 24),
-                  ),
+                  const Icon(Icons.label_outlined,
+                      color: AppTheme.textTertiary, size: 32),
                   const SizedBox(height: 12),
                   const Text('暂无标签',
                       style: TextStyle(

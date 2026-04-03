@@ -20,7 +20,7 @@ class GuideScreen extends StatelessWidget {
         title: const Text(
           '使用指南',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -77,15 +77,7 @@ class _GuideCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F5),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: AppTheme.textSecondary, size: 18),
-          ),
+          Icon(icon, color: AppTheme.textSecondary, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

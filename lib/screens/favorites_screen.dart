@@ -120,7 +120,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         title: const Text('收藏夹',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
             )),
       ),
@@ -129,18 +129,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.star_outline_rounded,
-                      color: AppTheme.textTertiary,
-                      size: 24,
-                    ),
+                  const Icon(
+                    Icons.star_outline_rounded,
+                    color: AppTheme.textTertiary,
+                    size: 32,
                   ),
                   const SizedBox(height: 12),
                   const Text('暂无收藏内容',

@@ -213,7 +213,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
         title: Text(
           widget.item != null ? '编辑情节' : '新建情节',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -428,7 +428,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                           decoration: BoxDecoration(
                             color: const Color(0xFFF9FAFB),
                             borderRadius:
-                                BorderRadius.circular(12),
+                                BorderRadius.circular(16),
                           ),
                           child: TextField(
                             controller: _freeContentController,
@@ -623,11 +623,19 @@ class _AddPlotPageState extends State<_AddPlotPage> {
               ),
               child: Row(
                 children: [
-                  Text(
-                    _formatDate(createdAt),
-                    style: const TextStyle(
-                      color: AppTheme.textTertiary,
-                      fontSize: 11,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F6F8),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.calendar_today_outlined, size: 13, color: Color(0xFF999999)),
+                        const SizedBox(width: 4),
+                        Text(_formatDate(createdAt), style: const TextStyle(color: Color(0xFF999999), fontSize: 11)),
+                      ],
                     ),
                   ),
                   const Spacer(),
@@ -643,7 +651,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                         widget.item!.isFavorite
                             ? Icons.star_rounded
                             : Icons.star_border_rounded,
-                        size: 24,
+                        size: 22,
                         color: widget.item!.isFavorite
                             ? const Color(0xFFF59E0B)
                             : AppTheme.textTertiary,
@@ -656,8 +664,15 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                             .deletePlot(widget.item!.id);
                         Navigator.pop(context);
                       },
-                      child: const Icon(Icons.delete_outline,
-                          size: 24, color: Colors.redAccent),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFEBEB),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B6B)),
+                      ),
                     ),
                   ],
                 ],
