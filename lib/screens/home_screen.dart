@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late DateTime _selectedDate;
   late PageController _weekPageController;
   InspirationItem? _randomInspiration;
-  bool _isMonthExpanded = false;
+  bool _isCalendarExpanded = true;
 
   // Week-based calendar: page 0 = far past, center page = current week
   static const int _totalWeekPages = 200;
@@ -50,26 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final offset = page - _centerWeekPage;
     final monday = _baseMonday.add(Duration(days: offset * 7));
     return List.generate(7, (i) => monday.add(Duration(days: i)));
-  }
-
-  // Month calendar for expanded view
-  DateTime get _displayMonth {
-    final page = _weekPageController.hasClients
-        ? (_weekPageController.page?.round() ?? _centerWeekPage)
-        : _centerWeekPage;
-    final weekDays = _weekDaysForPage(page);
-    // Use Thursday of week to determine which month we're in
-    return DateTime(weekDays[3].year, weekDays[3].month);
-  }
-
-  List<DateTime> _monthGridDays(DateTime month) {
-    final first = DateTime(month.year, month.month, 1);
-    final last = DateTime(month.year, month.month + 1, 0);
-    final startOffset = first.weekday - 1; // days to pad from Monday
-    final start = first.subtract(Duration(days: startOffset));
-    final totalDays = startOffset + last.day;
-    final rows = (totalDays / 7).ceil();
-    return List.generate(rows * 7, (i) => start.add(Duration(days: i)));
   }
 
   bool _dayHasEntries(DateTime date) {
@@ -144,9 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String _formatTime(DateTime d) =>
       '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
-  String _headerMonthLabel() {
-    return '${_selectedDate.year}年${_selectedDate.month}月';
-  }
 
   String _menuLabelForType(String typeLabel) {
     switch (typeLabel) {
@@ -334,12 +311,10 @@ class _HomeScreenState extends State<HomeScreen> {
             AnimatedSize(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              child: _isMonthExpanded
-                  ? _buildMonthGrid()
-                  : _buildWeekPageView(),
+              child: _isCalendarExpanded
+                  ? _buildWeekPageView()
+                  : const SizedBox.shrink(),
             ),
-            // Collapse / Expand toggle
-            _buildCalendarToggle(),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
@@ -369,43 +344,61 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Header: month label (left) + add button (right)
+  // ── Header: "今日 • 周六 ▾" style with collapsible toggle
   Widget _buildHeader(BuildContext context) {
+    final weekdayName = _weekdays[_selectedDate.weekday - 1];
+    final isToday = _isToday(_selectedDate);
+    final dateLabel = isToday
+        ? '今日 • $weekdayName'
+        : '${_selectedDate.month}月${_selectedDate.day}日 • $weekdayName';
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 14, 4),
       child: Row(
         children: [
           GestureDetector(
-            onTap: _goToToday,
+            onTap: () =>
+                setState(() => _isCalendarExpanded = !_isCalendarExpanded),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _headerMonthLabel(),
+                  dateLabel,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                   ),
                 ),
-                if (!_isToday(_selectedDate)) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentSoft,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      '今天',
-                      style: TextStyle(fontSize: 10, color: AppTheme.accent),
-                    ),
-                  ),
-                ],
+                const SizedBox(width: 2),
+                Icon(
+                  _isCalendarExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  size: 18,
+                  color: AppTheme.textTertiary,
+                ),
               ],
             ),
           ),
+          if (!isToday) ...[
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _goToToday,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentSoft,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  '回今天',
+                  style: TextStyle(fontSize: 10, color: AppTheme.accent),
+                ),
+              ),
+            ),
+          ],
           const Spacer(),
           _buildAddButton(context),
         ],
@@ -488,7 +481,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Week-mode: swipeable PageView showing one week row
   Widget _buildWeekPageView() {
     return SizedBox(
-      height: 72,
+      height: 60,
       child: PageView.builder(
         controller: _weekPageController,
         itemCount: _totalWeekPages,
@@ -506,35 +499,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Month-mode: full calendar grid
-  Widget _buildMonthGrid() {
-    final month = _displayMonth;
-    final days = _monthGridDays(month);
-    final rows = days.length ~/ 7;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: List.generate(rows, (row) {
-          return SizedBox(
-            height: 72,
-            child: Row(
-              children: List.generate(7, (col) {
-                final day = days[row * 7 + col];
-                final inMonth = day.month == month.month;
-                return Expanded(
-                  child: inMonth
-                      ? _dayCell(day)
-                      : const SizedBox.shrink(),
-                );
-              }),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
   // ── Individual day cell
   Widget _dayCell(DateTime date) {
     final isSelected = _isSameDay(date, _selectedDate);
@@ -546,11 +510,11 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () => setState(() => _selectedDate = date),
       child: Center(
         child: Container(
-          width: 48,
-          height: 68,
+          width: 40,
+          height: 54,
           decoration: BoxDecoration(
             color: isSelected ? _darkBg : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: today && !isSelected
                 ? Border.all(color: const Color(0xFFE0E0E0), width: 1.5)
                 : null,
@@ -561,17 +525,17 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 _weekdays[weekdayIndex],
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   color: isSelected
                       ? Colors.white70
                       : AppTheme.textTertiary,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 1),
               Text(
                 '${date.day}',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 17,
                   fontWeight: isSelected || today
                       ? FontWeight.w700
                       : FontWeight.w400,
@@ -580,18 +544,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       : AppTheme.textPrimary,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 1),
               if (hasData)
                 Container(
-                  width: 5,
-                  height: 5,
+                  width: 4,
+                  height: 4,
                   decoration: BoxDecoration(
                     color: isSelected ? Colors.white54 : AppTheme.textTertiary,
                     shape: BoxShape.circle,
                   ),
                 )
               else
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
             ],
           ),
         ),
@@ -599,24 +563,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Toggle bar between week / month
-  Widget _buildCalendarToggle() {
-    return GestureDetector(
-      onTap: () => setState(() => _isMonthExpanded = !_isMonthExpanded),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        alignment: Alignment.center,
-        child: Container(
-          width: 28,
-          height: 3,
-          decoration: BoxDecoration(
-            color: AppTheme.divider,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildQuickActionPills(BuildContext context) {
     final actions = [
