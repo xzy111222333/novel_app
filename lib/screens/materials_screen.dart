@@ -225,20 +225,23 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                       if (!_showSearch) _searchQuery = '';
                     }),
                     child: Container(
-                      width: 32,
-                      height: 32,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: _showSearch
                             ? AppTheme.textPrimary
-                            : const Color(0xFFF3F4F6),
+                            : Colors.white,
                         shape: BoxShape.circle,
+                        border: _showSearch
+                            ? null
+                            : Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
                       ),
                       child: Icon(
                           _showSearch ? Icons.close : Icons.search,
-                          size: 16,
+                          size: 18,
                           color: _showSearch
                               ? Colors.white
-                              : AppTheme.textSecondary),
+                              : const Color(0xFF666666)),
                     ),
                   ),
                   const Expanded(
@@ -246,7 +249,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                       child: Text(
                         '素材',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 17,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
                         ),
@@ -257,14 +260,15 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                   GestureDetector(
                     onTap: () => showAddMaterialSheet(context),
                     child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1F2937),
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
                         shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
                       ),
                       child: const Icon(Icons.add,
-                          size: 16, color: Colors.white),
+                          size: 18, color: Color(0xFF666666)),
                     ),
                   ),
                 ],
@@ -276,10 +280,10 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Container(
-                  height: 36,
+                  height: 40,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFD5D5D5)),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFDDDDDD)),
                   ),
                   child: TextField(
                     autofocus: true,
@@ -363,7 +367,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                           const EdgeInsets.fromLTRB(14, 0, 14, 100),
                       itemCount: items.length,
                       separatorBuilder: (context, index) =>
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                       itemBuilder: (context, index) =>
                           _buildMaterialCard(items[index]),
                     ),
@@ -414,16 +418,16 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 6,
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
               offset: const Offset(0, 1),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -496,7 +500,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                 const SizedBox(width: 4),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item),
-                  child: const Icon(Icons.more_horiz,
+                  child: const Icon(Icons.more_vert,
                       size: 16, color: AppTheme.textTertiary),
                 ),
               ],

@@ -64,12 +64,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        const SizedBox(width: 32, height: 32),
+        const SizedBox(width: 36, height: 36),
         const Spacer(),
         const Text(
           '我的',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -78,13 +78,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         GestureDetector(
           onTap: () => _push(const PersonalizationScreen()),
           child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: AppTheme.textPrimary,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.settings_outlined, size: 16, color: Colors.white),
+            width: 36,
+            height: 36,
+            decoration: AppTheme.outlinedCircleDecoration(),
+            child: const Icon(Icons.settings_outlined, size: 18, color: Color(0xFF666666)),
           ),
         ),
       ],
@@ -251,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
             ),
@@ -328,16 +325,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F5),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(item.icon, size: 20, color: AppTheme.textSecondary),
-          ),
-          const SizedBox(height: 6),
+          Icon(item.icon, size: 24, color: AppTheme.textSecondary),
+          const SizedBox(height: 8),
           Text(
             item.label,
             style: const TextStyle(

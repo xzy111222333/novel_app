@@ -124,14 +124,15 @@ class _InspirationScreenState extends State<InspirationScreen> {
                   GestureDetector(
                     onTap: () => _showGlobalMenu(context),
                     child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF3F4F6),
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
                         shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
                       ),
-                      child: const Icon(Icons.more_horiz,
-                          size: 16, color: AppTheme.textSecondary),
+                      child: const Icon(Icons.more_vert,
+                          size: 18, color: Color(0xFF666666)),
                     ),
                   ),
                   const Expanded(
@@ -139,7 +140,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                       child: Text(
                         '灵感',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 17,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
                         ),
@@ -149,14 +150,15 @@ class _InspirationScreenState extends State<InspirationScreen> {
                   GestureDetector(
                     onTap: () => showAddInspirationSheet(context),
                     child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1F2937),
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
                         shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
                       ),
                       child: const Icon(Icons.add,
-                          size: 16, color: Colors.white),
+                          size: 18, color: Color(0xFF666666)),
                     ),
                   ),
                 ],
@@ -169,13 +171,13 @@ class _InspirationScreenState extends State<InspirationScreen> {
               child: GestureDetector(
                 onTap: () => setState(() => _showSearch = !_showSearch),
                 child: Container(
-                  height: 36,
+                  height: 40,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _showSearch
                           ? AppTheme.textSecondary
-                          : const Color(0xFFD5D5D5),
+                          : const Color(0xFFDDDDDD),
                       style: BorderStyle.solid,
                     ),
                   ),
@@ -189,7 +191,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                             hintText: '输入笔记内容',
                             hintStyle: TextStyle(
                                 color: AppTheme.textTertiary,
-                                fontSize: 11),
+                                fontSize: 12),
                             prefixIcon: Icon(Icons.search,
                                 color: AppTheme.textTertiary, size: 16),
                             prefixIconConstraints:
@@ -207,7 +209,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                             SizedBox(width: 4),
                             Text('输入笔记内容',
                                 style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 12,
                                     color: AppTheme.textTertiary)),
                           ],
                         ),
@@ -301,19 +303,19 @@ class _InspirationScreenState extends State<InspirationScreen> {
     return GestureDetector(
       onTap: () => showAddInspirationSheet(context, item: item),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
+        margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 6,
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
               offset: const Offset(0, 1),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -321,8 +323,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
             Row(
               children: [
                 Container(
-                  width: 6,
-                  height: 6,
+                  width: 20,
+                  height: 20,
                   decoration: const BoxDecoration(
                     color: Color(0xFFFBBF24),
                     shape: BoxShape.circle,
@@ -340,7 +342,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                 ),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item),
-                  child: const Icon(Icons.more_horiz,
+                  child: const Icon(Icons.more_vert,
                       size: 18, color: AppTheme.textTertiary),
                 ),
               ],
@@ -363,10 +365,10 @@ class _InspirationScreenState extends State<InspirationScreen> {
             // Content
             Text(
               item.content,
-              maxLines: 3,
+              maxLines: 4,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 14,
                 color: AppTheme.textPrimary,
                 height: 1.5,
               ),

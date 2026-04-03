@@ -302,14 +302,25 @@ class _StatsScreenState extends State<StatsScreen> {
   // ─── Header ───────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
-    return const Center(
-      child: Text(
-        '统计',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: AppTheme.textPrimary,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Row(
+        children: [
+          const SizedBox(width: 36),
+          const Expanded(
+            child: Center(
+              child: Text(
+                '统计',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 36),
+        ],
       ),
     );
   }
@@ -480,7 +491,7 @@ class _StatsScreenState extends State<StatsScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
@@ -636,7 +647,7 @@ class _StatsScreenState extends State<StatsScreen> {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -782,7 +793,7 @@ class _StatsScreenState extends State<StatsScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
@@ -861,7 +872,7 @@ class _StatsScreenState extends State<StatsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -908,7 +919,7 @@ class _StatsScreenState extends State<StatsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -1000,7 +1011,7 @@ class _StatsScreenState extends State<StatsScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [

@@ -69,24 +69,32 @@ class AppTheme {
     borderRadius: BorderRadius.circular(16),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withValues(alpha: 0.03),
-        blurRadius: 10,
-        offset: const Offset(0, 2),
+        color: Colors.black.withValues(alpha: 0.06),
+        blurRadius: 8,
+        offset: const Offset(0, 1),
       ),
     ],
   );
 
   static BoxDecoration smallCardDecoration = BoxDecoration(
     color: cardBackground,
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(16),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withValues(alpha: 0.02),
-        blurRadius: 6,
+        color: Colors.black.withValues(alpha: 0.06),
+        blurRadius: 8,
         offset: const Offset(0, 1),
       ),
     ],
   );
+
+  /// 小日常风格的描边圆形按钮装饰
+  static BoxDecoration outlinedCircleDecoration({double size = 36}) =>
+      BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+      );
 
   static ThemeData get themeData {
     return ThemeData(

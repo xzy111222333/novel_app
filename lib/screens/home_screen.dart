@@ -28,7 +28,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+  static const _weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   static const Color _darkBg = Color(0xFF1F2937);
 
   late DateTime _selectedDate;
@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildHeader(context),
-            _buildWeekdayLabels(),
+            // weekday labels now inside day cells
             AnimatedSize(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
@@ -417,13 +417,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => _showQuickAddMenu(context),
       child: Container(
-        width: 32,
-        height: 32,
-        decoration: const BoxDecoration(
-          color: _darkBg,
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: Colors.white,
           shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
         ),
-        child: const Icon(Icons.add, size: 16, color: Colors.white),
+        child: const Icon(Icons.add, size: 18, color: Color(0xFF666666)),
       ),
     );
   }
@@ -484,30 +485,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Weekday header row (一 二 三 … 日)
-  Widget _buildWeekdayLabels() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: _weekdays.map((d) {
-          return Expanded(
-            child: Center(
-              child: Text(
-                d,
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textTertiary),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   // ── Week-mode: swipeable PageView showing one week row
   Widget _buildWeekPageView() {
     return SizedBox(
-      height: 44,
+      height: 72,
       child: PageView.builder(
         controller: _weekPageController,
         itemCount: _totalWeekPages,
@@ -536,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: List.generate(rows, (row) {
           return SizedBox(
-            height: 44,
+            height: 72,
             child: Row(
               children: List.generate(7, (col) {
                 final day = days[row * 7 + col];
@@ -559,54 +540,58 @@ class _HomeScreenState extends State<HomeScreen> {
     final isSelected = _isSameDay(date, _selectedDate);
     final today = _isToday(date);
     final hasData = _dayHasEntries(date);
+    final weekdayIndex = date.weekday - 1; // 0=Mon .. 6=Sun
 
     return GestureDetector(
       onTap: () => setState(() => _selectedDate = date),
       child: Center(
         child: Container(
-          width: 36,
-          height: 36,
+          width: 48,
+          height: 68,
           decoration: BoxDecoration(
             color: isSelected ? _darkBg : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
+            border: today && !isSelected
+                ? Border.all(color: const Color(0xFFE0E0E0), width: 1.5)
+                : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
+                _weekdays[weekdayIndex],
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                      ? Colors.white70
+                      : AppTheme.textTertiary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
                 '${date.day}',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 20,
                   fontWeight: isSelected || today
                       ? FontWeight.w700
                       : FontWeight.w400,
                   color: isSelected
                       ? Colors.white
-                      : today
-                          ? AppTheme.accent
-                          : AppTheme.textPrimary,
+                      : AppTheme.textPrimary,
                 ),
               ),
-              if (hasData && !isSelected)
+              const SizedBox(height: 2),
+              if (hasData)
                 Container(
-                  margin: const EdgeInsets.only(top: 1),
-                  width: 4,
-                  height: 4,
+                  width: 5,
+                  height: 5,
                   decoration: BoxDecoration(
-                    color: today ? AppTheme.accent : AppTheme.textTertiary,
+                    color: isSelected ? Colors.white54 : AppTheme.textTertiary,
                     shape: BoxShape.circle,
                   ),
-                ),
-              if (isSelected && hasData)
-                Container(
-                  margin: const EdgeInsets.only(top: 1),
-                  width: 4,
-                  height: 4,
-                  decoration: const BoxDecoration(
-                    color: Colors.white54,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                )
+              else
+                const SizedBox(height: 5),
             ],
           ),
         ),
@@ -684,7 +669,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => showAddInspirationSheet(context, item: item),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: AppTheme.cardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -692,8 +677,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Container(
-                  width: 6,
-                  height: 6,
+                  width: 20,
+                  height: 20,
                   decoration: const BoxDecoration(
                     color: AppTheme.accent,
                     shape: BoxShape.circle,
@@ -709,7 +694,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     DataService.instance.deleteInspiration(item.id);
                     _refreshRandomInspiration();
                   }),
-                  child: const Icon(Icons.more_horiz,
+                  child: const Icon(Icons.more_vert,
                       size: 16, color: AppTheme.textTertiary),
                 ),
                 const SizedBox(width: 12),
@@ -844,8 +829,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => showAddMaterialSheet(context, item: item),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
         decoration: AppTheme.smallCardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -870,7 +855,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => _showOptionsSheet(item, '素材', () {
                     DataService.instance.deleteMaterial(item.id);
                   }),
-                  child: const Icon(Icons.more_horiz,
+                  child: const Icon(Icons.more_vert,
                       size: 16, color: AppTheme.textTertiary),
                 ),
               ],
@@ -927,57 +912,61 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => showAddInspirationSheet(context, item: item),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: AppTheme.accent,
-                  shape: BoxShape.circle,
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: AppTheme.cardDecoration,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.accent,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _formatTime(item.createdAt),
-                        style: const TextStyle(
-                            fontSize: 11, color: AppTheme.textTertiary),
-                      ),
-                      GestureDetector(
-                        onTap: () => _showOptionsSheet(item, '灵感', () {
-                          DataService.instance.deleteInspiration(item.id);
-                        }),
-                        child: const Icon(Icons.more_horiz,
-                            size: 16, color: AppTheme.textTertiary),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    item.content,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textPrimary,
-                        height: 1.5),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _formatTime(item.createdAt),
+                          style: const TextStyle(
+                              fontSize: 11, color: AppTheme.textTertiary),
+                        ),
+                        GestureDetector(
+                          onTap: () => _showOptionsSheet(item, '灵感', () {
+                            DataService.instance.deleteInspiration(item.id);
+                          }),
+                          child: const Icon(Icons.more_vert,
+                              size: 16, color: AppTheme.textTertiary),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      item.content,
+                      style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textPrimary,
+                          height: 1.5),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1004,8 +993,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => showAddPlotSheet(context, item: item),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
         decoration: AppTheme.smallCardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1030,7 +1019,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => _showOptionsSheet(item, '剧情', () {
                     DataService.instance.deletePlot(item.id);
                   }),
-                  child: const Icon(Icons.more_horiz,
+                  child: const Icon(Icons.more_vert,
                       size: 16, color: AppTheme.textTertiary),
                 ),
               ],
@@ -1065,7 +1054,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
@@ -1086,14 +1075,32 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         const Spacer(),
-        if (onMore != null)
+        if (onMore != null) ...[
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+            ),
+            child: const Icon(Icons.more_vert, size: 16, color: Color(0xFF666666)),
+          ),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onMore,
-            child: const Text(
-              '更多 >',
-              style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+              ),
+              child: const Icon(Icons.add, size: 16, color: Color(0xFF666666)),
             ),
           ),
+        ],
       ],
     );
   }
