@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
-import '../services/sample_data.dart';
+import '../services/data_service.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -10,40 +12,43 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
-  String selectedTimeRange = '周';
-
-  // Precomputed word counts
-  late final int materialWords;
-  late final int vocabularyWords;
-  late final int inspirationWords;
-  late final int plotWords;
-  late final int totalWords;
-
-  // Fixed daily word counts for demo bar chart (Mon–Sun)
-  final List<int> dailyWordCounts = [320, 580, 210, 460, 720, 150, 390];
-
-  // Fixed heatmap activity pattern (rows: modules, cols: Mon–Sun)
-  // true = has activity, false = no activity
-  final List<List<bool>> heatmapData = [
-    [true, false, true, true, false, true, false],  // 素材
-    [false, true, true, false, true, false, true],   // 词汇
-    [true, true, false, false, true, true, false],   // 灵感
-    [false, false, true, true, false, true, true],   // 剧情
-  ];
+  final _ds = DataService.instance;
 
   @override
   void initState() {
     super.initState();
-    final materials = SampleData.getMaterials();
-    final vocabulary = SampleData.getVocabulary();
-    final inspirations = SampleData.getInspirations();
-    final plots = SampleData.getPlots();
+    DataService.instance.addListener(_onDataChanged);
+  }
 
-    materialWords = materials.fold<int>(0, (sum, m) => sum + m.wordCount);
-    vocabularyWords = vocabulary.fold<int>(0, (sum, v) => sum + v.wordCount);
-    inspirationWords = inspirations.fold<int>(0, (sum, i) => sum + i.wordCount);
-    plotWords = plots.fold<int>(0, (sum, p) => sum + p.wordCount);
-    totalWords = materialWords + vocabularyWords + inspirationWords + plotWords;
+  void _onDataChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    DataService.instance.removeListener(_onDataChanged);
+    super.dispose();
+  }
+
+  String _formatNumber(int n) => NumberFormat('#,###').format(n);
+
+  int get _todayWordCount {
+    int count = 0;
+    for (final m in _ds.todayMaterials) {
+      count += m.content.length;
+    }
+    for (final v in _ds.todayVocabulary) {
+      count += v.content.length;
+    }
+    for (final i in _ds.todayInspirations) {
+      count += i.content.length + (i.title?.length ?? 0);
+    }
+    for (final p in _ds.todayPlots) {
+      count += p.type == 'steps'
+          ? p.steps.fold<int>(0, (s, step) => s + step.length)
+          : p.freeContent.length;
+    }
+    return count;
   }
 
   @override
@@ -65,10 +70,9 @@ class _StatsScreenState extends State<StatsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               _buildHeroCard(),
               const SizedBox(height: 20),
-              _buildTimeRangeCard(),
+              _buildModuleGrid(),
               const SizedBox(height: 20),
               _buildHeatmapCard(),
               const SizedBox(height: 20),
@@ -87,13 +91,17 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget _buildHeroCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFFFF8E1), Color(0xFFFFF3E0)],
+        ),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: const Color(0xFFFFB300).withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 6),
           ),
@@ -102,219 +110,180 @@ class _StatsScreenState extends State<StatsScreen> {
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(28),
+              color: const Color(0xFFFFB300).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(26),
             ),
-            child: const Icon(Icons.edit_outlined, size: 28, color: AppTheme.textSecondary),
+            child: const Icon(Icons.edit_note_rounded, size: 26, color: Color(0xFFFF8F00)),
           ),
           const SizedBox(height: 16),
           Text(
-            '$totalWords',
+            _formatNumber(_ds.totalWordCount),
             style: const TextStyle(
-              fontSize: 40,
+              fontSize: 42,
               fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
+              color: Color(0xFFE65100),
               height: 1.1,
             ),
           ),
           const SizedBox(height: 6),
           const Text(
-            '累计收集字数',
+            '总收集字数',
             style: TextStyle(
               fontSize: 14,
-              color: AppTheme.textTertiary,
+              color: Color(0xFFBF8A30),
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
-          // 2x2 module word count grid
-          Row(
-            children: [
-              Expanded(
-                child: _buildModuleStat(
-                  '素材', '$materialWords 字',
-                  AppTheme.materialColor, AppTheme.materialBg,
-                ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '今日收集 $_todayWordCount 字',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF9E7520),
+                fontWeight: FontWeight.w500,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildModuleStat(
-                  '词汇', '$vocabularyWords 字',
-                  AppTheme.vocabularyColor, AppTheme.vocabularyBg,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildModuleStat(
-                  '灵感', '$inspirationWords 字',
-                  AppTheme.inspirationColor, AppTheme.inspirationBg,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildModuleStat(
-                  '剧情', '$plotWords 字',
-                  AppTheme.plotColor, AppTheme.plotBg,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildModuleStat(String label, String value, Color color, Color bgColor) {
+  // ── 2×2 Module Breakdown Grid ──
+  Widget _buildModuleGrid() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildModuleCard(
+                '素材',
+                _ds.materialWordCount,
+                '${_ds.materials.length}条',
+                AppTheme.materialColor,
+                AppTheme.materialBg,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildModuleCard(
+                '词汇',
+                _ds.vocabularyWordCount,
+                '${_ds.vocabulary.length}条',
+                AppTheme.vocabularyColor,
+                AppTheme.vocabularyBg,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildModuleCard(
+                '灵感',
+                _ds.inspirationWordCount,
+                '${_ds.inspirations.length}条',
+                AppTheme.inspirationColor,
+                AppTheme.inspirationBg,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildModuleCard(
+                '剧情',
+                _ds.plotWordCount,
+                '${_ds.plots.length}条',
+                AppTheme.plotColor,
+                AppTheme.plotBg,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildModuleCard(
+    String label,
+    int wordCount,
+    String itemCount,
+    Color color,
+    Color bgColor,
+  ) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               color: color,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
-            value,
+            _formatNumber(wordCount),
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
               color: color,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  // ── Time Range Card ──
-  Widget _buildTimeRangeCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Toggle buttons
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(20),
+          const SizedBox(height: 2),
+          Text(
+            '字 · $itemCount',
+            style: TextStyle(
+              fontSize: 11,
+              color: color.withValues(alpha: 0.7),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: ['周', '月', '年'].map((range) {
-                final isSelected = range == selectedTimeRange;
-                return GestureDetector(
-                  onTap: () => setState(() => selectedTimeRange = range),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.textPrimary : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      range,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? Colors.white : AppTheme.textTertiary,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Date range with arrows
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {},
-                child: const Icon(Icons.chevron_left, size: 20, color: AppTheme.textTertiary),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                '本周 03/30 → 04/05',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () {},
-                child: const Icon(Icons.chevron_right, size: 20, color: AppTheme.textTertiary),
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  // ── Activity Heatmap Grid ──
+  // ── Weekly Activity Heatmap ──
   Widget _buildHeatmapCard() {
-    final dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
-    final moduleLabels = ['素材', '词汇', '灵感', '剧情'];
-    final moduleIcons = [
-      Icons.description_outlined,
-      Icons.text_fields_rounded,
-      Icons.lightbulb_outline_rounded,
-      Icons.auto_stories_outlined,
-    ];
-    final moduleColors = [
+    final activity = _ds.getWeeklyActivity();
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    final sunday = monday.add(const Duration(days: 6));
+    final dateRange =
+        '${monday.month}/${monday.day} - ${sunday.month}/${sunday.day}';
+
+    const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
+    const moduleKeys = ['materials', 'vocabulary', 'inspirations', 'plots'];
+    const moduleLabels = ['素材', '词汇', '灵感', '剧情'];
+    const moduleColors = [
       AppTheme.materialColor,
       AppTheme.vocabularyColor,
       AppTheme.inspirationColor,
       AppTheme.plotColor,
     ];
-    final moduleBgColors = [
-      AppTheme.materialBg,
-      AppTheme.vocabularyBg,
-      AppTheme.inspirationBg,
-      AppTheme.plotBg,
-    ];
-
-    int totalRecords = 0;
-    for (final row in heatmapData) {
-      totalRecords += row.where((v) => v).length;
-    }
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -326,79 +295,95 @@ class _StatsScreenState extends State<StatsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '本周活动',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
+          Row(
+            children: [
+              const Text(
+                '本周活动',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                dateRange,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           // Day labels row
           Row(
             children: [
-              const SizedBox(width: 72),
+              const SizedBox(width: 48),
               ...dayLabels.map((d) => Expanded(
-                child: Center(
-                  child: Text(
-                    d,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.textTertiary,
-                      fontWeight: FontWeight.w500,
+                    child: Center(
+                      child: Text(
+                        d,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.textTertiary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )),
+                  )),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           // Module rows
           ...List.generate(4, (rowIdx) {
+            final counts = activity[moduleKeys[rowIdx]] ?? List.filled(7, 0);
             return Padding(
               padding: EdgeInsets.only(bottom: rowIdx < 3 ? 10 : 0),
               child: Row(
                 children: [
-                  // Module icon + name
                   SizedBox(
-                    width: 72,
-                    child: Row(
-                      children: [
-                        Icon(moduleIcons[rowIdx], size: 14, color: moduleColors[rowIdx]),
-                        const SizedBox(width: 4),
-                        Text(
-                          moduleLabels[rowIdx],
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: moduleColors[rowIdx],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    width: 48,
+                    child: Text(
+                      moduleLabels[rowIdx],
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: moduleColors[rowIdx],
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  // Activity cells
                   ...List.generate(7, (colIdx) {
-                    final active = heatmapData[rowIdx][colIdx];
+                    final active = counts[colIdx] > 0;
                     return Expanded(
                       child: Center(
                         child: Container(
-                          width: 28,
-                          height: 28,
+                          width: 22,
+                          height: 22,
                           decoration: BoxDecoration(
-                            color: active ? moduleBgColors[rowIdx] : const Color(0xFFF9FAFB),
-                            borderRadius: BorderRadius.circular(8),
+                            shape: BoxShape.circle,
+                            color: active
+                                ? moduleColors[rowIdx].withValues(alpha: 0.2)
+                                : const Color(0xFFF3F4F6),
                           ),
                           child: active
-                              ? Icon(Icons.check, size: 14, color: moduleColors[rowIdx])
+                              ? Center(
+                                  child: Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: moduleColors[rowIdx],
+                                    ),
+                                  ),
+                                )
                               : Center(
                                   child: Container(
                                     width: 6,
                                     height: 6,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE5E7EB),
-                                      borderRadius: BorderRadius.circular(3),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFE0E0E0),
                                     ),
                                   ),
                                 ),
@@ -410,16 +395,6 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
             );
           }),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              '总计: $totalRecords 项记录',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textTertiary,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -427,15 +402,18 @@ class _StatsScreenState extends State<StatsScreen> {
 
   // ── Daily Word Count Bar Chart ──
   Widget _buildBarChartCard() {
-    final dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    final maxCount = dailyWordCounts.reduce((a, b) => a > b ? a : b);
+    final dailyCounts = _ds.getDailyWordCounts();
+    final maxCount = dailyCounts.reduce((a, b) => max(a, b));
+    const dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    const barColor = Color(0xFF4A8B9F);
+    const barBg = Color(0xFFD0E8F2);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -457,29 +435,13 @@ class _StatsScreenState extends State<StatsScreen> {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: 160,
+            height: 170,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(7, (i) {
-                final ratio = maxCount > 0 ? dailyWordCounts[i] / maxCount : 0.0;
-                final barColors = [
-                  AppTheme.materialColor,
-                  AppTheme.inspirationColor,
-                  AppTheme.plotColor,
-                  AppTheme.vocabularyColor,
-                  AppTheme.materialColor,
-                  AppTheme.inspirationColor,
-                  AppTheme.plotColor,
-                ];
-                final barBgColors = [
-                  AppTheme.materialBg,
-                  AppTheme.inspirationBg,
-                  AppTheme.plotBg,
-                  AppTheme.vocabularyBg,
-                  AppTheme.materialBg,
-                  AppTheme.inspirationBg,
-                  AppTheme.plotBg,
-                ];
+                final ratio =
+                    maxCount > 0 ? dailyCounts[i] / maxCount : 0.0;
+                final barHeight = max(4.0, 120.0 * ratio);
 
                 return Expanded(
                   child: Padding(
@@ -487,36 +449,28 @@ class _StatsScreenState extends State<StatsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          '${dailyWordCounts[i]}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: barColors[i],
-                            fontWeight: FontWeight.w600,
+                        if (dailyCounts[i] > 0)
+                          Text(
+                            '${dailyCounts[i]}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: barColor,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 4),
                         Container(
-                          height: 120 * ratio,
+                          height: barHeight,
                           decoration: BoxDecoration(
-                            color: barBgColors[i],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  colors: [
-                                    barColors[i].withValues(alpha: 0.3),
-                                    barBgColors[i],
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                barColor.withValues(alpha: 0.4),
+                                barBg,
+                              ],
                             ),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -542,13 +496,20 @@ class _StatsScreenState extends State<StatsScreen> {
   // ── Share Button ──
   Widget _buildShareButton() {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('功能开发中'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: AppTheme.textPrimary,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -556,7 +517,7 @@ class _StatsScreenState extends State<StatsScreen> {
             Icon(Icons.share_outlined, size: 18, color: Colors.white),
             SizedBox(width: 8),
             Text(
-              '分享周报',
+              '分享统计',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

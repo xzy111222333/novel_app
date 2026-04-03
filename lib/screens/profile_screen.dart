@@ -1,8 +1,38 @@
 import 'package:flutter/material.dart';
+import '../services/data_service.dart';
 import '../theme/app_theme.dart';
+import 'category_manage_screen.dart';
+import 'tag_manage_screen.dart';
+import 'favorites_screen.dart';
+import 'global_search_screen.dart';
+import 'modular_settings_screen.dart';
+import 'export_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final DataService _data = DataService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    DataService.instance.addListener(_onDataChanged);
+  }
+
+  void _onDataChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    DataService.instance.removeListener(_onDataChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +60,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildHeader() {
     return Row(
       children: [
-        _buildCircleButton(Icons.headphones_outlined),
+        const SizedBox(width: 40),
         const Spacer(),
         const Text(
           '我的',
@@ -41,27 +71,19 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        _buildCircleButton(Icons.settings_outlined),
-      ],
-    );
-  }
-
-  Widget _buildCircleButton(IconData icon) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        GestureDetector(
+          onTap: () => _showComingSoon('设置'),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFF2C2C2E),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(Icons.settings_outlined, size: 20, color: Colors.white),
           ),
-        ],
-      ),
-      child: Icon(icon, size: 20, color: AppTheme.textSecondary),
+        ),
+      ],
     );
   }
 
@@ -83,23 +105,28 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Avatar + name + badge row
           Row(
             children: [
-              // Avatar
+              // Amber avatar with "灵"
               const CircleAvatar(
                 radius: 32,
                 backgroundColor: Color(0xFFFCEFC7),
-                child: Icon(Icons.person, size: 32, color: Color(0xFFD4A017)),
+                child: Text(
+                  '灵',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFD4A017),
+                  ),
+                ),
               ),
               const SizedBox(width: 16),
-              // Name + join info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      '墨客',
+                      '小灵感用户',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -108,7 +135,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '已加入小灵感 128 天',
+                      '创作灵感收集工具',
                       style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textTertiary,
@@ -117,7 +144,6 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              // Premium badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
@@ -130,7 +156,7 @@ class ProfileScreen extends StatelessWidget {
                     Icon(Icons.workspace_premium, size: 14, color: Color(0xFFD4A017)),
                     SizedBox(width: 4),
                     Text(
-                      '高级会员',
+                      '会员',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -143,28 +169,24 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-
-          // Divider
           const Divider(color: Color(0xFFF3F4F6), height: 1),
           const SizedBox(height: 20),
 
-          // Stats row
+          // Stats row — live from DataService
           IntrinsicHeight(
             child: Row(
               children: [
-                _buildStatColumn('素材数', '128'),
+                _buildStatColumn('素材', '${_data.materials.length}'),
                 _buildVerticalDivider(),
-                _buildStatColumn('词汇数', '86'),
+                _buildStatColumn('词汇', '${_data.vocabulary.length}'),
                 _buildVerticalDivider(),
-                _buildStatColumn('灵感数', '35'),
+                _buildStatColumn('灵感', '${_data.inspirations.length}'),
                 _buildVerticalDivider(),
-                _buildStatColumn('剧情数', '42'),
+                _buildStatColumn('剧情', '${_data.plots.length}'),
               ],
             ),
           ),
           const SizedBox(height: 20),
-
-          // Divider
           const Divider(color: Color(0xFFF3F4F6), height: 1),
           const SizedBox(height: 14),
 
@@ -173,7 +195,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () => _showComingSoon('数据管理'),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -187,14 +209,6 @@ class ProfileScreen extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '8小时前',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
                       const SizedBox(width: 2),
                       const Icon(Icons.chevron_right, size: 14, color: AppTheme.textTertiary),
                     ],
@@ -204,7 +218,7 @@ class ProfileScreen extends StatelessWidget {
               Container(width: 1, height: 16, color: const Color(0xFFF3F4F6)),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () => _showComingSoon('使用指南'),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -265,18 +279,18 @@ class ProfileScreen extends StatelessWidget {
   // ── Function Grid ──
   Widget _buildFunctionGrid() {
     final items = [
-      _FunctionItem(Icons.folder_outlined, '分类管理'),
-      _FunctionItem(Icons.label_outlined, '标签管理'),
-      _FunctionItem(Icons.star_outline_rounded, '收藏夹'),
-      _FunctionItem(Icons.search_rounded, '全局搜索'),
-      _FunctionItem(Icons.file_download_outlined, '数据导出'),
-      _FunctionItem(Icons.cloud_upload_outlined, '数据备份'),
-      _FunctionItem(Icons.grid_view_rounded, '模块化设置'),
-      _FunctionItem(Icons.palette_outlined, '个性化'),
-      _FunctionItem(Icons.delete_outline_rounded, '最近删除'),
-      _FunctionItem(Icons.chat_bubble_outline_rounded, '意见反馈'),
-      _FunctionItem(Icons.info_outline_rounded, '关于我们'),
-      _FunctionItem(Icons.settings_outlined, '设置'),
+      _FunctionItem(Icons.folder_outlined, '分类管理', const Color(0xFFE8F0FE), const Color(0xFF4285F4)),
+      _FunctionItem(Icons.label_outlined, '标签管理', const Color(0xFFFCE4EC), const Color(0xFFE91E63)),
+      _FunctionItem(Icons.star_outline_rounded, '收藏夹', const Color(0xFFFFF8E1), const Color(0xFFFF8F00)),
+      _FunctionItem(Icons.search_rounded, '全局搜索', const Color(0xFFE0F2F1), const Color(0xFF009688)),
+      _FunctionItem(Icons.file_download_outlined, '数据导出', const Color(0xFFF3E5F5), const Color(0xFF9C27B0)),
+      _FunctionItem(Icons.cloud_upload_outlined, '数据备份', const Color(0xFFE8EAF6), const Color(0xFF3F51B5)),
+      _FunctionItem(Icons.grid_view_rounded, '模块化设置', const Color(0xFFE0F7FA), const Color(0xFF00BCD4)),
+      _FunctionItem(Icons.palette_outlined, '个性化', const Color(0xFFFBE9E7), const Color(0xFFFF5722)),
+      _FunctionItem(Icons.delete_outline_rounded, '最近删除', const Color(0xFFEFEBE9), const Color(0xFF795548)),
+      _FunctionItem(Icons.chat_bubble_outline_rounded, '意见反馈', const Color(0xFFE8F5E9), const Color(0xFF4CAF50)),
+      _FunctionItem(Icons.info_outline_rounded, '关于我们', const Color(0xFFF1F8E9), const Color(0xFF689F38)),
+      _FunctionItem(Icons.settings_outlined, '设置', const Color(0xFFF5F5F5), const Color(0xFF757575)),
     ];
 
     return Container(
@@ -313,31 +327,24 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildFunctionItem(_FunctionItem item) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () => _handleFunctionTap(item.label),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              color: item.bgColor,
+              shape: BoxShape.circle,
             ),
-            child: Icon(item.icon, size: 22, color: AppTheme.textSecondary),
+            child: Icon(item.icon, size: 24, color: item.iconColor),
           ),
           const SizedBox(height: 8),
           Text(
             item.label,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               color: AppTheme.textSecondary,
             ),
             textAlign: TextAlign.center,
@@ -346,10 +353,99 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  // ── Navigation ──
+  void _handleFunctionTap(String label) {
+    switch (label) {
+      case '分类管理':
+        _showCategoryModulePicker();
+      case '标签管理':
+        _push(const TagManageScreen());
+      case '收藏夹':
+        _push(const FavoritesScreen());
+      case '全局搜索':
+        _push(const GlobalSearchScreen());
+      case '数据导出':
+        _push(const ExportScreen());
+      case '模块化设置':
+        _push(const ModularSettingsScreen());
+      default:
+        _showComingSoon(label);
+    }
+  }
+
+  void _push(Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  }
+
+  void _showComingSoon(String name) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$name — 功能开发中'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _showCategoryModulePicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final options = [
+          {'label': '素材分类', 'module': 'material'},
+          {'label': '词汇分类', 'module': 'vocabulary'},
+          {'label': '剧情分类', 'module': 'plot'},
+        ];
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '选择分类模块',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ...options.map((opt) => ListTile(
+                      leading: const Icon(Icons.folder_outlined),
+                      title: Text(opt['label']!),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _push(CategoryManageScreen(module: opt['module']!));
+                      },
+                    )),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _FunctionItem {
   final IconData icon;
   final String label;
-  const _FunctionItem(this.icon, this.label);
+  final Color bgColor;
+  final Color iconColor;
+  const _FunctionItem(this.icon, this.label, this.bgColor, this.iconColor);
 }
