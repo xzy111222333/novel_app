@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../utils/share_card_util.dart';
 import '../widgets/category_pills.dart';
 import '../widgets/search_bar_widget.dart';
 import '../widgets/add_plot_sheet.dart';
@@ -53,6 +55,25 @@ class _PlotsScreenState extends State<PlotsScreen> {
     }).toList();
   }
 
+  Future<void> _shareItemAsImage(PlotItem item) async {
+    await ShareCardUtil.shareAsImage(
+      context,
+      typeLabel: '剧情',
+      content: item.displayContent,
+      meta: item.category,
+      tags: item.tags,
+      accentColor: AppTheme.getCategoryColor(item.category),
+    );
+  }
+
+  void _showAllPlots() {
+    setState(() {
+      _selectedCategory = '全部';
+      _searchQuery = '';
+      _showSearch = false;
+    });
+  }
+
   // ── Add category dialog ──
   void _showAddCategoryDialog() {
     final controller = TextEditingController();
@@ -84,37 +105,9 @@ class _PlotsScreenState extends State<PlotsScreen> {
     );
   }
 
-  // ── Delete confirm dialog ──
-  void _confirmDelete(PlotItem item) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('确认删除'),
-        content: const Text('删除后无法恢复，确定要删除这条剧情吗？'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
-          TextButton(
-            onPressed: () {
-              DataService.instance.deletePlot(item.id);
-              Navigator.pop(ctx);
-            },
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ── Edit bottom sheet ──
   void _showEditPlotSheet(PlotItem item) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _EditPlotSheet(item: item),
-    );
+    showAddPlotSheet(context, item: item);
   }
 
   @override
@@ -129,7 +122,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
           children: [
             // ── Header ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
               child: Row(
                 children: [
                   _buildHeaderButton(Icons.search, () {
@@ -139,8 +132,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   const Text(
                     '剧情库',
                     style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
                     ),
                   ),
@@ -151,7 +144,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // ── Toggleable search bar ──
             if (_showSearch) ...[
@@ -173,19 +166,19 @@ class _PlotsScreenState extends State<PlotsScreen> {
 
             // ── Count row ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   '共 ${plots.length} 条剧情',
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 10,
                     color: AppTheme.textTertiary,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // ── Plot cards / empty state ──
             Expanded(
@@ -208,7 +201,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
                       itemCount: plots.length,
                       itemBuilder: (context, index) =>
                           _buildPlotCard(plots[index]),
@@ -225,13 +218,76 @@ class _PlotsScreenState extends State<PlotsScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
           color: AppTheme.textPrimary,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Icon(icon, size: 18, color: Colors.white),
+        child: Icon(icon, size: 16, color: Colors.white),
+      ),
+    );
+  }
+
+  void _showOptionsSheet(PlotItem item) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 32,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.copy, size: 22, color: AppTheme.textSecondary),
+              title: const Text('复制内容', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                Clipboard.setData(ClipboardData(text: item.displayContent));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined, size: 22, color: AppTheme.textSecondary),
+              title: const Text('分享为图片', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              onTap: () async {
+                Navigator.pop(ctx);
+                await _shareItemAsImage(item);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notes, size: 22, color: AppTheme.textSecondary),
+              title: const Text('查看全部剧情', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showAllPlots();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, size: 22, color: Colors.redAccent),
+              title: const Text('删除剧情', style: TextStyle(fontSize: 15, color: Colors.redAccent)),
+              onTap: () {
+                Navigator.pop(ctx);
+                DataService.instance.deletePlot(item.id);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -239,22 +295,23 @@ class _PlotsScreenState extends State<PlotsScreen> {
   // ── Plot card ──
   Widget _buildPlotCard(PlotItem item) {
     final categoryColor = AppTheme.getCategoryColor(item.category);
-    final cardBg = AppTheme.getCategoryBgColor(item.category);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return GestureDetector(
+      onTap: () => _showEditPlotSheet(item),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -262,73 +319,43 @@ class _PlotsScreenState extends State<PlotsScreen> {
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                height: 20,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
-                  color: categoryColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: categoryColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
                 ),
+                alignment: Alignment.center,
                 child: Text(
                   item.category,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: categoryColor,
                   ),
                 ),
               ),
               const Spacer(),
-              // Favorite star
               GestureDetector(
                 onTap: () =>
                     DataService.instance.togglePlotFavorite(item.id),
                 child: Icon(
                   item.isFavorite ? Icons.star : Icons.star_border,
-                  size: 22,
+                  size: 16,
                   color: item.isFavorite
                       ? const Color(0xFFF59E0B)
                       : AppTheme.textTertiary,
                 ),
               ),
               const SizedBox(width: 4),
-              // Three-dot menu
-              SizedBox(
-                width: 28,
-                height: 28,
-                child: PopupMenuButton<String>(
-                  padding: EdgeInsets.zero,
-                  iconSize: 20,
-                  icon: const Icon(Icons.more_vert,
-                      size: 20, color: AppTheme.textTertiary),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'edit':
-                        _showEditPlotSheet(item);
-                        break;
-                      case 'delete':
-                        _confirmDelete(item);
-                        break;
-                      case 'fav':
-                        DataService.instance.togglePlotFavorite(item.id);
-                        break;
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(value: 'edit', child: Text('编辑')),
-                    const PopupMenuItem(value: 'delete', child: Text('删除')),
-                    PopupMenuItem(
-                      value: 'fav',
-                      child:
-                          Text(item.isFavorite ? '取消收藏' : '收藏'),
-                    ),
-                  ],
-                ),
+              GestureDetector(
+                onTap: () => _showOptionsSheet(item),
+                child: const Icon(Icons.more_horiz,
+                    size: 16, color: AppTheme.textTertiary),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 8),
 
           // Content
           if (item.type == 'steps')
@@ -338,24 +365,16 @@ class _PlotsScreenState extends State<PlotsScreen> {
 
           // Tags row
           if (item.tags.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 6,
-              runSpacing: 6,
+              runSpacing: 4,
               children: item.tags.map((tag) {
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    tag,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.textTertiary,
-                    ),
+                return Text(
+                  '#$tag',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.textTertiary,
                   ),
                 );
               }).toList(),
@@ -363,15 +382,16 @@ class _PlotsScreenState extends State<PlotsScreen> {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ── Steps content (max 4 visible) ──
   Widget _buildStepsContent(PlotItem item) {
-    final showSteps = item.steps.length > 4
-        ? item.steps.sublist(0, 4)
+    final showSteps = item.steps.length > 3
+        ? item.steps.sublist(0, 3)
         : item.steps;
-    final hasMore = item.steps.length > 4;
+    final hasMore = item.steps.length > 3;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,34 +399,34 @@ class _PlotsScreenState extends State<PlotsScreen> {
         ...showSteps.asMap().entries.map((e) {
           return Padding(
             padding: EdgeInsets.only(
-                bottom: e.key < showSteps.length - 1 ? 8 : 0),
+                bottom: e.key < showSteps.length - 1 ? 6 : 0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 20,
-                  height: 20,
+                  width: 18,
+                  height: 18,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.getCategoryColor(item.category).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(9),
                   ),
                   child: Center(
                     child: Text(
                       '${e.key + 1}',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.getCategoryColor(item.category),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     e.value,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       color: AppTheme.textSecondary,
                       height: 1.4,
                     ),
@@ -418,10 +438,10 @@ class _PlotsScreenState extends State<PlotsScreen> {
         }),
         if (hasMore)
           const Padding(
-            padding: EdgeInsets.only(top: 6),
+            padding: EdgeInsets.only(top: 4),
             child: Text('...',
                 style: TextStyle(
-                    fontSize: 14, color: AppTheme.textTertiary)),
+                    fontSize: 12, color: AppTheme.textTertiary)),
           ),
       ],
     );
@@ -431,10 +451,10 @@ class _PlotsScreenState extends State<PlotsScreen> {
   Widget _buildFreeContent(PlotItem item) {
     return Text(
       item.freeContent,
-      maxLines: 4,
+      maxLines: 3,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(
-        fontSize: 13,
+        fontSize: 12,
         color: AppTheme.textSecondary,
         height: 1.5,
       ),
@@ -442,493 +462,3 @@ class _PlotsScreenState extends State<PlotsScreen> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Edit bottom sheet (mirrors AddPlotSheet but pre-fills data)
-// ═══════════════════════════════════════════════════════════════
-class _EditPlotSheet extends StatefulWidget {
-  final PlotItem item;
-  const _EditPlotSheet({required this.item});
-
-  @override
-  State<_EditPlotSheet> createState() => _EditPlotSheetState();
-}
-
-class _EditPlotSheetState extends State<_EditPlotSheet> {
-  late final TextEditingController _freeContentController;
-  final _tagController = TextEditingController();
-  late List<String> _tags;
-  late List<TextEditingController> _stepControllers;
-  late String _selectedCategory;
-  late String _type;
-
-  @override
-  void initState() {
-    super.initState();
-    final item = widget.item;
-    _type = item.type;
-    _selectedCategory = item.category;
-    _tags = List<String>.from(item.tags);
-    _freeContentController = TextEditingController(text: item.freeContent);
-    _stepControllers = item.steps.isNotEmpty
-        ? item.steps.map((s) => TextEditingController(text: s)).toList()
-        : [TextEditingController()];
-  }
-
-  @override
-  void dispose() {
-    _freeContentController.dispose();
-    _tagController.dispose();
-    for (final c in _stepControllers) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  void _addStep() {
-    setState(() => _stepControllers.add(TextEditingController()));
-  }
-
-  void _removeStep(int index) {
-    if (_stepControllers.length <= 1) return;
-    setState(() {
-      _stepControllers[index].dispose();
-      _stepControllers.removeAt(index);
-    });
-  }
-
-  void _addTag() {
-    final tag = _tagController.text.trim();
-    if (tag.isNotEmpty && !_tags.contains(tag)) {
-      setState(() {
-        _tags.add(tag);
-        _tagController.clear();
-      });
-    }
-  }
-
-  void _removeTag(String tag) {
-    setState(() => _tags.remove(tag));
-  }
-
-  void _submit() {
-    PlotItem updated;
-    if (_type == 'steps') {
-      final steps = _stepControllers
-          .map((c) => c.text.trim())
-          .where((s) => s.isNotEmpty)
-          .toList();
-      if (steps.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('请至少输入一个步骤')),
-        );
-        return;
-      }
-      updated = widget.item.copyWith(
-        type: 'steps',
-        steps: steps,
-        freeContent: '',
-        category: _selectedCategory,
-        tags: List<String>.from(_tags),
-      );
-    } else {
-      final content = _freeContentController.text.trim();
-      if (content.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('请输入剧情内容')),
-        );
-        return;
-      }
-      updated = widget.item.copyWith(
-        type: 'free',
-        steps: [],
-        freeContent: content,
-        category: _selectedCategory,
-        tags: List<String>.from(_tags),
-      );
-    }
-    DataService.instance.updatePlot(updated);
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('剧情已更新')),
-    );
-  }
-
-  void _addNewCategory() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('新增分类'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: '输入分类名称'),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
-          TextButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                DataService.instance.addCategory('plot', name);
-                setState(() => _selectedCategory = name);
-              }
-              Navigator.pop(ctx);
-            },
-            child: const Text('确定'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
-    final categories = DataService.instance.plotCategories;
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Drag handle
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            // Title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Text(
-                '编辑剧情',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            // Type toggle
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(4),
-                child: Row(
-                  children: [
-                    _buildTypeTab('steps', '步骤拆解'),
-                    _buildTypeTab('free', '自由描述'),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Content
-            if (_type == 'steps') ...[
-              ...List.generate(_stepControllers.length, (index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: AppTheme.plotBg,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${index + 1}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.plotColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF9FAFB),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextField(
-                            controller: _stepControllers[index],
-                            decoration: InputDecoration(
-                              hintText: '步骤 ${index + 1}',
-                              hintStyle: const TextStyle(
-                                  color: AppTheme.textTertiary, fontSize: 13),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 12),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (_stepControllers.length > 1)
-                        GestureDetector(
-                          onTap: () => _removeStep(index),
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 8),
-                            child: Icon(Icons.remove_circle_outline,
-                                size: 20, color: AppTheme.textTertiary),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              }),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: GestureDetector(
-                  onTap: _addStep,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.plotBg,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add, size: 16, color: AppTheme.plotColor),
-                        SizedBox(width: 6),
-                        Text(
-                          '添加步骤',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.plotColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ] else ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: TextField(
-                    controller: _freeContentController,
-                    maxLines: 6,
-                    decoration: const InputDecoration(
-                      hintText: '自由描述你的剧情构思...',
-                      hintStyle: TextStyle(color: AppTheme.textTertiary),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 16),
-            // Category label
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '分类',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Category pills
-            SizedBox(
-              height: 36,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  ...categories.map((cat) {
-                    final isSelected = cat == _selectedCategory;
-                    final color = AppTheme.getCategoryColor(cat);
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: GestureDetector(
-                        onTap: () =>
-                            setState(() => _selectedCategory = cat),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppTheme.plotColor
-                                : color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            cat,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: isSelected ? Colors.white : color,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                  GestureDetector(
-                    onTap: _addNewCategory,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Icon(Icons.add,
-                          size: 16, color: AppTheme.textTertiary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Tags label
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '标签',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _tags
-                    .map((tag) => Chip(
-                          label: Text(tag,
-                              style: const TextStyle(fontSize: 12)),
-                          deleteIcon: const Icon(Icons.close, size: 14),
-                          onDeleted: () => _removeTag(tag),
-                          backgroundColor: AppTheme.plotBg,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          side: BorderSide.none,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                        ))
-                    .toList(),
-              ),
-            ),
-            if (_tags.isNotEmpty) const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _tagController,
-                  decoration: const InputDecoration(
-                    hintText: '输入标签后按回车添加',
-                    hintStyle:
-                        TextStyle(color: AppTheme.textTertiary, fontSize: 13),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  onSubmitted: (_) => _addTag(),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Submit button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.plotColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    '保存修改',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTypeTab(String type, String label) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _type = type),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color:
-                _type == type ? AppTheme.plotColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color:
-                  _type == type ? Colors.white : AppTheme.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

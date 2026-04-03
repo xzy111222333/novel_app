@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/data_service.dart';
+
+enum _RangeMode { week, month, year }
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -13,11 +14,13 @@ class StatsScreen extends StatefulWidget {
 
 class _StatsScreenState extends State<StatsScreen> {
   final _ds = DataService.instance;
+  _RangeMode _mode = _RangeMode.week;
+  int _offset = 0; // 0 = current period, -1 = previous, +1 = next
 
   @override
   void initState() {
     super.initState();
-    DataService.instance.addListener(_onDataChanged);
+    _ds.addListener(_onDataChanged);
   }
 
   void _onDataChanged() {
@@ -26,30 +29,217 @@ class _StatsScreenState extends State<StatsScreen> {
 
   @override
   void dispose() {
-    DataService.instance.removeListener(_onDataChanged);
+    _ds.removeListener(_onDataChanged);
     super.dispose();
   }
 
-  String _formatNumber(int n) => NumberFormat('#,###').format(n);
+  // ── Date range helpers ──
 
-  int get _todayWordCount {
-    int count = 0;
-    for (final m in _ds.todayMaterials) {
-      count += m.content.length;
+  DateTime get _rangeStart {
+    final now = DateTime.now();
+    switch (_mode) {
+      case _RangeMode.week:
+        final monday = DateTime(now.year, now.month, now.day)
+            .subtract(Duration(days: now.weekday - 1));
+        return monday.add(Duration(days: _offset * 7));
+      case _RangeMode.month:
+        return DateTime(now.year, now.month + _offset, 1);
+      case _RangeMode.year:
+        return DateTime(now.year + _offset, 1, 1);
     }
-    for (final v in _ds.todayVocabulary) {
-      count += v.content.length;
-    }
-    for (final i in _ds.todayInspirations) {
-      count += i.content.length + (i.title?.length ?? 0);
-    }
-    for (final p in _ds.todayPlots) {
-      count += p.type == 'steps'
-          ? p.steps.fold<int>(0, (s, step) => s + step.length)
-          : p.freeContent.length;
-    }
-    return count;
   }
+
+  DateTime get _rangeEnd {
+    switch (_mode) {
+      case _RangeMode.week:
+        return _rangeStart.add(const Duration(days: 6));
+      case _RangeMode.month:
+        final next = DateTime(_rangeStart.year, _rangeStart.month + 1, 1);
+        return next.subtract(const Duration(days: 1));
+      case _RangeMode.year:
+        return DateTime(_rangeStart.year, 12, 31);
+    }
+  }
+
+  String get _rangeLabel {
+    final s = _rangeStart;
+    final e = _rangeEnd;
+    String pad(int v) => v.toString().padLeft(2, '0');
+    switch (_mode) {
+      case _RangeMode.week:
+        final label = _offset == 0 ? '本周' : (_offset == -1 ? '上周' : '');
+        return '$label ${pad(s.month)}/${pad(s.day)} → ${pad(e.month)}/${pad(e.day)}';
+      case _RangeMode.month:
+        return _offset == 0
+            ? '本月 ${s.year}/${pad(s.month)}'
+            : '${s.year}/${pad(s.month)}';
+      case _RangeMode.year:
+        return _offset == 0 ? '今年 ${s.year}' : '${s.year}';
+    }
+  }
+
+  bool _inRange(DateTime dt) {
+    final d = DateTime(dt.year, dt.month, dt.day);
+    final s = DateTime(_rangeStart.year, _rangeStart.month, _rangeStart.day);
+    final e = DateTime(_rangeEnd.year, _rangeEnd.month, _rangeEnd.day);
+    return !d.isBefore(s) && !d.isAfter(e);
+  }
+
+  int get _rangeWordCount {
+    int c = 0;
+    for (final m in _ds.materials) {
+      if (_inRange(m.createdAt)) c += m.content.length;
+    }
+    for (final v in _ds.vocabulary) {
+      if (_inRange(v.createdAt)) c += v.content.length;
+    }
+    for (final i in _ds.inspirations) {
+      if (_inRange(i.createdAt)) c += i.content.length + (i.title?.length ?? 0);
+    }
+    for (final p in _ds.plots) {
+      if (_inRange(p.createdAt)) {
+        c += p.type == 'steps'
+            ? p.steps.fold<int>(0, (s, step) => s + step.length)
+            : p.freeContent.length;
+      }
+    }
+    return c;
+  }
+
+  Map<String, int> get _rangeModuleWords {
+    int mat = 0, voc = 0, ins = 0, plo = 0;
+    for (final m in _ds.materials) {
+      if (_inRange(m.createdAt)) mat += m.content.length;
+    }
+    for (final v in _ds.vocabulary) {
+      if (_inRange(v.createdAt)) voc += v.content.length;
+    }
+    for (final i in _ds.inspirations) {
+      if (_inRange(i.createdAt)) ins += i.content.length + (i.title?.length ?? 0);
+    }
+    for (final p in _ds.plots) {
+      if (_inRange(p.createdAt)) {
+        plo += p.type == 'steps'
+            ? p.steps.fold<int>(0, (s, step) => s + step.length)
+            : p.freeContent.length;
+      }
+    }
+    return {'materials': mat, 'vocabulary': voc, 'inspirations': ins, 'plots': plo};
+  }
+
+  Map<String, int> get _rangeModuleCounts {
+    int mat = 0, voc = 0, ins = 0, plo = 0;
+    for (final m in _ds.materials) {
+      if (_inRange(m.createdAt)) mat++;
+    }
+    for (final v in _ds.vocabulary) {
+      if (_inRange(v.createdAt)) voc++;
+    }
+    for (final i in _ds.inspirations) {
+      if (_inRange(i.createdAt)) ins++;
+    }
+    for (final p in _ds.plots) {
+      if (_inRange(p.createdAt)) plo++;
+    }
+    return {'materials': mat, 'vocabulary': voc, 'inspirations': ins, 'plots': plo};
+  }
+
+  /// Weekly dot grid: for each module, 7 booleans (Mon-Sun)
+  Map<String, List<bool>> get _weeklyDots {
+    final start = _rangeStart;
+    final result = <String, List<bool>>{
+      'materials': List.filled(7, false),
+      'vocabulary': List.filled(7, false),
+      'inspirations': List.filled(7, false),
+      'plots': List.filled(7, false),
+    };
+    for (final m in _ds.materials) {
+      final d = DateTime(m.createdAt.year, m.createdAt.month, m.createdAt.day)
+          .difference(DateTime(start.year, start.month, start.day))
+          .inDays;
+      if (d >= 0 && d < 7) result['materials']![d] = true;
+    }
+    for (final v in _ds.vocabulary) {
+      final d = DateTime(v.createdAt.year, v.createdAt.month, v.createdAt.day)
+          .difference(DateTime(start.year, start.month, start.day))
+          .inDays;
+      if (d >= 0 && d < 7) result['vocabulary']![d] = true;
+    }
+    for (final i in _ds.inspirations) {
+      final d = DateTime(i.createdAt.year, i.createdAt.month, i.createdAt.day)
+          .difference(DateTime(start.year, start.month, start.day))
+          .inDays;
+      if (d >= 0 && d < 7) result['inspirations']![d] = true;
+    }
+    for (final p in _ds.plots) {
+      final d = DateTime(p.createdAt.year, p.createdAt.month, p.createdAt.day)
+          .difference(DateTime(start.year, start.month, start.day))
+          .inDays;
+      if (d >= 0 && d < 7) result['plots']![d] = true;
+    }
+    return result;
+  }
+
+  /// Daily word counts for the current week range
+  List<int> get _weeklyBarData {
+    final start = _rangeStart;
+    final counts = List.filled(7, 0);
+    for (int d = 0; d < 7; d++) {
+      final date = start.add(Duration(days: d));
+      for (final m in _ds.materials) {
+        if (_sameDay(m.createdAt, date)) counts[d] += m.content.length;
+      }
+      for (final v in _ds.vocabulary) {
+        if (_sameDay(v.createdAt, date)) counts[d] += v.content.length;
+      }
+      for (final i in _ds.inspirations) {
+        if (_sameDay(i.createdAt, date)) {
+          counts[d] += i.content.length + (i.title?.length ?? 0);
+        }
+      }
+      for (final p in _ds.plots) {
+        if (_sameDay(p.createdAt, date)) {
+          counts[d] += p.type == 'steps'
+              ? p.steps.fold<int>(0, (s, step) => s + step.length)
+              : p.freeContent.length;
+        }
+      }
+    }
+    return counts;
+  }
+
+  /// Calendar heatmap: set of day-of-month with activity for current month view
+  Set<int> get _calendarActiveDays {
+    final now = DateTime.now();
+    final month = DateTime(now.year, now.month + _offset, 1);
+    final active = <int>{};
+    for (final m in _ds.materials) {
+      if (m.createdAt.year == month.year && m.createdAt.month == month.month) {
+        active.add(m.createdAt.day);
+      }
+    }
+    for (final v in _ds.vocabulary) {
+      if (v.createdAt.year == month.year && v.createdAt.month == month.month) {
+        active.add(v.createdAt.day);
+      }
+    }
+    for (final i in _ds.inspirations) {
+      if (i.createdAt.year == month.year && i.createdAt.month == month.month) {
+        active.add(i.createdAt.day);
+      }
+    }
+    for (final p in _ds.plots) {
+      if (p.createdAt.year == month.year && p.createdAt.month == month.month) {
+        active.add(p.createdAt.day);
+      }
+    }
+    return active;
+  }
+
+  static bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  // ── Build ──
 
   @override
   Widget build(BuildContext context) {
@@ -57,29 +247,27 @@ class _StatsScreenState extends State<StatsScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             children: [
-              // Header
-              const Text(
-                '统计',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildHeroCard(),
-              const SizedBox(height: 20),
-              _buildModuleGrid(),
-              const SizedBox(height: 20),
-              _buildHeatmapCard(),
-              const SizedBox(height: 20),
-              _buildBarChartCard(),
-              const SizedBox(height: 20),
-              _buildShareButton(),
-              const SizedBox(height: 24),
+              _buildHeader(),
+              const SizedBox(height: 14),
+              _buildToggle(),
+              const SizedBox(height: 10),
+              _buildDateNavigator(),
+              const SizedBox(height: 14),
+              _buildSummaryCard(),
+              const SizedBox(height: 12),
+              _buildModuleRow(),
+              const SizedBox(height: 12),
+              if (_mode == _RangeMode.week) ...[
+                _buildActivityTable(),
+                const SizedBox(height: 12),
+                _buildBarChart(),
+                const SizedBox(height: 12),
+              ],
+              _buildCalendarHeatmap(),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -87,187 +275,213 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // ── Total Word Count Hero Card ──
-  Widget _buildHeroCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFFF8E1), Color(0xFFFFF3E0)],
+  // 1. Header
+  Widget _buildHeader() {
+    return const Center(
+      child: Text(
+        '统计',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: AppTheme.textPrimary,
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFB300).withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFB300).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(26),
-            ),
-            child: const Icon(Icons.edit_note_rounded, size: 26, color: Color(0xFFFF8F00)),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _formatNumber(_ds.totalWordCount),
-            style: const TextStyle(
-              fontSize: 42,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFFE65100),
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            '总收集字数',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFFBF8A30),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '今日收集 $_todayWordCount 字',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF9E7520),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  // ── 2×2 Module Breakdown Grid ──
-  Widget _buildModuleGrid() {
-    return Column(
+  // 2. Time range toggle pills
+  Widget _buildToggle() {
+    const labels = ['周', '月', '年'];
+    const modes = _RangeMode.values;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (i) {
+        final active = _mode == modes[i];
+        return GestureDetector(
+          onTap: () => setState(() {
+            _mode = modes[i];
+            _offset = 0;
+          }),
+          child: Container(
+            height: 28,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            margin: EdgeInsets.only(left: i > 0 ? 6 : 0),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: active ? const Color(0xFF1F2937) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Text(
+              labels[i],
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: active ? Colors.white : AppTheme.textSecondary,
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  // 3. Date navigator
+  Widget _buildDateNavigator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildModuleCard(
-                '素材',
-                _ds.materialWordCount,
-                '${_ds.materials.length}条',
-                AppTheme.materialColor,
-                AppTheme.materialBg,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildModuleCard(
-                '词汇',
-                _ds.vocabularyWordCount,
-                '${_ds.vocabulary.length}条',
-                AppTheme.vocabularyColor,
-                AppTheme.vocabularyBg,
-              ),
-            ),
-          ],
+        GestureDetector(
+          onTap: () => setState(() => _offset--),
+          child: const Icon(Icons.chevron_left, size: 18, color: AppTheme.textTertiary),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildModuleCard(
-                '灵感',
-                _ds.inspirationWordCount,
-                '${_ds.inspirations.length}条',
-                AppTheme.inspirationColor,
-                AppTheme.inspirationBg,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildModuleCard(
-                '剧情',
-                _ds.plotWordCount,
-                '${_ds.plots.length}条',
-                AppTheme.plotColor,
-                AppTheme.plotBg,
-              ),
-            ),
-          ],
+        const SizedBox(width: 8),
+        Text(
+          _rangeLabel,
+          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: _offset < 0 ? () => setState(() => _offset++) : null,
+          child: Icon(
+            Icons.chevron_right,
+            size: 18,
+            color: _offset < 0 ? AppTheme.textTertiary : AppTheme.divider,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildModuleCard(
-    String label,
-    int wordCount,
-    String itemCount,
-    Color color,
-    Color bgColor,
-  ) {
+  // 4. Word count summary card
+  Widget _buildSummaryCard() {
+    final periodLabel = _mode == _RangeMode.week
+        ? '本周新增'
+        : (_mode == _RangeMode.month ? '本月新增' : '今年新增');
     return Container(
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(18),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '总收集字数',
+                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              ),
+              Text(
+                '${_ds.totalWordCount}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.accent,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            _formatNumber(wordCount),
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '字 · $itemCount',
-            style: TextStyle(
-              fontSize: 11,
-              color: color.withValues(alpha: 0.7),
-            ),
+            '$periodLabel $_rangeWordCount 字',
+            style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
           ),
         ],
       ),
     );
   }
 
-  // ── Weekly Activity Heatmap ──
-  Widget _buildHeatmapCard() {
-    final activity = _ds.getWeeklyActivity();
-    final now = DateTime.now();
-    final monday = now.subtract(Duration(days: now.weekday - 1));
-    final sunday = monday.add(const Duration(days: 6));
-    final dateRange =
-        '${monday.month}/${monday.day} - ${sunday.month}/${sunday.day}';
+  // 5. Module breakdown — compact horizontal row
+  Widget _buildModuleRow() {
+    final words = _rangeModuleWords;
+    final counts = _rangeModuleCounts;
+    const modules = [
+      ('素材', 'materials', AppTheme.materialColor),
+      ('词汇', 'vocabulary', AppTheme.vocabularyColor),
+      ('灵感', 'inspirations', AppTheme.inspirationColor),
+      ('剧情', 'plots', AppTheme.plotColor),
+    ];
 
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: List.generate(modules.length, (i) {
+            final (label, key, color) = modules[i];
+            return Expanded(
+              child: Row(
+                children: [
+                  if (i > 0)
+                    Container(
+                      width: 0.5,
+                      color: AppTheme.divider,
+                      margin: const EdgeInsets.symmetric(vertical: 2),
+                    ),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: color,
+                              ),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              label,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${words[key]}字',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${counts[key]}条',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  // 6. Weekly activity table (小日常-style dot grid)
+  Widget _buildActivityTable() {
+    final dots = _weeklyDots;
     const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
     const moduleKeys = ['materials', 'vocabulary', 'inspirations', 'plots'];
     const moduleLabels = ['素材', '词汇', '灵感', '剧情'];
@@ -280,46 +494,17 @@ class _StatsScreenState extends State<StatsScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header row
           Row(
             children: [
-              const Text(
-                '本周活动',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                dateRange,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.textTertiary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          // Day labels row
-          Row(
-            children: [
-              const SizedBox(width: 48),
+              const SizedBox(width: 36),
               ...dayLabels.map((d) => Expanded(
                     child: Center(
                       child: Text(
@@ -334,65 +519,49 @@ class _StatsScreenState extends State<StatsScreen> {
                   )),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
+          Divider(height: 1, color: AppTheme.divider),
           // Module rows
-          ...List.generate(4, (rowIdx) {
-            final counts = activity[moduleKeys[rowIdx]] ?? List.filled(7, 0);
-            return Padding(
-              padding: EdgeInsets.only(bottom: rowIdx < 3 ? 10 : 0),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 48,
-                    child: Text(
-                      moduleLabels[rowIdx],
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: moduleColors[rowIdx],
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  ...List.generate(7, (colIdx) {
-                    final active = counts[colIdx] > 0;
-                    return Expanded(
-                      child: Center(
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: active
-                                ? moduleColors[rowIdx].withValues(alpha: 0.2)
-                                : const Color(0xFFF3F4F6),
+          ...List.generate(4, (row) {
+            final active = dots[moduleKeys[row]] ?? List.filled(7, false);
+            return Column(
+              children: [
+                SizedBox(
+                  height: 28,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 36,
+                        child: Text(
+                          moduleLabels[row],
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: moduleColors[row],
+                            fontWeight: FontWeight.w600,
                           ),
-                          child: active
-                              ? Center(
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: moduleColors[rowIdx],
-                                    ),
-                                  ),
-                                )
-                              : Center(
-                                  child: Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFFE0E0E0),
-                                    ),
-                                  ),
-                                ),
                         ),
                       ),
-                    );
-                  }),
-                ],
-              ),
+                      ...List.generate(7, (col) {
+                        return Expanded(
+                          child: Center(
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: active[col]
+                                    ? moduleColors[row]
+                                    : const Color(0xFFE5E7EB),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                if (row < 3) Divider(height: 1, color: AppTheme.divider),
+              ],
             );
           }),
         ],
@@ -400,132 +569,173 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // ── Daily Word Count Bar Chart ──
-  Widget _buildBarChartCard() {
-    final dailyCounts = _ds.getDailyWordCounts();
-    final maxCount = dailyCounts.reduce((a, b) => max(a, b));
-    const dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    const barColor = Color(0xFF4A8B9F);
-    const barBg = Color(0xFFD0E8F2);
+  // 7. Daily bar chart
+  Widget _buildBarChart() {
+    final data = _weeklyBarData;
+    final maxVal = data.reduce((a, b) => max(a, b));
+    const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '每日字数',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 170,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: List.generate(7, (i) {
-                final ratio =
-                    maxCount > 0 ? dailyCounts[i] / maxCount : 0.0;
-                final barHeight = max(4.0, 120.0 * ratio);
-
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        if (dailyCounts[i] > 0)
-                          Text(
-                            '${dailyCounts[i]}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: barColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        const SizedBox(height: 4),
-                        Container(
-                          height: barHeight,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                barColor.withValues(alpha: 0.4),
-                                barBg,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+      child: SizedBox(
+        height: 110,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: List.generate(7, (i) {
+            final ratio = maxVal > 0 ? data[i] / maxVal : 0.0;
+            final barH = max(3.0, 80.0 * ratio);
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (data[i] > 0)
+                      Text(
+                        '${data[i]}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppTheme.textTertiary,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          dayLabels[i],
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.textTertiary,
-                          ),
-                        ),
-                      ],
+                      ),
+                    const SizedBox(height: 3),
+                    Container(
+                      height: barH,
+                      width: 14,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5E7EB),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
+                    const SizedBox(height: 6),
+                    Text(
+                      dayLabels[i],
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
 
-  // ── Share Button ──
-  Widget _buildShareButton() {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('功能开发中'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: AppTheme.textPrimary,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.share_outlined, size: 18, color: Colors.white),
-            SizedBox(width: 8),
-            Text(
-              '分享统计',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+  // 8. Calendar heatmap
+  Widget _buildCalendarHeatmap() {
+    final now = DateTime.now();
+    final monthDate = DateTime(now.year, now.month + _offset, 1);
+    final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
+    // Monday = 1, Sunday = 7
+    final firstWeekday = monthDate.weekday; // 1=Mon
+    final activeDays = _calendarActiveDays;
+    final monthLabel = '${monthDate.year}年${monthDate.month}月';
+
+    // Build grid cells: leading blanks + day numbers
+    final cells = <int?>[
+      ...List.filled(firstWeekday - 1, null),
+      ...List.generate(daysInMonth, (i) => i + 1),
+    ];
+    // Pad to complete last row
+    while (cells.length % 7 != 0) {
+      cells.add(null);
+    }
+
+    const weekHeaders = ['一', '二', '三', '四', '五', '六', '日'];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            monthLabel,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          // Week day headers
+          Row(
+            children: weekHeaders
+                .map((h) => Expanded(
+                      child: Center(
+                        child: Text(
+                          h,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppTheme.textTertiary,
+                          ),
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 4),
+          // Calendar grid
+          ...List.generate(cells.length ~/ 7, (row) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                children: List.generate(7, (col) {
+                  final day = cells[row * 7 + col];
+                  if (day == null) {
+                    return const Expanded(child: SizedBox(height: 22));
+                  }
+                  final hasActivity = activeDays.contains(day);
+                  return Expanded(
+                    child: SizedBox(
+                      height: 22,
+                      child: Center(
+                        child: hasActivity
+                            ? Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppTheme.accent.withValues(alpha: 0.18),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '$day',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.accent,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                '$day',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: AppTheme.textTertiary,
+                                ),
+                              ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

@@ -146,29 +146,29 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: Text(_title,
             style: const TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             )),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.small(
         onPressed: _showAddDialog,
         backgroundColor: AppTheme.materialColor,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white, size: 20),
       ),
       body: categories.isEmpty
           ? const Center(
               child: Text('暂无分类',
                   style: TextStyle(
-                      color: AppTheme.textTertiary, fontSize: 16)))
+                      color: AppTheme.textTertiary, fontSize: 12)))
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final cat = categories[index];
@@ -176,14 +176,16 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
                 final color = AppTheme.getCategoryColor(cat);
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.only(bottom: 8),
                   decoration: AppTheme.smallCardDecoration,
                   child: ListTile(
+                    dense: true,
+                    visualDensity: VisualDensity.compact,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 8),
+                        horizontal: 12, vertical: 2),
                     leading: Container(
-                      width: 14,
-                      height: 14,
+                      width: 8,
+                      height: 8,
                       decoration: BoxDecoration(
                         color: color,
                         shape: BoxShape.circle,
@@ -192,25 +194,29 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
                     title: Text(cat,
                         style: const TextStyle(
                           color: AppTheme.textPrimary,
-                          fontSize: 16,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                         )),
                     subtitle: Text('$count 个条目',
                         style: const TextStyle(
                           color: AppTheme.textTertiary,
-                          fontSize: 13,
+                          fontSize: 10,
                         )),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_outlined,
-                              color: AppTheme.textSecondary, size: 20),
+                              color: AppTheme.textSecondary, size: 18),
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          padding: EdgeInsets.zero,
                           onPressed: () => _showRenameDialog(cat),
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline,
-                              color: Colors.redAccent, size: 20),
+                              color: Colors.redAccent, size: 18),
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          padding: EdgeInsets.zero,
                           onPressed: () => _showDeleteDialog(cat),
                         ),
                       ],

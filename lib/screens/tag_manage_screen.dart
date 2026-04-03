@@ -101,77 +101,126 @@ class _TagManageScreenState extends State<TagManageScreen> {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: const Text('标签管理',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             )),
       ),
       body: tags.isEmpty
           ? const Center(
               child: Text('暂无标签',
                   style:
-                      TextStyle(color: AppTheme.textTertiary, fontSize: 16)))
+                      TextStyle(color: AppTheme.textTertiary, fontSize: 12)))
           : Column(
               children: [
-                // Tag chips
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: tags.map((tag) {
-                      final count = _tagCount(tag);
-                      final isSelected = _selectedTag == tag;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedTag = isSelected ? null : tag;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppTheme.inspirationColor
-                                : AppTheme.inspirationBg,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '$tag ($count)',
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppTheme.inspirationColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                // Tag chips — scrollable to fix overflow
+                Expanded(
+                  flex: _selectedTag != null ? 0 : 1,
+                  child: _selectedTag != null
+                      ? Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          child: SingleChildScrollView(
+                            child: Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: tags.map((tag) {
+                                final count = _tagCount(tag);
+                                final isSelected = _selectedTag == tag;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedTag = isSelected ? null : tag;
+                                    });
+                                  },
+                                  child: Container(
+                                    height: 28,
+                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? const Color(0xFF1F2937)
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: isSelected ? null : Border.all(color: const Color(0xFFE5E7EB)),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '$tag ($count)',
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? Colors.white
+                                            : AppTheme.textPrimary,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ),
+                        )
+                      : SingleChildScrollView(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: tags.map((tag) {
+                              final count = _tagCount(tag);
+                              final isSelected = _selectedTag == tag;
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedTag = isSelected ? null : tag;
+                                  });
+                                },
+                                child: Container(
+                                  height: 28,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF1F2937)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: isSelected ? null : Border.all(color: const Color(0xFFE5E7EB)),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '$tag ($count)',
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppTheme.textPrimary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
                 ),
 
                 // Items list for selected tag
                 if (_selectedTag != null) ...[
                   Padding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         '包含"$_selectedTag"的内容',
                         style: const TextStyle(
                           color: AppTheme.textSecondary,
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -179,7 +228,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(14),
                       itemCount: _itemsWithTag(_selectedTag!).length,
                       itemBuilder: (context, index) {
                         final item = _itemsWithTag(_selectedTag!)[index];
@@ -188,22 +237,33 @@ class _TagManageScreenState extends State<TagManageScreen> {
                         final content = _itemContent(item);
 
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: AppTheme.smallCardDecoration,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 6,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
                           child: ListTile(
+                            dense: true,
                             contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                                horizontal: 12, vertical: 4),
                             leading: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: typeColor.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(8),
+                                color: typeColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(typeLabel,
                                   style: TextStyle(
                                       color: typeColor,
-                                      fontSize: 12,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.w600)),
                             ),
                             title: Text(
@@ -212,7 +272,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: AppTheme.textPrimary,
-                                fontSize: 14,
+                                fontSize: 12,
                               ),
                             ),
                           ),
@@ -220,14 +280,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
                       },
                     ),
                   ),
-                ] else
-                  const Expanded(
-                    child: Center(
-                      child: Text('点击标签查看相关内容',
-                          style: TextStyle(
-                              color: AppTheme.textTertiary, fontSize: 14)),
-                    ),
-                  ),
+                ] else if (_selectedTag == null) ...[
+                  const SizedBox.shrink(),
+                ],
               ],
             ),
     );

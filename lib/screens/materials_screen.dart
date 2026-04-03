@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../utils/share_card_util.dart';
 import '../widgets/search_bar_widget.dart';
 import '../widgets/category_pills.dart';
 import '../models/material_item.dart';
@@ -74,6 +76,25 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     return '${date.month}月${date.day}日';
   }
 
+  Future<void> _shareItemAsImage(MaterialItem item) async {
+    await ShareCardUtil.shareAsImage(
+      context,
+      typeLabel: '素材',
+      content: item.content,
+      meta: item.source.isEmpty ? item.category : '${item.category} · ${item.source}',
+      tags: item.tags,
+      accentColor: AppTheme.getCategoryColor(item.category),
+    );
+  }
+
+  void _showAllMaterials() {
+    setState(() {
+      _selectedCategory = '全部';
+      _searchQuery = '';
+      _showSearch = false;
+    });
+  }
+
   // ── Actions ─────────────────────────────────────────────────────────────
 
   void _showAddCategoryDialog() {
@@ -112,78 +133,49 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     );
   }
 
-  void _showItemMenu(MaterialItem item) {
+  void _showOptionsSheet(MaterialItem item) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(height: 8),
             Container(
-              width: 36,
+              width: 32,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
+                color: AppTheme.divider,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 16),
-            _menuTile(Icons.edit_outlined, '编辑', () {
+            const SizedBox(height: 8),
+            _menuTile(Icons.copy, '复制内容', () {
               Navigator.pop(ctx);
-              showAddMaterialSheet(context);
+              Clipboard.setData(ClipboardData(text: item.content));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+              );
             }),
-            _menuTile(
-              item.isFavorite
-                  ? Icons.star_rounded
-                  : Icons.star_border_rounded,
-              item.isFavorite ? '取消收藏' : '收藏',
-              () {
-                Navigator.pop(ctx);
-                DataService.instance.toggleMaterialFavorite(item.id);
-              },
-            ),
-            _menuTile(Icons.delete_outline, '删除', () {
+            _menuTile(Icons.image_outlined, '分享为图片', () {
               Navigator.pop(ctx);
-              _confirmDelete(item);
-            }, isDestructive: true),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _confirmDelete(MaterialItem item) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('确认删除',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        content: const Text('删除后无法恢复，确定要删除吗？'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('取消')),
-          TextButton(
-            onPressed: () {
+              _shareItemAsImage(item);
+            }),
+            _menuTile(Icons.notes, '查看全部素材', () {
+              Navigator.pop(ctx);
+              _showAllMaterials();
+            }),
+            _menuTile(Icons.delete_outline, '删除素材', () {
               Navigator.pop(ctx);
               DataService.instance.deleteMaterial(item.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('已删除'),
-                    behavior: SnackBarBehavior.floating),
-              );
-            },
-            child:
-                const Text('删除', style: TextStyle(color: Colors.redAccent)),
-          ),
-        ],
+            }, isDestructive: true),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -218,15 +210,15 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
             // ── Header ──────────────────────────────────────────────────
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
                 children: [
                   // Search icon
                   GestureDetector(
                     onTap: () => setState(() => _showSearch = !_showSearch),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         color: _showSearch
                             ? AppTheme.textPrimary
@@ -237,13 +229,13 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                             : [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 1),
                                 ),
                               ],
                       ),
                       child: Icon(Icons.search,
-                          size: 18,
+                          size: 16,
                           color: _showSearch
                               ? Colors.white
                               : AppTheme.textSecondary),
@@ -254,8 +246,8 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                       child: Text(
                         '素材库',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -265,14 +257,14 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                   GestureDetector(
                     onTap: () => showAddMaterialSheet(context),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         color: AppTheme.textPrimary,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add,
-                          size: 18, color: Colors.white),
+                          size: 16, color: Colors.white),
                     ),
                   ),
                 ],
@@ -299,58 +291,52 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
 
             // ── Count + Sort ──────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '共 ${items.length} 条素材',
                     style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         fontWeight: FontWeight.w500,
                         color: AppTheme.textTertiary),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                        horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFF0F0F0)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text('最新',
                             style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: AppTheme.textSecondary)),
                         const SizedBox(width: 2),
                         Icon(Icons.keyboard_arrow_down,
-                            size: 14, color: AppTheme.textSecondary),
+                            size: 12, color: AppTheme.textSecondary),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // ── List ──────────────────────────────────────────────────────
             Expanded(
               child: items.isEmpty
                   ? _buildEmptyState()
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 100),
                       itemCount: items.length,
                       separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                       itemBuilder: (context, index) =>
                           _buildMaterialCard(items[index]),
                     ),
@@ -397,17 +383,23 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
   Widget _buildMaterialCard(MaterialItem item) {
     final catColor = AppTheme.getCategoryColor(item.category);
     final catBgColor = AppTheme.getCategoryBgColor(item.category);
-    // Soft pastel card background tinted by category
-    final cardBg = catColor.withValues(alpha: 0.06);
 
     return GestureDetector(
-      onLongPress: () => _showItemMenu(item),
+      onTap: () => showAddMaterialSheet(context, item: item),
+      onLongPress: () => _showOptionsSheet(item),
       child: Container(
         decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(18),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -417,39 +409,31 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
               children: [
                 Expanded(
                   child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                        height: 20,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         decoration: BoxDecoration(
                           color: catBgColor,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(6),
                         ),
+                        alignment: Alignment.center,
                         child: Text(item.category,
                             style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: catColor)),
                       ),
-                      ...item.tags.map((tag) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text('#$tag',
-                                style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppTheme.textSecondary)),
-                          )),
+                      ...item.tags.map((tag) => Text('#$tag',
+                          style: const TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.textTertiary))),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 GestureDetector(
                   onTap: () =>
                       DataService.instance.toggleMaterialFavorite(item.id),
@@ -457,7 +441,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                     item.isFavorite
                         ? Icons.star_rounded
                         : Icons.star_border_rounded,
-                    size: 22,
+                    size: 16,
                     color: item.isFavorite
                         ? const Color(0xFFF59E0B)
                         : AppTheme.textTertiary.withValues(alpha: 0.4),
@@ -465,23 +449,23 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                 ),
                 const SizedBox(width: 4),
                 GestureDetector(
-                  onTap: () => _showItemMenu(item),
+                  onTap: () => _showOptionsSheet(item),
                   child: const Icon(Icons.more_horiz,
-                      size: 20, color: AppTheme.textTertiary),
+                      size: 16, color: AppTheme.textTertiary),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // Content
             Text(item.content,
-                maxLines: 4,
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: AppTheme.textSecondary,
-                    height: 1.7)),
-            const SizedBox(height: 12),
+                    height: 1.6)),
+            const SizedBox(height: 8),
 
             // Bottom: source + time
             Row(

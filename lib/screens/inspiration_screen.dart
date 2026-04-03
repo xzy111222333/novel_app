@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../models/inspiration_item.dart';
 import '../services/data_service.dart';
+import '../utils/share_card_util.dart';
 import '../widgets/search_bar_widget.dart';
 import '../widgets/add_inspiration_sheet.dart';
 
@@ -71,163 +73,23 @@ class _InspirationScreenState extends State<InspirationScreen> {
     return grouped;
   }
 
-  static const _dotColors = [
-    Color(0xFFFBBF24),
-    Color(0xFFA78BFA),
-    Color(0xFF34D399),
-    Color(0xFFF472B6),
-    Color(0xFF60A5FA),
-  ];
-
-  void _showEditSheet(InspirationItem item) {
-    final titleController = TextEditingController(text: item.title ?? '');
-    final contentController = TextEditingController(text: item.content);
-    final tagsController =
-        TextEditingController(text: item.tags.join(', '));
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text('编辑灵感',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary)),
-              const SizedBox(height: 20),
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  hintText: '标题（可选）',
-                  hintStyle: TextStyle(color: AppTheme.textTertiary),
-                  filled: true,
-                  fillColor: AppTheme.background,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: contentController,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: '灵感内容',
-                  hintStyle: TextStyle(color: AppTheme.textTertiary),
-                  filled: true,
-                  fillColor: AppTheme.background,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: tagsController,
-                decoration: InputDecoration(
-                  hintText: '标签（用逗号分隔）',
-                  hintStyle: TextStyle(color: AppTheme.textTertiary),
-                  filled: true,
-                  fillColor: AppTheme.background,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    final tags = tagsController.text
-                        .split(RegExp(r'[,，]'))
-                        .map((t) => t.trim())
-                        .where((t) => t.isNotEmpty)
-                        .toList();
-                    final updated = item.copyWith(
-                      title: titleController.text.isEmpty
-                          ? null
-                          : titleController.text,
-                      content: contentController.text,
-                      tags: tags,
-                    );
-                    DataService.instance.updateInspiration(updated);
-                    Navigator.pop(ctx);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.textPrimary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text('保存',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+  Future<void> _shareItemAsImage(InspirationItem item) async {
+    await ShareCardUtil.shareAsImage(
+      context,
+      typeLabel: '笔记',
+      title: item.title,
+      content: item.content,
+      meta: DateFormat('yyyy年M月d日 HH:mm').format(item.createdAt),
+      tags: item.tags,
+      accentColor: AppTheme.accent,
     );
   }
 
-  void _confirmDelete(InspirationItem item) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('确认删除'),
-        content: const Text('删除后无法恢复，确定要删除这条灵感吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child:
-                const Text('取消', style: TextStyle(color: AppTheme.textSecondary)),
-          ),
-          TextButton(
-            onPressed: () {
-              DataService.instance.deleteInspiration(item.id);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('已删除'),
-                    behavior: SnackBarBehavior.floating),
-              );
-            },
-            child:
-                const Text('删除', style: TextStyle(color: Color(0xFFEF4444))),
-          ),
-        ],
-      ),
-    );
+  void _showOtherNotes() {
+    setState(() {
+      _showSearch = false;
+      _searchQuery = '';
+    });
   }
 
   @override
@@ -243,7 +105,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
               child: Row(
                 children: [
                   _HeaderIconButton(
@@ -258,8 +120,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                       child: Text(
                         '灵感日记',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -330,29 +192,27 @@ class _InspirationScreenState extends State<InspirationScreen> {
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 100),
                       itemCount: dateKeys.length,
                       itemBuilder: (context, sectionIndex) {
                         final key = dateKeys[sectionIndex];
                         final sectionItems = grouped[key]!;
-                        final dotColor =
-                            _dotColors[sectionIndex % _dotColors.length];
 
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
+                          padding: const EdgeInsets.only(bottom: 12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Date header
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 14),
+                                padding: const EdgeInsets.only(bottom: 8),
                                 child: Row(
                                   children: [
                                     Container(
                                       width: 8,
                                       height: 8,
-                                      decoration: BoxDecoration(
-                                        color: dotColor,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFFBBF24),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -360,8 +220,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                                     Text(
                                       key,
                                       style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
                                         color: AppTheme.textPrimary,
                                       ),
                                     ),
@@ -384,207 +244,144 @@ class _InspirationScreenState extends State<InspirationScreen> {
   }
 
   Widget _buildInspirationCard(InspirationItem item) {
-    final hour = item.createdAt.hour;
-    final isDaytime = hour >= 6 && hour < 18;
     final timeStr = DateFormat('HH:mm').format(item.createdAt);
 
-    // Pastel tint based on time of day
-    final cardBg = isDaytime
-        ? const Color(0xFFFFFDF7) // warm cream
-        : const Color(0xFFF5F7FF); // cool lavender
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDaytime
-              ? const Color(0xFFFDE68A).withValues(alpha: 0.4)
-              : const Color(0xFFC7D2FE).withValues(alpha: 0.4),
-        ),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            // Left accent bar
-            Container(
-              width: 4,
-              decoration: BoxDecoration(
-                color: isDaytime
-                    ? const Color(0xFFFBBF24)
-                    : const Color(0xFF818CF8),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
-                ),
-              ),
-            ),
-            // Card content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Time badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: isDaytime
-                            ? const Color(0xFFFFFBEB)
-                            : const Color(0xFFEFF6FF),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isDaytime
-                                ? Icons.wb_sunny_rounded
-                                : Icons.nightlight_round,
-                            size: 12,
-                            color: isDaytime
-                                ? const Color(0xFFD97706)
-                                : const Color(0xFF2563EB),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            timeStr,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: isDaytime
-                                  ? const Color(0xFFD97706)
-                                  : const Color(0xFF2563EB),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Title
-                    if (item.title != null && item.title!.isNotEmpty) ...[
-                      Text(
-                        item.title!,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-
-                    // Content
-                    Text(
-                      item.content,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textSecondary,
-                        height: 1.6,
-                      ),
-                    ),
-
-                    // Tags
-                    if (item.tags.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: item.tags.map((tag) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEFF6FF),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '#$tag',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF3B82F6),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-
-                    // Action row
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.only(top: 12),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                              color: Colors.black.withValues(alpha: 0.04)),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          _buildActionBtn(
-                            Icons.arrow_forward_rounded,
-                            '转素材',
-                            () {
-                              DataService.instance
-                                  .convertInspirationToMaterial(item);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('已转为素材'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 14),
-                          _buildActionBtn(
-                            Icons.translate_rounded,
-                            '转词汇',
-                            () {
-                              DataService.instance
-                                  .convertInspirationToVocabulary(item);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('已转为词汇'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 14),
-                          GestureDetector(
-                            onTap: () => DataService.instance
-                                .toggleInspirationFavorite(item.id),
-                            child: Icon(
-                              item.isFavorite
-                                  ? Icons.bookmark_rounded
-                                  : Icons.bookmark_border_rounded,
-                              size: 18,
-                              color: item.isFavorite
-                                  ? const Color(0xFFFBBF24)
-                                  : AppTheme.textTertiary,
-                            ),
-                          ),
-                          const Spacer(),
-                          _buildMoreMenu(item),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return GestureDetector(
+      onTap: () => showAddInspirationSheet(context, item: item),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Time badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              timeStr,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textTertiary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Title
+          if (item.title != null && item.title!.isNotEmpty) ...[
+            Text(
+              item.title!,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+          ],
+
+          // Content
+          Text(
+            item.content,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppTheme.textSecondary,
+              height: 1.5,
+            ),
+          ),
+
+          // Tags
+          if (item.tags.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: item.tags.map((tag) {
+                return Text(
+                  '#$tag',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.textTertiary,
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          // Action row
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _buildActionBtn(
+                Icons.arrow_forward_rounded,
+                '转素材',
+                () {
+                  DataService.instance
+                      .convertInspirationToMaterial(item);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('已转为素材'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
+              _buildActionBtn(
+                Icons.translate_rounded,
+                '转词汇',
+                () {
+                  DataService.instance
+                      .convertInspirationToVocabulary(item);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('已转为词汇'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: () => DataService.instance
+                    .toggleInspirationFavorite(item.id),
+                child: Icon(
+                  item.isFavorite
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
+                  size: 14,
+                  color: item.isFavorite
+                      ? const Color(0xFFFBBF24)
+                      : AppTheme.textTertiary,
+                ),
+              ),
+              const Spacer(),
+              _buildMoreMenu(item),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildActionBtn(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
@@ -592,39 +389,84 @@ class _InspirationScreenState extends State<InspirationScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: AppTheme.textTertiary),
-          const SizedBox(width: 3),
+          Icon(icon, size: 12, color: AppTheme.textTertiary),
+          const SizedBox(width: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+            style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMoreMenu(InspirationItem item) {
-    return PopupMenuButton<String>(
-      onSelected: (value) {
-        switch (value) {
-          case 'edit':
-            _showEditSheet(item);
-            break;
-          case 'delete':
-            _confirmDelete(item);
-            break;
-        }
-      },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: 'edit', child: Text('编辑')),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Text('删除', style: TextStyle(color: Color(0xFFEF4444))),
+  void _showOptionsSheet(InspirationItem item) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 32,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.copy, size: 22, color: AppTheme.textSecondary),
+              title: const Text('复制内容', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                Clipboard.setData(ClipboardData(text: item.content));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined, size: 22, color: AppTheme.textSecondary),
+              title: const Text('分享为图片', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              onTap: () async {
+                Navigator.pop(ctx);
+                await _shareItemAsImage(item);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notes, size: 22, color: AppTheme.textSecondary),
+              title: const Text('查看其它笔记', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showOtherNotes();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, size: 22, color: Colors.redAccent),
+              title: const Text('删除灵感', style: TextStyle(fontSize: 15, color: Colors.redAccent)),
+              onTap: () {
+                Navigator.pop(ctx);
+                DataService.instance.deleteInspiration(item.id);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
-      ],
-      child: const Icon(Icons.more_horiz_rounded,
-          size: 18, color: AppTheme.textTertiary),
+      ),
+    );
+  }
+
+  Widget _buildMoreMenu(InspirationItem item) {
+    return GestureDetector(
+      onTap: () => _showOptionsSheet(item),
+      child: const Icon(Icons.more_horiz_rounded, size: 18, color: AppTheme.textTertiary),
     );
   }
 }
@@ -645,15 +487,15 @@ class _HeaderIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 38,
-        height: 38,
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
           color: filled ? AppTheme.textPrimary : const Color(0xFFF3F4F6),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          size: 18,
+          size: 16,
           color: filled ? Colors.white : AppTheme.textSecondary,
         ),
       ),

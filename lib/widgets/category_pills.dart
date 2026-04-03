@@ -18,30 +18,30 @@ class CategoryPills extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 36,
+      height: 28,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         children: [
           ...categories.map((cat) {
             final isSelected = cat == selected;
             return Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: 6),
               child: GestureDetector(
                 onTap: () => onSelect(cat),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.textPrimary : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: isSelected ? null : Border.all(color: const Color(0xFFF3F4F6)),
+                    color: isSelected ? const Color(0xFF1F2937) : Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: isSelected ? null : Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                   child: Text(
                     cat,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: isSelected ? Colors.white : AppTheme.textSecondary,
+                      color: isSelected ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -52,13 +52,13 @@ class CategoryPills extends StatelessWidget {
             GestureDetector(
               onTap: onAdd,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF3F4F6)),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: Icon(Icons.add, size: 16, color: AppTheme.textTertiary),
+                child: Icon(Icons.add, size: 14, color: AppTheme.textTertiary),
               ),
             ),
         ],

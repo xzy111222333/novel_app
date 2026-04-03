@@ -40,15 +40,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Column(
             children: [
               _buildHeader(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               _buildUserInfoCard(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
               _buildFunctionGrid(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -60,13 +60,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        const SizedBox(width: 40),
+        const SizedBox(width: 32),
         const Spacer(),
         const Text(
           '我的',
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -74,13 +74,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         GestureDetector(
           onTap: () => _showComingSoon('设置'),
           child: Container(
-            width: 40,
-            height: 40,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: const Color(0xFF2C2C2E),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.settings_outlined, size: 20, color: Colors.white),
+            child: const Icon(Icons.settings_outlined, size: 16, color: Colors.white),
           ),
         ),
       ],
@@ -91,15 +91,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildUserInfoCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -107,20 +107,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              // Amber avatar with "灵"
               const CircleAvatar(
-                radius: 32,
+                radius: 24,
                 backgroundColor: Color(0xFFFCEFC7),
                 child: Text(
                   '灵',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFFD4A017),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,51 +127,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Text(
                       '小灵感用户',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       '创作灵感收集工具',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         color: AppTheme.textTertiary,
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFCEFC7),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.workspace_premium, size: 14, color: Color(0xFFD4A017)),
-                    SizedBox(width: 4),
-                    Text(
-                      '会员',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFD4A017),
+              // Favorites quick entry
+              GestureDetector(
+                onTap: () => _push(const FavoritesScreen()),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.star_rounded, size: 14, color: Color(0xFFFF8F00)),
+                      SizedBox(width: 4),
+                      Text(
+                        '收藏夹',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFFFF8F00),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           const Divider(color: Color(0xFFF3F4F6), height: 1),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
 
-          // Stats row — live from DataService
+          // Stats row
           IntrinsicHeight(
             child: Row(
               children: [
@@ -186,9 +189,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          const Divider(color: Color(0xFFF3F4F6), height: 1),
           const SizedBox(height: 14),
+          const Divider(color: Color(0xFFF3F4F6), height: 1),
+          const SizedBox(height: 10),
 
           // Bottom action strip
           Row(
@@ -199,35 +202,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.storage_outlined, size: 14, color: AppTheme.textTertiary),
-                      const SizedBox(width: 6),
+                      const Icon(Icons.storage_outlined, size: 12, color: AppTheme.textTertiary),
+                      const SizedBox(width: 4),
                       Text(
                         '数据管理',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: AppTheme.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(width: 2),
-                      const Icon(Icons.chevron_right, size: 14, color: AppTheme.textTertiary),
+                      const Icon(Icons.chevron_right, size: 12, color: AppTheme.textTertiary),
                     ],
                   ),
                 ),
               ),
-              Container(width: 1, height: 16, color: const Color(0xFFF3F4F6)),
+              Container(width: 1, height: 14, color: const Color(0xFFF3F4F6)),
               Expanded(
                 child: GestureDetector(
                   onTap: () => _showComingSoon('使用指南'),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.menu_book_outlined, size: 14, color: AppTheme.textTertiary),
-                      const SizedBox(width: 6),
+                      const Icon(Icons.menu_book_outlined, size: 12, color: AppTheme.textTertiary),
+                      const SizedBox(width: 4),
                       Text(
                         '使用指南',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: AppTheme.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
@@ -250,16 +253,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: AppTheme.textPrimary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               color: AppTheme.textTertiary,
             ),
           ),
@@ -295,24 +298,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final itemWidth = constraints.maxWidth / 3;
+          final itemWidth = constraints.maxWidth / 4;
           return Wrap(
             spacing: 0,
-            runSpacing: 20,
+            runSpacing: 14,
             children: items.map((item) {
               return SizedBox(
                 width: itemWidth,
@@ -332,19 +335,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 54,
-            height: 54,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: item.bgColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(item.icon, size: 24, color: item.iconColor),
+            child: Icon(item.icon, size: 18, color: item.iconColor),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             item.label,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: AppTheme.textSecondary,
             ),
             textAlign: TextAlign.center,

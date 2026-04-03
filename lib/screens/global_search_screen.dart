@@ -108,47 +108,52 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: const Text('全局搜索',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             )),
       ),
       body: Column(
         children: [
           // Search bar
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Container(
-              decoration: AppTheme.smallCardDecoration,
-              child: TextField(
-                controller: _searchController,
-                autofocus: true,
-                onChanged: _doSearch,
-                decoration: InputDecoration(
-                  hintText: '搜索素材、词汇、灵感、剧情...',
-                  hintStyle:
-                      const TextStyle(color: AppTheme.textTertiary, fontSize: 15),
-                  prefixIcon: const Icon(Icons.search,
-                      color: AppTheme.textTertiary, size: 22),
-                  suffixIcon: query.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear,
-                              color: AppTheme.textTertiary, size: 20),
-                          onPressed: () {
-                            _searchController.clear();
-                            _doSearch('');
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+            child: SizedBox(
+              height: 36,
+              child: Container(
+                decoration: AppTheme.smallCardDecoration,
+                child: TextField(
+                  controller: _searchController,
+                  autofocus: true,
+                  onChanged: _doSearch,
+                  style: const TextStyle(fontSize: 12),
+                  decoration: InputDecoration(
+                    hintText: '搜索素材、词汇、灵感、剧情...',
+                    hintStyle:
+                        const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
+                    prefixIcon: const Icon(Icons.search,
+                        color: AppTheme.textTertiary, size: 18),
+                    prefixIconConstraints: const BoxConstraints(minWidth: 36),
+                    suffixIcon: query.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear,
+                                color: AppTheme.textTertiary, size: 16),
+                            onPressed: () {
+                              _searchController.clear();
+                              _doSearch('');
+                            },
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
               ),
             ),
@@ -160,16 +165,16 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 ? const Center(
                     child: Text('搜索素材、词汇、灵感、剧情...',
                         style: TextStyle(
-                            color: AppTheme.textTertiary, fontSize: 14)),
+                            color: AppTheme.textTertiary, fontSize: 12)),
                   )
                 : _results.isEmpty
                     ? const Center(
                         child: Text('未找到相关内容',
                             style: TextStyle(
-                                color: AppTheme.textTertiary, fontSize: 14)),
+                                color: AppTheme.textTertiary, fontSize: 12)),
                       )
                     : ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         children: grouped.entries.expand((entry) {
                           final type = entry.key;
                           final items = entry.value;
@@ -178,19 +183,19 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                             // Section header
                             Padding(
                               padding:
-                                  const EdgeInsets.only(top: 12, bottom: 8),
+                                  const EdgeInsets.only(top: 8, bottom: 6),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
+                                    horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: color.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   '${_typeLabel(type)} (${items.length})',
                                   style: TextStyle(
                                     color: color,
-                                    fontSize: 14,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -214,31 +219,33 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     final category = _categoryTag(result);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 6),
       decoration: AppTheme.smallCardDecoration,
       child: ListTile(
+        dense: true,
+        visualDensity: VisualDensity.compact,
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         leading: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(_typeLabel(type),
               style: TextStyle(
-                  color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                  color: color, fontSize: 10, fontWeight: FontWeight.w600)),
         ),
         title: Text(
           content,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12),
         ),
         trailing: category.isNotEmpty
             ? Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppTheme.getCategoryBgColor(category),
                   borderRadius: BorderRadius.circular(6),
@@ -246,7 +253,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 child: Text(category,
                     style: TextStyle(
                       color: AppTheme.getCategoryColor(category),
-                      fontSize: 11,
+                      fontSize: 10,
                     )),
               )
             : null,

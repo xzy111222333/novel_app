@@ -3,17 +3,18 @@ import '../models/inspiration_item.dart';
 import '../services/data_service.dart';
 import '../theme/app_theme.dart';
 
-void showAddInspirationSheet(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) => const _AddInspirationSheet(),
+void showAddInspirationSheet(BuildContext context, {InspirationItem? item}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => _AddInspirationSheet(item: item),
+    ),
   );
 }
 
 class _AddInspirationSheet extends StatefulWidget {
-  const _AddInspirationSheet();
+  final InspirationItem? item;
+  const _AddInspirationSheet({this.item});
 
   @override
   State<_AddInspirationSheet> createState() => _AddInspirationSheetState();
@@ -24,6 +25,16 @@ class _AddInspirationSheetState extends State<_AddInspirationSheet> {
   final _contentController = TextEditingController();
   final _tagController = TextEditingController();
   final List<String> _tags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.item != null) {
+      _titleController.text = widget.item!.title ?? '';
+      _contentController.text = widget.item!.content;
+      _tags.addAll(widget.item!.tags);
+    }
+  }
 
   @override
   void dispose() {
@@ -57,181 +68,180 @@ class _AddInspirationSheetState extends State<_AddInspirationSheet> {
     }
 
     final title = _titleController.text.trim();
-    final item = InspirationItem(
-      id: DataService.generateId(),
-      title: title.isEmpty ? null : title,
-      content: content,
-      tags: List.from(_tags),
-      createdAt: DateTime.now(),
-    );
 
-    DataService.instance.addInspiration(item);
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('灵感添加成功')),
-    );
+    if (widget.item != null) {
+      final updated = widget.item!.copyWith(
+        title: title.isEmpty ? null : title,
+        content: content,
+        tags: List.from(_tags),
+      );
+      DataService.instance.updateInspiration(updated);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('灵感已更新')),
+      );
+    } else {
+      final item = InspirationItem(
+        id: DataService.generateId(),
+        title: title.isEmpty ? null : title,
+        content: content,
+        tags: List.from(_tags),
+        createdAt: DateTime.now(),
+      );
+      DataService.instance.addInspiration(item);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('灵感添加成功')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+    final isEditing = widget.item != null;
+    final dateToShow = isEditing ? widget.item!.createdAt : DateTime.now();
+    final dateString = '${dateToShow.year}年${dateToShow.month.toString().padLeft(2, '0')}月${dateToShow.day.toString().padLeft(2, '0')}日 ${dateToShow.hour.toString().padLeft(2, '0')}:${dateToShow.minute.toString().padLeft(2, '0')}';
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leadingWidth: 70,
+        leading: TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('取消', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+        ),
+        title: Text(
+          isEditing ? '编辑灵感' : '新建灵感',
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: _submit,
+            child: const Text('完成', style: TextStyle(color: AppTheme.inspirationColor, fontSize: 16, fontWeight: FontWeight.w600)),
+          ),
+        ],
       ),
-      padding: EdgeInsets.only(bottom: bottomPadding),
-      child: SingleChildScrollView(
+      body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Drag handle
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            // Title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Text(
-                '记录灵感',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            // Title field
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    hintText: '标题（选填）',
-                    hintStyle: TextStyle(color: AppTheme.textTertiary),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Content
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TextField(
-                  controller: _contentController,
-                  maxLines: 6,
-                  decoration: const InputDecoration(
-                    hintText: '写下你的灵感...',
-                    hintStyle: TextStyle(color: AppTheme.textTertiary),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(16),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Tags
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '标签',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _tags
-                    .map((tag) => Chip(
-                          label: Text(tag,
-                              style: const TextStyle(fontSize: 12)),
-                          deleteIcon: const Icon(Icons.close, size: 14),
-                          onDeleted: () => _removeTag(tag),
-                          backgroundColor: AppTheme.inspirationBg,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          side: BorderSide.none,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                        ))
-                    .toList(),
-              ),
-            ),
-            if (_tags.isNotEmpty) const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: _tagController,
-                  decoration: const InputDecoration(
-                    hintText: '输入标签后按回车添加',
-                    hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 13),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  onSubmitted: (_) => _addTag(),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Submit button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.inspirationColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title field
+                    TextField(
+                      controller: _titleController,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
+                      decoration: const InputDecoration(
+                        hintText: '标题（选填）',
+                        hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 20, fontWeight: FontWeight.w600),
+                        border: InputBorder.none,
+                      ),
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    '保存灵感',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                    const SizedBox(height: 8),
+                    // Content
+                    TextField(
+                      controller: _contentController,
+                      maxLines: null,
+                      style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary, height: 1.5),
+                      decoration: const InputDecoration(
+                        hintText: '写下你的灵感...',
+                        hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 16),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Tags
+                    if (_tags.isNotEmpty) ...[
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _tags
+                            .map((tag) => Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.inspirationBg,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(tag, style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary)),
+                                      const SizedBox(width: 4),
+                                      GestureDetector(
+                                        onTap: () => _removeTag(tag),
+                                        child: const Icon(Icons.close, size: 14, color: AppTheme.textTertiary),
+                                      ),
+                                    ],
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    TextField(
+                      controller: _tagController,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: const InputDecoration(
+                        hintText: '添加标签...',
+                        hintStyle: TextStyle(color: AppTheme.textTertiary, fontSize: 14),
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                      onSubmitted: (_) => _addTag(),
+                    ),
+                  ],
                 ),
+              ),
+            ),
+            // Bottom Toolbar
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    dateString,
+                    style: const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
+                  ),
+                  const Spacer(),
+                  if (isEditing) ...[
+                    GestureDetector(
+                      onTap: () {
+                        DataService.instance.toggleInspirationFavorite(widget.item!.id);
+                        Navigator.pop(context);
+                      },
+                      child: Icon(
+                        widget.item!.isFavorite ? Icons.star_rounded : Icons.star_border_rounded,
+                        size: 24,
+                        color: widget.item!.isFavorite ? const Color(0xFFF59E0B) : AppTheme.textTertiary,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: () {
+                        DataService.instance.deleteInspiration(widget.item!.id);
+                        Navigator.pop(context);
+                      },
+                      child: const Icon(
+                        Icons.delete_outline,
+                        size: 24,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
