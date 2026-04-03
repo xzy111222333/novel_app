@@ -1,0 +1,227 @@
+import 'package:flutter/material.dart';
+
+import '../services/data_service.dart';
+import '../theme/app_theme.dart';
+
+class PersonalizationScreen extends StatefulWidget {
+  const PersonalizationScreen({super.key});
+
+  @override
+  State<PersonalizationScreen> createState() => _PersonalizationScreenState();
+}
+
+class _PersonalizationScreenState extends State<PersonalizationScreen> {
+  final _data = DataService.instance;
+  late final TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: _data.profileName);
+    _data.addListener(_handleChange);
+  }
+
+  @override
+  void dispose() {
+    _data.removeListener(_handleChange);
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  void _handleChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _saveName() {
+    _data.updateProfileName(_nameController.text);
+    FocusScope.of(context).unfocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedId = _data.themePresetId;
+
+    return Scaffold(
+      backgroundColor: AppTheme.scaffoldBackground,
+      appBar: AppBar(
+        backgroundColor: AppTheme.scaffoldBackground,
+        surfaceTintColor: Colors.transparent,
+        title: const Text('个性化'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _saveName();
+              Navigator.pop(context);
+            },
+            child: const Text(
+              '完成',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: AppTheme.cardDecoration,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '昵称',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _nameController,
+                  onSubmitted: (_) => _saveName(),
+                  decoration: InputDecoration(
+                    hintText: '输入你的昵称',
+                    filled: true,
+                    fillColor: AppTheme.softBackground,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: AppTheme.cardDecoration,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '主题背景',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '保持小日常那种轻白基底，只允许很轻的背景变化。',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: AppTheme.presets.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.82,
+                  ),
+                  itemBuilder: (context, index) {
+                    final preset = AppTheme.presets[index];
+                    final selected = preset.id == selectedId;
+                    return GestureDetector(
+                      onTap: () => _data.updateThemePreset(preset.id),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: preset.background,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: selected
+                                      ? AppTheme.textPrimary
+                                      : AppTheme.divider,
+                                  width: selected ? 2 : 1,
+                                ),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    left: 10,
+                                    right: 10,
+                                    top: 12,
+                                    child: Container(
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        color: preset.surface,
+                                        borderRadius: BorderRadius.circular(999),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: 10,
+                                    right: 10,
+                                    bottom: 12,
+                                    child: Container(
+                                      height: 34,
+                                      decoration: BoxDecoration(
+                                        color: preset.surface,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(color: AppTheme.divider),
+                                      ),
+                                    ),
+                                  ),
+                                  if (selected)
+                                    const Positioned(
+                                      right: 10,
+                                      top: 10,
+                                      child: CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: AppTheme.textPrimary,
+                                        child: Icon(
+                                          Icons.check,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            preset.label,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

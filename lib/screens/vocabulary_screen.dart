@@ -203,7 +203,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
     final items = _filteredItems;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [

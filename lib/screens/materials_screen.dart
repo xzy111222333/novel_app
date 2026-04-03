@@ -203,7 +203,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
     final items = _filteredMaterials;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [

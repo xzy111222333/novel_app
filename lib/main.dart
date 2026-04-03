@@ -24,8 +24,31 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    DataService.instance.addListener(_handleChange);
+  }
+
+  @override
+  void dispose() {
+    DataService.instance.removeListener(_handleChange);
+    super.dispose();
+  }
+
+  void _handleChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +62,11 @@ class MyApp extends StatelessWidget {
 }
 
 class _TabInfo {
+  final String keyName;
   final String label;
   final IconData icon;
   final Widget screen;
-  const _TabInfo(this.label, this.icon, this.screen);
+  const _TabInfo(this.keyName, this.label, this.icon, this.screen);
 }
 
 class MainScreen extends StatefulWidget {
@@ -71,21 +95,53 @@ class _MainScreenState extends State<MainScreen> {
     if (mounted) setState(() {});
   }
 
+  void _jumpToTab(String key) {
+    final tabs = _buildTabs();
+    final index = tabs.indexWhere((tab) => tab.keyName == key);
+    if (index == -1) {
+      return;
+    }
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   List<_TabInfo> _buildTabs() {
     final tabs = <_TabInfo>[
-      const _TabInfo('今日', Icons.calendar_today, HomeScreen()),
-      const _TabInfo('素材', Icons.menu_book_rounded, MaterialsScreen()),
+      _TabInfo('home', '今日', Icons.check_circle_outline_rounded,
+          HomeScreen(onNavigateToTab: _jumpToTab)),
+      const _TabInfo(
+        'materials',
+        '素材',
+        Icons.menu_book_rounded,
+        MaterialsScreen(),
+      ),
     ];
     if (DataService.instance.isOptionalTabEnabled('vocabulary')) {
-      tabs.add(const _TabInfo('词汇', Icons.text_fields_rounded, VocabularyScreen()));
+      tabs.add(const _TabInfo(
+        'vocabulary',
+        '词汇',
+        Icons.text_fields_rounded,
+        VocabularyScreen(),
+      ));
     }
-    tabs.add(const _TabInfo('灵感', Icons.edit_note_rounded, InspirationScreen()));
+    tabs.add(const _TabInfo(
+      'inspirations',
+      '灵感',
+      Icons.edit_note_rounded,
+      InspirationScreen(),
+    ));
     if (DataService.instance.isOptionalTabEnabled('plots')) {
-      tabs.add(const _TabInfo('剧情', Icons.movie_creation_outlined, PlotsScreen()));
+      tabs.add(const _TabInfo(
+        'plots',
+        '剧情',
+        Icons.movie_creation_outlined,
+        PlotsScreen(),
+      ));
     }
     tabs.addAll(const [
-      _TabInfo('统计', Icons.bar_chart_rounded, StatsScreen()),
-      _TabInfo('我的', Icons.person_outline_rounded, ProfileScreen()),
+      _TabInfo('stats', '统计', Icons.bar_chart_rounded, StatsScreen()),
+      _TabInfo('profile', '我的', Icons.person_outline_rounded, ProfileScreen()),
     ]);
     return tabs;
   }
@@ -99,7 +155,7 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: IndexedStack(
         index: _currentIndex,
         children: tabs.map((t) => t.screen).toList(),

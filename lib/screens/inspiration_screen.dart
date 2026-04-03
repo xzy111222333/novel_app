@@ -99,7 +99,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
     final dateKeys = grouped.keys.toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [

@@ -5,6 +5,10 @@ import '../models/material_item.dart';
 import '../models/vocabulary_item.dart';
 import '../models/inspiration_item.dart';
 import '../models/plot_item.dart';
+import '../widgets/add_inspiration_sheet.dart';
+import '../widgets/add_material_sheet.dart';
+import '../widgets/add_plot_sheet.dart';
+import '../widgets/add_vocabulary_sheet.dart';
 
 class GlobalSearchScreen extends StatefulWidget {
   const GlobalSearchScreen({super.key});
@@ -90,6 +94,19 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     return '';
   }
 
+  void _openResult(Map<String, dynamic> result) {
+    final item = result['item'];
+    if (item is MaterialItem) {
+      showAddMaterialSheet(context, item: item);
+    } else if (item is VocabularyItem) {
+      showAddVocabularySheet(context, item: item);
+    } else if (item is InspirationItem) {
+      showAddInspirationSheet(context, item: item);
+    } else if (item is PlotItem) {
+      showAddPlotSheet(context, item: item);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final query = _searchController.text.trim();
@@ -103,9 +120,9 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 18),
@@ -222,6 +239,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
       margin: const EdgeInsets.only(bottom: 6),
       decoration: AppTheme.smallCardDecoration,
       child: ListTile(
+        onTap: () => _openResult(result),
         dense: true,
         visualDensity: VisualDensity.compact,
         contentPadding:

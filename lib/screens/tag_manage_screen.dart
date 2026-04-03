@@ -5,6 +5,10 @@ import '../models/material_item.dart';
 import '../models/vocabulary_item.dart';
 import '../models/inspiration_item.dart';
 import '../models/plot_item.dart';
+import '../widgets/add_inspiration_sheet.dart';
+import '../widgets/add_material_sheet.dart';
+import '../widgets/add_plot_sheet.dart';
+import '../widgets/add_vocabulary_sheet.dart';
 
 class TagManageScreen extends StatefulWidget {
   const TagManageScreen({super.key});
@@ -16,6 +20,70 @@ class TagManageScreen extends StatefulWidget {
 class _TagManageScreenState extends State<TagManageScreen> {
   final _ds = DataService.instance;
   String? _selectedTag;
+
+  Future<void> _renameSelectedTag() async {
+    final current = _selectedTag;
+    if (current == null) {
+      return;
+    }
+    final controller = TextEditingController(text: current);
+    final next = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('重命名标签'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: '输入新的标签名'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+    if (next != null && next.isNotEmpty && next != current) {
+      _ds.renameTag(current, next);
+      setState(() => _selectedTag = next);
+    }
+  }
+
+  Future<void> _deleteSelectedTag() async {
+    final current = _selectedTag;
+    if (current == null) {
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除标签'),
+        content: Text('删除后，会从所有内容中移除“$current”标签。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              '删除',
+              style: TextStyle(color: AppTheme.danger),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      _ds.deleteTag(current);
+      setState(() => _selectedTag = null);
+    }
+  }
 
   void _onDataChanged() {
     if (mounted) setState(() {});
@@ -91,14 +159,26 @@ class _TagManageScreenState extends State<TagManageScreen> {
     return '';
   }
 
+  void _openItem(dynamic item) {
+    if (item is MaterialItem) {
+      showAddMaterialSheet(context, item: item);
+    } else if (item is VocabularyItem) {
+      showAddVocabularySheet(context, item: item);
+    } else if (item is InspirationItem) {
+      showAddInspirationSheet(context, item: item);
+    } else if (item is PlotItem) {
+      showAddPlotSheet(context, item: item);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tags = _ds.allTags.toList()..sort();
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
@@ -214,16 +294,30 @@ class _TagManageScreenState extends State<TagManageScreen> {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '包含"$_selectedTag"的内容',
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '包含“$_selectedTag”的内容',
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
-                      ),
+                        TextButton(
+                          onPressed: _renameSelectedTag,
+                          child: const Text('重命名'),
+                        ),
+                        TextButton(
+                          onPressed: _deleteSelectedTag,
+                          child: const Text(
+                            '删除',
+                            style: TextStyle(color: AppTheme.danger),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Expanded(
@@ -250,6 +344,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
                             ],
                           ),
                           child: ListTile(
+                            onTap: () => _openItem(item),
                             dense: true,
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 4),

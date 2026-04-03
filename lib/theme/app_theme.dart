@@ -1,17 +1,32 @@
 import 'package:flutter/material.dart';
+import '../services/data_service.dart';
 
 /// 小日常-inspired minimal theme: mostly white, small fonts, subtle accents
+class ThemePreset {
+  final String id;
+  final String label;
+  final Color background;
+  final Color surface;
+
+  const ThemePreset({
+    required this.id,
+    required this.label,
+    required this.background,
+    required this.surface,
+  });
+}
+
 class AppTheme {
-  // Core palette — predominantly white, very subtle
   static const Color background = Color(0xFFF5F6F8);
   static const Color cardBackground = Colors.white;
   static const Color textPrimary = Color(0xFF1F2937);
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color textTertiary = Color(0xFFB0B6BF);
   static const Color divider = Color(0xFFF0F0F0);
-  static const Color accent = Color(0xFFF7B500); // 小日常 amber/yellow
+  static const Color accent = Color(0xFFF7B500);
+  static const Color accentSoft = Color(0xFFFFF4CC);
+  static const Color danger = Color(0xFFE16A6A);
 
-  // Module colors — very subtle, muted
   static const Color materialColor = Color(0xFF6B9F6B);
   static const Color materialBg = Color(0xFFEDF5ED);
   static const Color vocabularyColor = Color(0xFFC47A7A);
@@ -21,7 +36,15 @@ class AppTheme {
   static const Color plotColor = Color(0xFFCCA945);
   static const Color plotBg = Color(0xFFFAF6EC);
 
-  // Category colors — muted tones, not saturated
+  static const List<ThemePreset> presets = [
+    ThemePreset(id: 'default', label: '默认', background: Color(0xFFF5F6F8), surface: Colors.white),
+    ThemePreset(id: 'rice', label: '米白', background: Color(0xFFF8F4EC), surface: Colors.white),
+    ThemePreset(id: 'blue', label: '淡蓝', background: Color(0xFFF2F6FB), surface: Colors.white),
+    ThemePreset(id: 'green', label: '淡绿', background: Color(0xFFF2F8F4), surface: Colors.white),
+    ThemePreset(id: 'pink', label: '淡粉', background: Color(0xFFFBF3F6), surface: Colors.white),
+    ThemePreset(id: 'gray', label: '浅灰', background: Color(0xFFF2F3F5), surface: Colors.white),
+  ];
+
   static const Map<String, Color> categoryColors = {
     '对话': Color(0xFF8B7EC8),
     '动作描写': Color(0xFFC4845A),
@@ -40,6 +63,17 @@ class AppTheme {
     '未婚先孕': Color(0xFFC47A7A),
   };
 
+  static ThemePreset get currentPreset {
+    final id = DataService.instance.themePresetId;
+    return presets.firstWhere(
+      (preset) => preset.id == id,
+      orElse: () => presets.first,
+    );
+  }
+
+  static Color get scaffoldBackground => currentPreset.background;
+  static Color get softBackground => currentPreset.background;
+
   static Color getCategoryColor(String category) {
     return categoryColors[category] ?? textSecondary;
   }
@@ -49,7 +83,6 @@ class AppTheme {
     return color.withValues(alpha: 0.08);
   }
 
-  // Card decorations — minimal shadow, like 小日常
   static BoxDecoration cardDecoration = BoxDecoration(
     color: cardBackground,
     borderRadius: BorderRadius.circular(16),
@@ -74,11 +107,10 @@ class AppTheme {
     ],
   );
 
-  // ThemeData — compact fonts
   static ThemeData get themeData {
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: scaffoldBackground,
       appBarTheme: const AppBarTheme(
         backgroundColor: background,
         elevation: 0,

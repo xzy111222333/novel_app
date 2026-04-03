@@ -1,12 +1,14 @@
 import 'dart:convert';
-import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import '../models/material_item.dart';
-import '../models/vocabulary_item.dart';
+
+import '../models/deleted_record.dart';
 import '../models/inspiration_item.dart';
+import '../models/material_item.dart';
 import '../models/plot_item.dart';
+import '../models/vocabulary_item.dart';
 import 'sample_data.dart';
 
 class DataService extends ChangeNotifier {
@@ -14,70 +16,119 @@ class DataService extends ChangeNotifier {
   DataService._internal();
 
   static const _uuid = Uuid();
+  static const _schemaVersion = 2;
+
   static String generateId() => _uuid.v4();
 
-  // === Data ===
+  static const List<String> _defaultMaterialCategories = [
+    '对话',
+    '动作描写',
+    '心理描写',
+    '人物描写',
+    '环境描写',
+  ];
+
+  static const List<String> _defaultVocabularyCategories = [
+    '环境',
+    '外貌',
+    '神态',
+    '声音',
+    '动作',
+    '心理',
+  ];
+
+  static const List<String> _defaultPlotCategories = [
+    '打脸剧情',
+    '总裁剧情',
+    '宫斗剧情',
+    '甜宠剧情',
+    '校园剧情',
+    '装逼剧情',
+    '憋屈剧情',
+    '未婚先孕',
+  ];
+
   List<MaterialItem> _materials = [];
   List<VocabularyItem> _vocabulary = [];
   List<InspirationItem> _inspirations = [];
   List<PlotItem> _plots = [];
+  List<DeletedRecord> _recentlyDeleted = [];
 
-  // === Categories (no '全部', that's UI-only) ===
-  List<String> _materialCategories = ['对话', '动作描写', '心理描写', '人物描写', '环境描写'];
-  List<String> _vocabularyCategories = ['环境', '外貌', '神态', '声音', '动作', '心理'];
-  List<String> _plotCategories = ['打脸剧情', '总裁剧情', '宫斗剧情', '甜宠剧情', '校园剧情', '装逼剧情', '憋屈剧情', '未婚先孕'];
-
-  // === Optional tab config ===
+  List<String> _materialCategories = List<String>.from(_defaultMaterialCategories);
+  List<String> _vocabularyCategories =
+      List<String>.from(_defaultVocabularyCategories);
+  List<String> _plotCategories = List<String>.from(_defaultPlotCategories);
   List<String> _enabledOptionalTabs = [];
 
-  // === Getters ===
-  List<MaterialItem> get materials => _materials;
-  List<VocabularyItem> get vocabulary => _vocabulary;
-  List<InspirationItem> get inspirations => _inspirations;
-  List<PlotItem> get plots => _plots;
+  String _profileName = '我';
+  String _themePresetId = 'default';
 
-  List<String> get materialCategories => _materialCategories;
-  List<String> get vocabularyCategories => _vocabularyCategories;
-  List<String> get plotCategories => _plotCategories;
-  List<String> get enabledOptionalTabs => _enabledOptionalTabs;
+  List<MaterialItem> get materials => List.unmodifiable(_materials);
+  List<VocabularyItem> get vocabulary => List.unmodifiable(_vocabulary);
+  List<InspirationItem> get inspirations => List.unmodifiable(_inspirations);
+  List<PlotItem> get plots => List.unmodifiable(_plots);
+  List<DeletedRecord> get recentlyDeleted =>
+      List.unmodifiable(_recentlyDeleted);
 
-  // === Today's items ===
+  List<String> get materialCategories => List.unmodifiable(_materialCategories);
+  List<String> get vocabularyCategories =>
+      List.unmodifiable(_vocabularyCategories);
+  List<String> get plotCategories => List.unmodifiable(_plotCategories);
+  List<String> get enabledOptionalTabs => List.unmodifiable(_enabledOptionalTabs);
+
+  String get profileName => _profileName;
+  String get themePresetId => _themePresetId;
+
   List<MaterialItem> get todayMaterials =>
-      _materials.where((m) => _isToday(m.createdAt)).toList();
+      _materials.where((item) => _isToday(item.createdAt)).toList();
   List<VocabularyItem> get todayVocabulary =>
-      _vocabulary.where((v) => _isToday(v.createdAt)).toList();
+      _vocabulary.where((item) => _isToday(item.createdAt)).toList();
   List<InspirationItem> get todayInspirations =>
-      _inspirations.where((i) => _isToday(i.createdAt)).toList();
+      _inspirations.where((item) => _isToday(item.createdAt)).toList();
   List<PlotItem> get todayPlots =>
-      _plots.where((p) => _isToday(p.createdAt)).toList();
+      _plots.where((item) => _isToday(item.createdAt)).toList();
 
-  static bool _isToday(DateTime dt) {
-    final now = DateTime.now();
-    return dt.year == now.year && dt.month == now.month && dt.day == now.day;
+  int get materialWordCount =>
+      _materials.fold(0, (sum, item) => sum + item.wordCount);
+  int get vocabularyWordCount =>
+      _vocabulary.fold(0, (sum, item) => sum + item.wordCount);
+  int get inspirationWordCount =>
+      _inspirations.fold(0, (sum, item) => sum + item.wordCount);
+  int get plotWordCount => _plots.fold(0, (sum, item) => sum + item.wordCount);
+  int get totalWordCount =>
+      materialWordCount +
+      vocabularyWordCount +
+      inspirationWordCount +
+      plotWordCount;
+
+  List<dynamic> get favorites {
+    final result = <dynamic>[];
+    result.addAll(_materials.where((item) => item.isFavorite));
+    result.addAll(_vocabulary.where((item) => item.isFavorite));
+    result.addAll(_inspirations.where((item) => item.isFavorite));
+    result.addAll(_plots.where((item) => item.isFavorite));
+    result.sort((a, b) => _createdAtOf(b).compareTo(_createdAtOf(a)));
+    return result;
   }
 
-  // === Word counts ===
-  int get totalWordCount =>
-      materialWordCount + vocabularyWordCount + inspirationWordCount + plotWordCount;
-  int get materialWordCount =>
-      _materials.fold(0, (sum, m) => sum + m.content.length);
-  int get vocabularyWordCount =>
-      _vocabulary.fold(0, (sum, v) => sum + v.content.length);
-  int get inspirationWordCount =>
-      _inspirations.fold(0, (sum, i) => sum + i.content.length + (i.title?.length ?? 0));
-  int get plotWordCount => _plots.fold(0, (sum, p) {
-        if (p.type == 'steps') {
-          return sum + p.steps.fold(0, (s, step) => s + step.length);
-        }
-        return sum + p.freeContent.length;
-      });
+  int get favoritesCount => favorites.length;
 
-  Map<String, int> get todayCounts => {
-        'materials': todayMaterials.length,
-        'vocabulary': todayVocabulary.length,
-        'inspirations': todayInspirations.length,
-        'plots': todayPlots.length,
-      };
+  Set<String> get allTags {
+    final tags = <String>{};
+    for (final item in _materials) {
+      tags.addAll(item.tags);
+    }
+    for (final item in _vocabulary) {
+      tags.addAll(item.tags);
+    }
+    for (final item in _inspirations) {
+      tags.addAll(item.tags);
+    }
+    for (final item in _plots) {
+      tags.addAll(item.tags);
+    }
+    return tags;
+  }
 
   Map<String, int> get totalCounts => {
         'materials': _materials.length,
@@ -86,38 +137,10 @@ class DataService extends ChangeNotifier {
         'plots': _plots.length,
       };
 
-  // === Random past inspiration (for 随机回顾) ===
-  InspirationItem? getRandomPastInspiration() {
-    final past = _inspirations.where((i) => !_isToday(i.createdAt)).toList();
-    if (past.isEmpty) return null;
-    return past[Random().nextInt(past.length)];
-  }
-
-  // === All tags (collected from all items) ===
-  Set<String> get allTags {
-    final tags = <String>{};
-    for (final m in _materials) { tags.addAll(m.tags); }
-    for (final v in _vocabulary) { tags.addAll(v.tags); }
-    for (final i in _inspirations) { tags.addAll(i.tags); }
-    for (final p in _plots) { tags.addAll(p.tags); }
-    return tags;
-  }
-
-  // === Favorites ===
-  List<dynamic> get favorites {
-    final result = <dynamic>[];
-    result.addAll(_materials.where((m) => m.isFavorite));
-    result.addAll(_vocabulary.where((v) => v.isFavorite));
-    result.addAll(_inspirations.where((i) => i.isFavorite));
-    result.addAll(_plots.where((p) => p.isFavorite));
-    return result;
-  }
-
-  int get favoritesCount => favorites.length;
-
-  // === Initialize ===
   Future<void> init() async {
     await _loadFromPrefs();
+    await _migrateLegacyData();
+    _ensureDefaultState();
     if (_materials.isEmpty &&
         _vocabulary.isEmpty &&
         _inspirations.isEmpty &&
@@ -128,6 +151,573 @@ class DataService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateProfileName(String value) {
+    final next = value.trim();
+    if (next.isEmpty || next == _profileName) {
+      return;
+    }
+    _profileName = next;
+    _persistAndNotify();
+  }
+
+  void updateThemePreset(String presetId) {
+    if (_themePresetId == presetId) {
+      return;
+    }
+    _themePresetId = presetId;
+    _persistAndNotify();
+  }
+
+  List<String> getCategories(String module) {
+    switch (module) {
+      case 'material':
+        return materialCategories;
+      case 'vocabulary':
+        return vocabularyCategories;
+      case 'plot':
+        return plotCategories;
+      default:
+        return const [];
+    }
+  }
+
+  void addCategory(String module, String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+    final categories = _mutableCategoryList(module);
+    if (categories == null || categories.contains(trimmed)) {
+      return;
+    }
+    categories.add(trimmed);
+    _persistAndNotify();
+  }
+
+  void renameCategory(String module, String oldName, String newName) {
+    final trimmed = newName.trim();
+    if (trimmed.isEmpty || oldName == trimmed) {
+      return;
+    }
+    final categories = _mutableCategoryList(module);
+    if (categories == null) {
+      return;
+    }
+    final index = categories.indexOf(oldName);
+    if (index == -1) {
+      return;
+    }
+    categories[index] = trimmed;
+    _replaceCategoryInItems(module, oldName, trimmed);
+    _persistAndNotify();
+  }
+
+  void deleteCategory(String module, String name) {
+    final categories = _mutableCategoryList(module);
+    if (categories == null || !categories.contains(name)) {
+      return;
+    }
+    if (categories.length == 1) {
+      return;
+    }
+    categories.remove(name);
+    final fallback = categories.first;
+    _replaceCategoryInItems(module, name, fallback);
+    _persistAndNotify();
+  }
+
+  void renameTag(String oldTag, String newTag) {
+    final trimmed = newTag.trim();
+    if (oldTag.isEmpty || trimmed.isEmpty || oldTag == trimmed) {
+      return;
+    }
+    _materials = _materials
+        .map((item) => item.copyWith(tags: _replaceTag(item.tags, oldTag, trimmed)))
+        .toList();
+    _vocabulary = _vocabulary
+        .map((item) => item.copyWith(tags: _replaceTag(item.tags, oldTag, trimmed)))
+        .toList();
+    _inspirations = _inspirations
+        .map((item) => item.copyWith(tags: _replaceTag(item.tags, oldTag, trimmed)))
+        .toList();
+    _plots = _plots
+        .map((item) => item.copyWith(tags: _replaceTag(item.tags, oldTag, trimmed)))
+        .toList();
+    _persistAndNotify();
+  }
+
+  void deleteTag(String tag) {
+    if (tag.isEmpty) {
+      return;
+    }
+    _materials = _materials
+        .map((item) => item.copyWith(tags: _removeTag(item.tags, tag)))
+        .toList();
+    _vocabulary = _vocabulary
+        .map((item) => item.copyWith(tags: _removeTag(item.tags, tag)))
+        .toList();
+    _inspirations = _inspirations
+        .map((item) => item.copyWith(tags: _removeTag(item.tags, tag)))
+        .toList();
+    _plots = _plots
+        .map((item) => item.copyWith(tags: _removeTag(item.tags, tag)))
+        .toList();
+    _persistAndNotify();
+  }
+
+  bool isOptionalTabEnabled(String tabKey) =>
+      _enabledOptionalTabs.contains(tabKey);
+
+  void toggleOptionalTab(String tabKey) {
+    if (_enabledOptionalTabs.contains(tabKey)) {
+      _enabledOptionalTabs.remove(tabKey);
+    } else {
+      _enabledOptionalTabs.add(tabKey);
+    }
+    _persistAndNotify();
+  }
+
+  void addMaterial(MaterialItem item) {
+    _materials.insert(0, item);
+    _persistAndNotify();
+  }
+
+  void updateMaterial(MaterialItem item) {
+    final index = _materials.indexWhere((entry) => entry.id == item.id);
+    if (index == -1) {
+      return;
+    }
+    _materials[index] = item;
+    _persistAndNotify();
+  }
+
+  void deleteMaterial(String id) {
+    _deleteEntity<MaterialItem>(
+      id: id,
+      source: _materials,
+      type: 'material',
+      serializer: (item) => item.toJson(),
+    );
+  }
+
+  void purgeMaterial(String id) {
+    _materials.removeWhere((item) => item.id == id);
+    _persistAndNotify();
+  }
+
+  void toggleMaterialFavorite(String id) {
+    final index = _materials.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      return;
+    }
+    _materials[index] = _materials[index]
+        .copyWith(isFavorite: !_materials[index].isFavorite);
+    _persistAndNotify();
+  }
+
+  void addVocabulary(VocabularyItem item) {
+    _vocabulary.insert(0, item);
+    _persistAndNotify();
+  }
+
+  void updateVocabulary(VocabularyItem item) {
+    final index = _vocabulary.indexWhere((entry) => entry.id == item.id);
+    if (index == -1) {
+      return;
+    }
+    _vocabulary[index] = item;
+    _persistAndNotify();
+  }
+
+  void deleteVocabulary(String id) {
+    _deleteEntity<VocabularyItem>(
+      id: id,
+      source: _vocabulary,
+      type: 'vocabulary',
+      serializer: (item) => item.toJson(),
+    );
+  }
+
+  void purgeVocabulary(String id) {
+    _vocabulary.removeWhere((item) => item.id == id);
+    _persistAndNotify();
+  }
+
+  void toggleVocabularyFavorite(String id) {
+    final index = _vocabulary.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      return;
+    }
+    _vocabulary[index] = _vocabulary[index]
+        .copyWith(isFavorite: !_vocabulary[index].isFavorite);
+    _persistAndNotify();
+  }
+
+  void addInspiration(InspirationItem item) {
+    _inspirations.insert(0, item);
+    _persistAndNotify();
+  }
+
+  void updateInspiration(InspirationItem item) {
+    final index = _inspirations.indexWhere((entry) => entry.id == item.id);
+    if (index == -1) {
+      return;
+    }
+    _inspirations[index] = item;
+    _persistAndNotify();
+  }
+
+  void deleteInspiration(String id) {
+    _deleteEntity<InspirationItem>(
+      id: id,
+      source: _inspirations,
+      type: 'inspiration',
+      serializer: (item) => item.toJson(),
+    );
+  }
+
+  void purgeInspiration(String id) {
+    _inspirations.removeWhere((item) => item.id == id);
+    _persistAndNotify();
+  }
+
+  void toggleInspirationFavorite(String id) {
+    final index = _inspirations.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      return;
+    }
+    _inspirations[index] = _inspirations[index]
+        .copyWith(isFavorite: !_inspirations[index].isFavorite);
+    _persistAndNotify();
+  }
+
+  void addPlot(PlotItem item) {
+    _plots.insert(0, item);
+    _persistAndNotify();
+  }
+
+  void updatePlot(PlotItem item) {
+    final index = _plots.indexWhere((entry) => entry.id == item.id);
+    if (index == -1) {
+      return;
+    }
+    _plots[index] = item;
+    _persistAndNotify();
+  }
+
+  void deletePlot(String id) {
+    _deleteEntity<PlotItem>(
+      id: id,
+      source: _plots,
+      type: 'plot',
+      serializer: (item) => item.toJson(),
+    );
+  }
+
+  void purgePlot(String id) {
+    _plots.removeWhere((item) => item.id == id);
+    _persistAndNotify();
+  }
+
+  void togglePlotFavorite(String id) {
+    final index = _plots.indexWhere((item) => item.id == id);
+    if (index == -1) {
+      return;
+    }
+    _plots[index] = _plots[index].copyWith(isFavorite: !_plots[index].isFavorite);
+    _persistAndNotify();
+  }
+
+  void convertInspirationToMaterial(InspirationItem inspiration) {
+    addMaterial(
+      MaterialItem(
+        id: generateId(),
+        content: [
+          if ((inspiration.title ?? '').trim().isNotEmpty) inspiration.title!,
+          inspiration.content,
+        ].join('\n'),
+        category: _materialCategories.first,
+        tags: List<String>.from(inspiration.tags),
+        source: '灵感转换',
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  void convertInspirationToVocabulary(InspirationItem inspiration) {
+    addVocabulary(
+      VocabularyItem(
+        id: generateId(),
+        content: inspiration.content,
+        category: _vocabularyCategories.first,
+        tags: List<String>.from(inspiration.tags),
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  InspirationItem? getRandomPastInspiration() {
+    final candidates = _inspirations.where((item) => !_isToday(item.createdAt)).toList();
+    if (candidates.isEmpty) {
+      return null;
+    }
+    candidates.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return candidates.first;
+  }
+
+  bool hasAnyContentOn(DateTime date) {
+    final normalized = _normalizeDate(date);
+    return [
+      ..._materials.map((item) => item.createdAt),
+      ..._vocabulary.map((item) => item.createdAt),
+      ..._inspirations.map((item) => item.createdAt),
+      ..._plots.map((item) => item.createdAt),
+    ].any((value) => _normalizeDate(value) == normalized);
+  }
+
+  int entryCountOn(DateTime date) {
+    final normalized = _normalizeDate(date);
+    return [
+      ..._materials.map((item) => item.createdAt),
+      ..._vocabulary.map((item) => item.createdAt),
+      ..._inspirations.map((item) => item.createdAt),
+      ..._plots.map((item) => item.createdAt),
+    ].where((value) => _normalizeDate(value) == normalized).length;
+  }
+
+  int wordCountOn(DateTime date) {
+    final normalized = _normalizeDate(date);
+    var total = 0;
+    for (final item in _materials) {
+      if (_normalizeDate(item.createdAt) == normalized) {
+        total += item.wordCount;
+      }
+    }
+    for (final item in _vocabulary) {
+      if (_normalizeDate(item.createdAt) == normalized) {
+        total += item.wordCount;
+      }
+    }
+    for (final item in _inspirations) {
+      if (_normalizeDate(item.createdAt) == normalized) {
+        total += item.wordCount;
+      }
+    }
+    for (final item in _plots) {
+      if (_normalizeDate(item.createdAt) == normalized) {
+        total += item.wordCount;
+      }
+    }
+    return total;
+  }
+
+  Map<DateTime, int> wordCountMapForRange(DateTime start, DateTime end) {
+    final result = <DateTime, int>{};
+    var current = _normalizeDate(start);
+    final last = _normalizeDate(end);
+    while (!current.isAfter(last)) {
+      result[current] = wordCountOn(current);
+      current = current.add(const Duration(days: 1));
+    }
+    return result;
+  }
+
+  Map<String, int> moduleCountsInRange(DateTime start, DateTime end) => {
+        'materials': _materials.where((item) => _isInRange(item.createdAt, start, end)).length,
+        'vocabulary':
+            _vocabulary.where((item) => _isInRange(item.createdAt, start, end)).length,
+        'inspirations':
+            _inspirations.where((item) => _isInRange(item.createdAt, start, end)).length,
+        'plots': _plots.where((item) => _isInRange(item.createdAt, start, end)).length,
+      };
+
+  Map<String, int> moduleWordsInRange(DateTime start, DateTime end) => {
+        'materials': _materials
+            .where((item) => _isInRange(item.createdAt, start, end))
+            .fold(0, (sum, item) => sum + item.wordCount),
+        'vocabulary': _vocabulary
+            .where((item) => _isInRange(item.createdAt, start, end))
+            .fold(0, (sum, item) => sum + item.wordCount),
+        'inspirations': _inspirations
+            .where((item) => _isInRange(item.createdAt, start, end))
+            .fold(0, (sum, item) => sum + item.wordCount),
+        'plots': _plots
+            .where((item) => _isInRange(item.createdAt, start, end))
+            .fold(0, (sum, item) => sum + item.wordCount),
+      };
+
+  List<Map<String, dynamic>> globalSearch(String query) {
+    final normalized = query.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return const [];
+    }
+    final results = <Map<String, dynamic>>[];
+    for (final item in _materials) {
+      if (_matchesMaterial(item, normalized)) {
+        results.add({'type': 'material', 'item': item});
+      }
+    }
+    for (final item in _vocabulary) {
+      if (_matchesVocabulary(item, normalized)) {
+        results.add({'type': 'vocabulary', 'item': item});
+      }
+    }
+    for (final item in _inspirations) {
+      if (_matchesInspiration(item, normalized)) {
+        results.add({'type': 'inspiration', 'item': item});
+      }
+    }
+    for (final item in _plots) {
+      if (_matchesPlot(item, normalized)) {
+        results.add({'type': 'plot', 'item': item});
+      }
+    }
+    results.sort(
+      (a, b) => _createdAtOf(b['item']).compareTo(_createdAtOf(a['item'])),
+    );
+    return results;
+  }
+
+  void restoreDeleted(String recordId) {
+    final index = _recentlyDeleted.indexWhere((record) => record.id == recordId);
+    if (index == -1) {
+      return;
+    }
+    final record = _recentlyDeleted.removeAt(index);
+    switch (record.type) {
+      case 'material':
+        _materials.insert(
+          0,
+          MaterialItem.fromJson(record.payload),
+        );
+        break;
+      case 'vocabulary':
+        _vocabulary.insert(
+          0,
+          VocabularyItem.fromJson(record.payload),
+        );
+        break;
+      case 'inspiration':
+        _inspirations.insert(
+          0,
+          InspirationItem.fromJson(record.payload),
+        );
+        break;
+      case 'plot':
+        _plots.insert(
+          0,
+          PlotItem.fromJson(record.payload),
+        );
+        break;
+    }
+    _persistAndNotify();
+  }
+
+  void purgeDeleted(String recordId) {
+    _recentlyDeleted.removeWhere((record) => record.id == recordId);
+    _persistAndNotify();
+  }
+
+  void clearRecentlyDeleted() {
+    if (_recentlyDeleted.isEmpty) {
+      return;
+    }
+    _recentlyDeleted = [];
+    _persistAndNotify();
+  }
+
+  Future<void> clearAllData({bool clearDeleted = true}) async {
+    _materials = [];
+    _vocabulary = [];
+    _inspirations = [];
+    _plots = [];
+    _materialCategories = List<String>.from(_defaultMaterialCategories);
+    _vocabularyCategories = List<String>.from(_defaultVocabularyCategories);
+    _plotCategories = List<String>.from(_defaultPlotCategories);
+    _enabledOptionalTabs = [];
+    if (clearDeleted) {
+      _recentlyDeleted = [];
+    }
+    await _saveToPrefs();
+    notifyListeners();
+  }
+
+  String exportToJson() {
+    final payload = {
+      'exportDate': DateTime.now().toIso8601String(),
+      'appName': '小灵感',
+      'version': '2.0.0',
+      'profileName': _profileName,
+      'themePresetId': _themePresetId,
+      'enabledOptionalTabs': _enabledOptionalTabs,
+      'materials': _materials.map((item) => item.toJson()).toList(),
+      'vocabulary': _vocabulary.map((item) => item.toJson()).toList(),
+      'inspirations': _inspirations.map((item) => item.toJson()).toList(),
+      'plots': _plots.map((item) => item.toJson()).toList(),
+      'materialCategories': _materialCategories,
+      'vocabularyCategories': _vocabularyCategories,
+      'plotCategories': _plotCategories,
+      'recentlyDeleted': _recentlyDeleted.map((item) => item.toJson()).toList(),
+    };
+    return const JsonEncoder.withIndent('  ').convert(payload);
+  }
+
+  Future<void> importFromJson(String rawJson) async {
+    final decoded = jsonDecode(rawJson) as Map<String, dynamic>;
+    _materials = ((decoded['materials'] as List?) ?? const [])
+        .map((item) => MaterialItem.fromJson(Map<String, dynamic>.from(item as Map)))
+        .toList();
+    _vocabulary = ((decoded['vocabulary'] as List?) ?? const [])
+        .map((item) => VocabularyItem.fromJson(Map<String, dynamic>.from(item as Map)))
+        .toList();
+    _inspirations = ((decoded['inspirations'] as List?) ?? const [])
+        .map((item) => InspirationItem.fromJson(Map<String, dynamic>.from(item as Map)))
+        .toList();
+    _plots = ((decoded['plots'] as List?) ?? const [])
+        .map((item) => PlotItem.fromJson(Map<String, dynamic>.from(item as Map)))
+        .toList();
+    _materialCategories = List<String>.from(
+      decoded['materialCategories'] as List? ?? _defaultMaterialCategories,
+    );
+    _vocabularyCategories = List<String>.from(
+      decoded['vocabularyCategories'] as List? ?? _defaultVocabularyCategories,
+    );
+    _plotCategories = List<String>.from(
+      decoded['plotCategories'] as List? ?? _defaultPlotCategories,
+    );
+    _enabledOptionalTabs = List<String>.from(
+      decoded['enabledOptionalTabs'] as List? ?? const [],
+    );
+    _recentlyDeleted = ((decoded['recentlyDeleted'] as List?) ?? const [])
+        .map((item) => DeletedRecord.fromJson(Map<String, dynamic>.from(item as Map)))
+        .toList();
+    _profileName = (decoded['profileName'] as String?)?.trim().isNotEmpty == true
+        ? decoded['profileName'] as String
+        : '我';
+    _themePresetId = decoded['themePresetId'] as String? ?? 'default';
+    _ensureDefaultState();
+    await _saveToPrefs();
+    notifyListeners();
+  }
+
+  Future<void> _migrateLegacyData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedVersion = prefs.getInt('schema_version') ?? 1;
+    if (savedVersion >= _schemaVersion) {
+      return;
+    }
+    if (_looksLikeLegacyDemoData()) {
+      _materials = [];
+      _vocabulary = [];
+      _inspirations = [];
+      _plots = [];
+      _recentlyDeleted = [];
+    }
+    _ensureDefaultState();
+    await _saveToPrefs();
+    await prefs.setInt('schema_version', _schemaVersion);
+  }
+
   void _loadSampleData() {
     _materials = SampleData.getMaterials();
     _vocabulary = SampleData.getVocabulary();
@@ -135,223 +725,169 @@ class DataService extends ChangeNotifier {
     _plots = SampleData.getPlots();
   }
 
-  // ============ CRUD: Materials ============
-  void addMaterial(MaterialItem item) {
-    _materials.insert(0, item);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void updateMaterial(MaterialItem item) {
-    final idx = _materials.indexWhere((m) => m.id == item.id);
-    if (idx != -1) {
-      _materials[idx] = item;
-      _saveToPrefs();
-      notifyListeners();
+  bool _looksLikeLegacyDemoData() {
+    if (_materials.length != 9 ||
+        _vocabulary.length != 12 ||
+        _inspirations.length != 8 ||
+        _plots.length != 6) {
+      return false;
     }
-  }
-
-  void deleteMaterial(String id) {
-    _materials.removeWhere((m) => m.id == id);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void toggleMaterialFavorite(String id) {
-    final idx = _materials.indexWhere((m) => m.id == id);
-    if (idx != -1) {
-      _materials[idx] = _materials[idx].copyWith(isFavorite: !_materials[idx].isFavorite);
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  // ============ CRUD: Vocabulary ============
-  void addVocabulary(VocabularyItem item) {
-    _vocabulary.insert(0, item);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void updateVocabulary(VocabularyItem item) {
-    final idx = _vocabulary.indexWhere((v) => v.id == item.id);
-    if (idx != -1) {
-      _vocabulary[idx] = item;
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  void deleteVocabulary(String id) {
-    _vocabulary.removeWhere((v) => v.id == id);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void toggleVocabularyFavorite(String id) {
-    final idx = _vocabulary.indexWhere((v) => v.id == id);
-    if (idx != -1) {
-      _vocabulary[idx] = _vocabulary[idx].copyWith(isFavorite: !_vocabulary[idx].isFavorite);
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  // ============ CRUD: Inspirations ============
-  void addInspiration(InspirationItem item) {
-    _inspirations.insert(0, item);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void updateInspiration(InspirationItem item) {
-    final idx = _inspirations.indexWhere((i) => i.id == item.id);
-    if (idx != -1) {
-      _inspirations[idx] = item;
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  void deleteInspiration(String id) {
-    _inspirations.removeWhere((i) => i.id == id);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void toggleInspirationFavorite(String id) {
-    final idx = _inspirations.indexWhere((i) => i.id == id);
-    if (idx != -1) {
-      _inspirations[idx] =
-          _inspirations[idx].copyWith(isFavorite: !_inspirations[idx].isFavorite);
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  // ============ CRUD: Plots ============
-  void addPlot(PlotItem item) {
-    _plots.insert(0, item);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void updatePlot(PlotItem item) {
-    final idx = _plots.indexWhere((p) => p.id == item.id);
-    if (idx != -1) {
-      _plots[idx] = item;
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  void deletePlot(String id) {
-    _plots.removeWhere((p) => p.id == id);
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void togglePlotFavorite(String id) {
-    final idx = _plots.indexWhere((p) => p.id == id);
-    if (idx != -1) {
-      _plots[idx] = _plots[idx].copyWith(isFavorite: !_plots[idx].isFavorite);
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  // ============ Convert Inspiration ============
-  void convertInspirationToMaterial(InspirationItem inspiration) {
-    final material = MaterialItem(
-      id: generateId(),
-      content: (inspiration.title != null ? '${inspiration.title}\n' : '') +
-          inspiration.content,
-      category: _materialCategories.isNotEmpty ? _materialCategories.first : '未分类',
-      tags: List.from(inspiration.tags),
-      source: '灵感转换',
-      isFavorite: false,
-      createdAt: DateTime.now(),
+    final hasMaterialSeed =
+        _materials.any((item) => item.content.contains('你以为你赢了？'));
+    final hasVocabularySeed =
+        _vocabulary.any((item) => item.content == '幽暗的房间');
+    final hasInspirationSeed =
+        _inspirations.any((item) => item.title == '双重身份的女主');
+    final hasPlotSeed = _plots.any(
+      (item) => item.displayContent.contains('女主在宴会上被当众羞辱'),
     );
-    addMaterial(material);
+    return hasMaterialSeed &&
+        hasVocabularySeed &&
+        hasInspirationSeed &&
+        hasPlotSeed;
   }
 
-  void convertInspirationToVocabulary(InspirationItem inspiration) {
-    final vocab = VocabularyItem(
-      id: generateId(),
-      content: inspiration.content,
-      category: _vocabularyCategories.isNotEmpty ? _vocabularyCategories.first : '未分类',
-      tags: List.from(inspiration.tags),
-      isFavorite: false,
-      createdAt: DateTime.now(),
-    );
-    addVocabulary(vocab);
-  }
-
-  // ============ Category Management ============
-  List<String> getCategories(String module) {
-    switch (module) {
-      case 'material':
-        return _materialCategories;
-      case 'vocabulary':
-        return _vocabularyCategories;
-      case 'plot':
-        return _plotCategories;
-      default:
-        return [];
+  void _ensureDefaultState() {
+    if (_materialCategories.isEmpty) {
+      _materialCategories = List<String>.from(_defaultMaterialCategories);
+    }
+    if (_vocabularyCategories.isEmpty) {
+      _vocabularyCategories = List<String>.from(_defaultVocabularyCategories);
+    }
+    if (_plotCategories.isEmpty) {
+      _plotCategories = List<String>.from(_defaultPlotCategories);
+    }
+    if (_profileName.trim().isEmpty) {
+      _profileName = '我';
+    }
+    if (_themePresetId.trim().isEmpty) {
+      _themePresetId = 'default';
     }
   }
 
-  void addCategory(String module, String name) {
-    if (name.isEmpty) return;
-    final list = _getMutableCategoryList(module);
-    if (list != null && !list.contains(name)) {
-      list.add(name);
-      _saveToPrefs();
-      notifyListeners();
-    }
-  }
-
-  void renameCategory(String module, String oldName, String newName) {
-    if (newName.isEmpty || oldName == newName) return;
-    final list = _getMutableCategoryList(module);
-    if (list == null) return;
-    final idx = list.indexOf(oldName);
-    if (idx == -1) return;
-    list[idx] = newName;
-    // Update items with old category
-    if (module == 'material') {
-      for (int i = 0; i < _materials.length; i++) {
-        if (_materials[i].category == oldName) {
-          _materials[i] = _materials[i].copyWith(category: newName);
-        }
-      }
-    } else if (module == 'vocabulary') {
-      for (int i = 0; i < _vocabulary.length; i++) {
-        if (_vocabulary[i].category == oldName) {
-          _vocabulary[i] = _vocabulary[i].copyWith(category: newName);
-        }
-      }
-    } else if (module == 'plot') {
-      for (int i = 0; i < _plots.length; i++) {
-        if (_plots[i].category == oldName) {
-          _plots[i] = _plots[i].copyWith(category: newName);
-        }
-      }
-    }
-    _saveToPrefs();
+  Future<void> _persistAndNotify() async {
+    await _saveToPrefs();
     notifyListeners();
   }
 
-  void deleteCategory(String module, String name) {
-    final list = _getMutableCategoryList(module);
-    if (list != null) {
-      list.remove(name);
-      _saveToPrefs();
-      notifyListeners();
+  Future<void> _saveToPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('schema_version', _schemaVersion);
+      await prefs.setString(
+        'data_materials',
+        jsonEncode(_materials.map((item) => item.toJson()).toList()),
+      );
+      await prefs.setString(
+        'data_vocabulary',
+        jsonEncode(_vocabulary.map((item) => item.toJson()).toList()),
+      );
+      await prefs.setString(
+        'data_inspirations',
+        jsonEncode(_inspirations.map((item) => item.toJson()).toList()),
+      );
+      await prefs.setString(
+        'data_plots',
+        jsonEncode(_plots.map((item) => item.toJson()).toList()),
+      );
+      await prefs.setString('cat_material', jsonEncode(_materialCategories));
+      await prefs.setString('cat_vocabulary', jsonEncode(_vocabularyCategories));
+      await prefs.setString('cat_plot', jsonEncode(_plotCategories));
+      await prefs.setString('config_tabs', jsonEncode(_enabledOptionalTabs));
+      await prefs.setString('config_profile_name', _profileName);
+      await prefs.setString('config_theme_preset', _themePresetId);
+      await prefs.setString(
+        'data_recently_deleted',
+        jsonEncode(_recentlyDeleted.map((item) => item.toJson()).toList()),
+      );
+    } catch (error) {
+      debugPrint('DataService save error: $error');
     }
   }
 
-  List<String>? _getMutableCategoryList(String module) {
+  Future<void> _loadFromPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final materialsJson = prefs.getString('data_materials');
+      final vocabularyJson = prefs.getString('data_vocabulary');
+      final inspirationsJson = prefs.getString('data_inspirations');
+      final plotsJson = prefs.getString('data_plots');
+      final deletedJson = prefs.getString('data_recently_deleted');
+
+      if (materialsJson != null) {
+        _materials = (jsonDecode(materialsJson) as List)
+            .map((item) => MaterialItem.fromJson(Map<String, dynamic>.from(item as Map)))
+            .toList();
+      }
+      if (vocabularyJson != null) {
+        _vocabulary = (jsonDecode(vocabularyJson) as List)
+            .map((item) => VocabularyItem.fromJson(Map<String, dynamic>.from(item as Map)))
+            .toList();
+      }
+      if (inspirationsJson != null) {
+        _inspirations = (jsonDecode(inspirationsJson) as List)
+            .map((item) => InspirationItem.fromJson(Map<String, dynamic>.from(item as Map)))
+            .toList();
+      }
+      if (plotsJson != null) {
+        _plots = (jsonDecode(plotsJson) as List)
+            .map((item) => PlotItem.fromJson(Map<String, dynamic>.from(item as Map)))
+            .toList();
+      }
+      if (deletedJson != null) {
+        _recentlyDeleted = (jsonDecode(deletedJson) as List)
+            .map((item) => DeletedRecord.fromJson(Map<String, dynamic>.from(item as Map)))
+            .toList();
+      }
+
+      final materialCategoriesJson = prefs.getString('cat_material');
+      if (materialCategoriesJson != null) {
+        _materialCategories = List<String>.from(jsonDecode(materialCategoriesJson));
+      }
+      final vocabularyCategoriesJson = prefs.getString('cat_vocabulary');
+      if (vocabularyCategoriesJson != null) {
+        _vocabularyCategories =
+            List<String>.from(jsonDecode(vocabularyCategoriesJson));
+      }
+      final plotCategoriesJson = prefs.getString('cat_plot');
+      if (plotCategoriesJson != null) {
+        _plotCategories = List<String>.from(jsonDecode(plotCategoriesJson));
+      }
+      final tabsJson = prefs.getString('config_tabs');
+      if (tabsJson != null) {
+        _enabledOptionalTabs = List<String>.from(jsonDecode(tabsJson));
+      }
+      _profileName = prefs.getString('config_profile_name') ?? '我';
+      _themePresetId = prefs.getString('config_theme_preset') ?? 'default';
+    } catch (error) {
+      debugPrint('DataService load error: $error');
+    }
+  }
+
+  void _deleteEntity<T>({
+    required String id,
+    required List<T> source,
+    required String type,
+    required Map<String, dynamic> Function(T item) serializer,
+  }) {
+    final index = source.indexWhere((item) => _idOf(item) == id);
+    if (index == -1) {
+      return;
+    }
+    final item = source.removeAt(index);
+    _recentlyDeleted.insert(
+      0,
+      DeletedRecord(
+        id: generateId(),
+        type: type,
+        payload: serializer(item),
+        deletedAt: DateTime.now(),
+      ),
+    );
+    _persistAndNotify();
+  }
+
+  List<String>? _mutableCategoryList(String module) {
     switch (module) {
       case 'material':
         return _materialCategories;
@@ -364,218 +900,114 @@ class DataService extends ChangeNotifier {
     }
   }
 
-  // ============ Tab Management ============
-  bool isOptionalTabEnabled(String tabKey) => _enabledOptionalTabs.contains(tabKey);
-
-  void toggleOptionalTab(String tabKey) {
-    if (_enabledOptionalTabs.contains(tabKey)) {
-      _enabledOptionalTabs.remove(tabKey);
-    } else {
-      _enabledOptionalTabs.add(tabKey);
-    }
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  // ============ Global Search ============
-  List<Map<String, dynamic>> globalSearch(String query) {
-    if (query.isEmpty) return [];
-    final lq = query.toLowerCase();
-    final results = <Map<String, dynamic>>[];
-    for (final m in _materials) {
-      if (m.content.toLowerCase().contains(lq) ||
-          m.category.toLowerCase().contains(lq) ||
-          m.tags.any((t) => t.toLowerCase().contains(lq))) {
-        results.add({'type': 'material', 'item': m});
-      }
-    }
-    for (final v in _vocabulary) {
-      if (v.content.toLowerCase().contains(lq) ||
-          v.category.toLowerCase().contains(lq) ||
-          v.tags.any((t) => t.toLowerCase().contains(lq))) {
-        results.add({'type': 'vocabulary', 'item': v});
-      }
-    }
-    for (final i in _inspirations) {
-      if (i.content.toLowerCase().contains(lq) ||
-          (i.title?.toLowerCase().contains(lq) ?? false) ||
-          i.tags.any((t) => t.toLowerCase().contains(lq))) {
-        results.add({'type': 'inspiration', 'item': i});
-      }
-    }
-    for (final p in _plots) {
-      if (p.displayContent.toLowerCase().contains(lq) ||
-          p.category.toLowerCase().contains(lq) ||
-          p.tags.any((t) => t.toLowerCase().contains(lq))) {
-        results.add({'type': 'plot', 'item': p});
-      }
-    }
-    return results;
-  }
-
-  // ============ Weekly stats (for heatmap) ============
-  Map<String, List<int>> getWeeklyActivity() {
-    final now = DateTime.now();
-    final monday = now.subtract(Duration(days: now.weekday - 1));
-    final result = <String, List<int>>{
-      'materials': List.filled(7, 0),
-      'vocabulary': List.filled(7, 0),
-      'inspirations': List.filled(7, 0),
-      'plots': List.filled(7, 0),
-    };
-    for (final m in _materials) {
-      final dayIdx = m.createdAt.difference(DateTime(monday.year, monday.month, monday.day)).inDays;
-      if (dayIdx >= 0 && dayIdx < 7) result['materials']![dayIdx]++;
-    }
-    for (final v in _vocabulary) {
-      final dayIdx = v.createdAt.difference(DateTime(monday.year, monday.month, monday.day)).inDays;
-      if (dayIdx >= 0 && dayIdx < 7) result['vocabulary']![dayIdx]++;
-    }
-    for (final i in _inspirations) {
-      final dayIdx = i.createdAt.difference(DateTime(monday.year, monday.month, monday.day)).inDays;
-      if (dayIdx >= 0 && dayIdx < 7) result['inspirations']![dayIdx]++;
-    }
-    for (final p in _plots) {
-      final dayIdx = p.createdAt.difference(DateTime(monday.year, monday.month, monday.day)).inDays;
-      if (dayIdx >= 0 && dayIdx < 7) result['plots']![dayIdx]++;
-    }
-    return result;
-  }
-
-  // Daily word counts for bar chart (last 7 days)
-  List<int> getDailyWordCounts() {
-    final now = DateTime.now();
-    final counts = List.filled(7, 0);
-    for (int d = 0; d < 7; d++) {
-      final date = now.subtract(Duration(days: 6 - d));
-      int dayCount = 0;
-      for (final m in _materials) {
-        if (_isSameDay(m.createdAt, date)) dayCount += m.content.length;
-      }
-      for (final v in _vocabulary) {
-        if (_isSameDay(v.createdAt, date)) dayCount += v.content.length;
-      }
-      for (final i in _inspirations) {
-        if (_isSameDay(i.createdAt, date)) dayCount += i.content.length;
-      }
-      for (final p in _plots) {
-        if (_isSameDay(p.createdAt, date)) {
-          dayCount += p.type == 'steps' ? p.steps.join('').length : p.freeContent.length;
-        }
-      }
-      counts[d] = dayCount;
-    }
-    return counts;
-  }
-
-  static bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  // ============ Export ============
-  String exportToJson() {
-    final data = {
-      'exportDate': DateTime.now().toIso8601String(),
-      'appName': '小灵感',
-      'version': '1.0.0',
-      'materials': _materials.map((m) => m.toJson()).toList(),
-      'vocabulary': _vocabulary.map((v) => v.toJson()).toList(),
-      'inspirations': _inspirations.map((i) => i.toJson()).toList(),
-      'plots': _plots.map((p) => p.toJson()).toList(),
-      'materialCategories': _materialCategories,
-      'vocabularyCategories': _vocabularyCategories,
-      'plotCategories': _plotCategories,
-    };
-    return const JsonEncoder.withIndent('  ').convert(data);
-  }
-
-  // ============ Reset ============
-  Future<void> resetToSampleData() async {
-    _materials.clear();
-    _vocabulary.clear();
-    _inspirations.clear();
-    _plots.clear();
-    _materialCategories = ['对话', '动作描写', '心理描写', '人物描写', '环境描写'];
-    _vocabularyCategories = ['环境', '外貌', '神态', '声音', '动作', '心理'];
-    _plotCategories = ['打脸剧情', '总裁剧情', '宫斗剧情', '甜宠剧情', '校园剧情', '装逼剧情', '憋屈剧情', '未婚先孕'];
-    _loadSampleData();
-    await _saveToPrefs();
-    notifyListeners();
-  }
-
-  // ============ Persistence ============
-  Future<void> _saveToPrefs() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-          'data_materials', jsonEncode(_materials.map((m) => m.toJson()).toList()));
-      await prefs.setString(
-          'data_vocabulary', jsonEncode(_vocabulary.map((v) => v.toJson()).toList()));
-      await prefs.setString(
-          'data_inspirations', jsonEncode(_inspirations.map((i) => i.toJson()).toList()));
-      await prefs.setString(
-          'data_plots', jsonEncode(_plots.map((p) => p.toJson()).toList()));
-      await prefs.setString('cat_material', jsonEncode(_materialCategories));
-      await prefs.setString('cat_vocabulary', jsonEncode(_vocabularyCategories));
-      await prefs.setString('cat_plot', jsonEncode(_plotCategories));
-      await prefs.setString('config_tabs', jsonEncode(_enabledOptionalTabs));
-    } catch (e) {
-      debugPrint('DataService save error: $e');
-    }
-  }
-
-  Future<void> _loadFromPrefs() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      final mJson = prefs.getString('data_materials');
-      if (mJson != null) {
-        _materials = (jsonDecode(mJson) as List)
-            .map((j) => MaterialItem.fromJson(j as Map<String, dynamic>))
+  void _replaceCategoryInItems(String module, String oldName, String newName) {
+    switch (module) {
+      case 'material':
+        _materials = _materials
+            .map(
+              (item) => item.category == oldName
+                  ? item.copyWith(category: newName)
+                  : item,
+            )
             .toList();
-      }
-
-      final vJson = prefs.getString('data_vocabulary');
-      if (vJson != null) {
-        _vocabulary = (jsonDecode(vJson) as List)
-            .map((j) => VocabularyItem.fromJson(j as Map<String, dynamic>))
+        break;
+      case 'vocabulary':
+        _vocabulary = _vocabulary
+            .map(
+              (item) => item.category == oldName
+                  ? item.copyWith(category: newName)
+                  : item,
+            )
             .toList();
-      }
-
-      final iJson = prefs.getString('data_inspirations');
-      if (iJson != null) {
-        _inspirations = (jsonDecode(iJson) as List)
-            .map((j) => InspirationItem.fromJson(j as Map<String, dynamic>))
+        break;
+      case 'plot':
+        _plots = _plots
+            .map(
+              (item) => item.category == oldName
+                  ? item.copyWith(category: newName)
+                  : item,
+            )
             .toList();
-      }
-
-      final pJson = prefs.getString('data_plots');
-      if (pJson != null) {
-        _plots = (jsonDecode(pJson) as List)
-            .map((j) => PlotItem.fromJson(j as Map<String, dynamic>))
-            .toList();
-      }
-
-      final mcJson = prefs.getString('cat_material');
-      if (mcJson != null) {
-        _materialCategories = List<String>.from(jsonDecode(mcJson));
-      }
-
-      final vcJson = prefs.getString('cat_vocabulary');
-      if (vcJson != null) {
-        _vocabularyCategories = List<String>.from(jsonDecode(vcJson));
-      }
-
-      final pcJson = prefs.getString('cat_plot');
-      if (pcJson != null) {
-        _plotCategories = List<String>.from(jsonDecode(pcJson));
-      }
-
-      final tabsJson = prefs.getString('config_tabs');
-      if (tabsJson != null) {
-        _enabledOptionalTabs = List<String>.from(jsonDecode(tabsJson));
-      }
-    } catch (e) {
-      debugPrint('DataService load error: $e');
+        break;
     }
+  }
+
+  List<String> _replaceTag(List<String> tags, String oldTag, String newTag) {
+    final replaced = tags.map((tag) => tag == oldTag ? newTag : tag).toSet().toList();
+    replaced.sort();
+    return replaced;
+  }
+
+  List<String> _removeTag(List<String> tags, String tagToRemove) {
+    return tags.where((tag) => tag != tagToRemove).toList();
+  }
+
+  static DateTime _normalizeDate(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
+
+  static bool _isToday(DateTime value) => _normalizeDate(value) == _normalizeDate(DateTime.now());
+
+  static bool _isInRange(DateTime value, DateTime start, DateTime end) {
+    final normalized = _normalizeDate(value);
+    final rangeStart = _normalizeDate(start);
+    final rangeEnd = _normalizeDate(end);
+    return !normalized.isBefore(rangeStart) && !normalized.isAfter(rangeEnd);
+  }
+
+  static bool _matchesMaterial(MaterialItem item, String query) {
+    return item.content.toLowerCase().contains(query) ||
+        item.category.toLowerCase().contains(query) ||
+        item.source.toLowerCase().contains(query) ||
+        item.tags.any((tag) => tag.toLowerCase().contains(query));
+  }
+
+  static bool _matchesVocabulary(VocabularyItem item, String query) {
+    return item.content.toLowerCase().contains(query) ||
+        item.category.toLowerCase().contains(query) ||
+        item.tags.any((tag) => tag.toLowerCase().contains(query));
+  }
+
+  static bool _matchesInspiration(InspirationItem item, String query) {
+    return item.content.toLowerCase().contains(query) ||
+        (item.title?.toLowerCase().contains(query) ?? false) ||
+        item.tags.any((tag) => tag.toLowerCase().contains(query));
+  }
+
+  static bool _matchesPlot(PlotItem item, String query) {
+    return item.displayContent.toLowerCase().contains(query) ||
+        item.category.toLowerCase().contains(query) ||
+        item.tags.any((tag) => tag.toLowerCase().contains(query));
+  }
+
+  static DateTime _createdAtOf(dynamic item) {
+    if (item is MaterialItem) {
+      return item.createdAt;
+    }
+    if (item is VocabularyItem) {
+      return item.createdAt;
+    }
+    if (item is InspirationItem) {
+      return item.createdAt;
+    }
+    if (item is PlotItem) {
+      return item.createdAt;
+    }
+    throw ArgumentError('Unsupported item type: ${item.runtimeType}');
+  }
+
+  static String _idOf(dynamic item) {
+    if (item is MaterialItem) {
+      return item.id;
+    }
+    if (item is VocabularyItem) {
+      return item.id;
+    }
+    if (item is InspirationItem) {
+      return item.id;
+    }
+    if (item is PlotItem) {
+      return item.id;
+    }
+    throw ArgumentError('Unsupported item type: ${item.runtimeType}');
   }
 }

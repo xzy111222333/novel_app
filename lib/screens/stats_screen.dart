@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/data_service.dart';
@@ -15,7 +14,7 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> {
   final _ds = DataService.instance;
   _RangeMode _mode = _RangeMode.week;
-  int _offset = 0; // 0 = current period, -1 = previous, +1 = next
+  int _offset = 0;
 
   @override
   void initState() {
@@ -32,8 +31,6 @@ class _StatsScreenState extends State<StatsScreen> {
     _ds.removeListener(_onDataChanged);
     super.dispose();
   }
-
-  // ── Date range helpers ──
 
   DateTime get _rangeStart {
     final now = DateTime.now();
@@ -70,9 +67,7 @@ class _StatsScreenState extends State<StatsScreen> {
         final label = _offset == 0 ? '本周' : (_offset == -1 ? '上周' : '');
         return '$label ${pad(s.month)}/${pad(s.day)} → ${pad(e.month)}/${pad(e.day)}';
       case _RangeMode.month:
-        return _offset == 0
-            ? '本月 ${s.year}/${pad(s.month)}'
-            : '${s.year}/${pad(s.month)}';
+        return _offset == 0 ? '本月 ${s.year}/${pad(s.month)}' : '${s.year}/${pad(s.month)}';
       case _RangeMode.year:
         return _offset == 0 ? '今年 ${s.year}' : '${s.year}';
     }
@@ -144,7 +139,6 @@ class _StatsScreenState extends State<StatsScreen> {
     return {'materials': mat, 'vocabulary': voc, 'inspirations': ins, 'plots': plo};
   }
 
-  /// Weekly dot grid: for each module, 7 booleans (Mon-Sun)
   Map<String, List<bool>> get _weeklyDots {
     final start = _rangeStart;
     final result = <String, List<bool>>{
@@ -180,35 +174,6 @@ class _StatsScreenState extends State<StatsScreen> {
     return result;
   }
 
-  /// Daily word counts for the current week range
-  List<int> get _weeklyBarData {
-    final start = _rangeStart;
-    final counts = List.filled(7, 0);
-    for (int d = 0; d < 7; d++) {
-      final date = start.add(Duration(days: d));
-      for (final m in _ds.materials) {
-        if (_sameDay(m.createdAt, date)) counts[d] += m.content.length;
-      }
-      for (final v in _ds.vocabulary) {
-        if (_sameDay(v.createdAt, date)) counts[d] += v.content.length;
-      }
-      for (final i in _ds.inspirations) {
-        if (_sameDay(i.createdAt, date)) {
-          counts[d] += i.content.length + (i.title?.length ?? 0);
-        }
-      }
-      for (final p in _ds.plots) {
-        if (_sameDay(p.createdAt, date)) {
-          counts[d] += p.type == 'steps'
-              ? p.steps.fold<int>(0, (s, step) => s + step.length)
-              : p.freeContent.length;
-        }
-      }
-    }
-    return counts;
-  }
-
-  /// Calendar heatmap: set of day-of-month with activity for current month view
   Set<int> get _calendarActiveDays {
     final now = DateTime.now();
     final month = DateTime(now.year, now.month + _offset, 1);
@@ -236,15 +201,10 @@ class _StatsScreenState extends State<StatsScreen> {
     return active;
   }
 
-  static bool _sameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  // ── Build ──
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -263,8 +223,6 @@ class _StatsScreenState extends State<StatsScreen> {
               if (_mode == _RangeMode.week) ...[
                 _buildActivityTable(),
                 const SizedBox(height: 12),
-                _buildBarChart(),
-                const SizedBox(height: 12),
               ],
               _buildCalendarHeatmap(),
               const SizedBox(height: 16),
@@ -275,7 +233,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 1. Header
   Widget _buildHeader() {
     return const Center(
       child: Text(
@@ -289,7 +246,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 2. Time range toggle pills
   Widget _buildToggle() {
     const labels = ['周', '月', '年'];
     const modes = _RangeMode.values;
@@ -325,7 +281,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 3. Date navigator
   Widget _buildDateNavigator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -352,7 +307,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 4. Word count summary card
   Widget _buildSummaryCard() {
     final periodLabel = _mode == _RangeMode.week
         ? '本周新增'
@@ -394,7 +348,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 5. Module breakdown — compact horizontal row
   Widget _buildModuleRow() {
     final words = _rangeModuleWords;
     final counts = _rangeModuleCounts;
@@ -479,7 +432,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 6. Weekly activity table (小日常-style dot grid)
   Widget _buildActivityTable() {
     final dots = _weeklyDots;
     const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
@@ -501,7 +453,6 @@ class _StatsScreenState extends State<StatsScreen> {
       ),
       child: Column(
         children: [
-          // Header row
           Row(
             children: [
               const SizedBox(width: 36),
@@ -521,7 +472,6 @@ class _StatsScreenState extends State<StatsScreen> {
           ),
           const SizedBox(height: 6),
           Divider(height: 1, color: AppTheme.divider),
-          // Module rows
           ...List.generate(4, (row) {
             final active = dots[moduleKeys[row]] ?? List.filled(7, false);
             return Column(
@@ -549,9 +499,7 @@ class _StatsScreenState extends State<StatsScreen> {
                               height: 8,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: active[col]
-                                    ? moduleColors[row]
-                                    : const Color(0xFFE5E7EB),
+                                color: active[col] ? moduleColors[row] : const Color(0xFFE5E7EB),
                               ),
                             ),
                           ),
@@ -569,83 +517,18 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  // 7. Daily bar chart
-  Widget _buildBarChart() {
-    final data = _weeklyBarData;
-    final maxVal = data.reduce((a, b) => max(a, b));
-    const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: SizedBox(
-        height: 110,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: List.generate(7, (i) {
-            final ratio = maxVal > 0 ? data[i] / maxVal : 0.0;
-            final barH = max(3.0, 80.0 * ratio);
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (data[i] > 0)
-                      Text(
-                        '${data[i]}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                    const SizedBox(height: 3),
-                    Container(
-                      height: barH,
-                      width: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      dayLabels[i],
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppTheme.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
-    );
-  }
-
-  // 8. Calendar heatmap
   Widget _buildCalendarHeatmap() {
     final now = DateTime.now();
     final monthDate = DateTime(now.year, now.month + _offset, 1);
     final daysInMonth = DateTime(monthDate.year, monthDate.month + 1, 0).day;
-    // Monday = 1, Sunday = 7
-    final firstWeekday = monthDate.weekday; // 1=Mon
+    final firstWeekday = monthDate.weekday;
     final activeDays = _calendarActiveDays;
     final monthLabel = '${monthDate.year}年${monthDate.month}月';
 
-    // Build grid cells: leading blanks + day numbers
     final cells = <int?>[
       ...List.filled(firstWeekday - 1, null),
       ...List.generate(daysInMonth, (i) => i + 1),
     ];
-    // Pad to complete last row
     while (cells.length % 7 != 0) {
       cells.add(null);
     }
@@ -670,7 +553,6 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          // Week day headers
           Row(
             children: weekHeaders
                 .map((h) => Expanded(
@@ -687,7 +569,6 @@ class _StatsScreenState extends State<StatsScreen> {
                 .toList(),
           ),
           const SizedBox(height: 4),
-          // Calendar grid
           ...List.generate(cells.length ~/ 7, (row) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 3),

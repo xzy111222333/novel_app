@@ -5,6 +5,10 @@ import '../models/material_item.dart';
 import '../models/vocabulary_item.dart';
 import '../models/inspiration_item.dart';
 import '../models/plot_item.dart';
+import '../widgets/add_inspiration_sheet.dart';
+import '../widgets/add_material_sheet.dart';
+import '../widgets/add_plot_sheet.dart';
+import '../widgets/add_vocabulary_sheet.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -50,6 +54,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (item is InspirationItem) return '灵感';
     if (item is PlotItem) return '剧情';
     return '';
+  }
+
+  void _openItem(dynamic item) {
+    if (item is MaterialItem) {
+      showAddMaterialSheet(context, item: item);
+    } else if (item is VocabularyItem) {
+      showAddVocabularySheet(context, item: item);
+    } else if (item is InspirationItem) {
+      showAddInspirationSheet(context, item: item);
+    } else if (item is PlotItem) {
+      showAddPlotSheet(context, item: item);
+    }
   }
 
   IconData _typeIcon(dynamic item) {
@@ -104,9 +120,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary),
@@ -166,6 +182,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       decoration: AppTheme.smallCardDecoration,
       child: ListTile(
+        onTap: () => _openItem(item),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(

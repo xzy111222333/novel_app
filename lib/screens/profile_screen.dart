@@ -7,6 +7,10 @@ import 'favorites_screen.dart';
 import 'global_search_screen.dart';
 import 'modular_settings_screen.dart';
 import 'export_screen.dart';
+import 'data_management_screen.dart';
+import 'personalization_screen.dart';
+import 'recent_deleted_screen.dart';
+import 'guide_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -37,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -56,7 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Header ──
   Widget _buildHeader() {
     return Row(
       children: [
@@ -72,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const Spacer(),
         GestureDetector(
-          onTap: () => _showComingSoon('设置'),
+          onTap: () => _push(const PersonalizationScreen()),
           child: Container(
             width: 32,
             height: 32,
@@ -87,7 +90,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── User Info Card ──
   Widget _buildUserInfoCard() {
     return Container(
       width: double.infinity,
@@ -124,16 +126,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '小灵感用户',
-                      style: TextStyle(
+                    Text(
+                      _data.profileName,
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
+                    const Text(
                       '创作灵感收集工具',
                       style: TextStyle(
                         fontSize: 10,
@@ -143,7 +145,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              // Favorites quick entry
               GestureDetector(
                 onTap: () => _push(const FavoritesScreen()),
                 child: Container(
@@ -174,8 +175,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 14),
           const Divider(color: Color(0xFFF3F4F6), height: 1),
           const SizedBox(height: 14),
-
-          // Stats row
           IntrinsicHeight(
             child: Row(
               children: [
@@ -192,13 +191,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 14),
           const Divider(color: Color(0xFFF3F4F6), height: 1),
           const SizedBox(height: 10),
-
-          // Bottom action strip
           Row(
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _showComingSoon('数据管理'),
+                  onTap: () => _push(const DataManagementScreen()),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -221,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(width: 1, height: 14, color: const Color(0xFFF3F4F6)),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _showComingSoon('使用指南'),
+                  onTap: () => _push(const GuideScreen()),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -279,7 +276,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Function Grid ──
   Widget _buildFunctionGrid() {
     final items = [
       _FunctionItem(Icons.folder_outlined, '分类管理', const Color(0xFFE8F0FE), const Color(0xFF4285F4)),
@@ -287,13 +283,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _FunctionItem(Icons.star_outline_rounded, '收藏夹', const Color(0xFFFFF8E1), const Color(0xFFFF8F00)),
       _FunctionItem(Icons.search_rounded, '全局搜索', const Color(0xFFE0F2F1), const Color(0xFF009688)),
       _FunctionItem(Icons.file_download_outlined, '数据导出', const Color(0xFFF3E5F5), const Color(0xFF9C27B0)),
-      _FunctionItem(Icons.cloud_upload_outlined, '数据备份', const Color(0xFFE8EAF6), const Color(0xFF3F51B5)),
+      _FunctionItem(Icons.cloud_upload_outlined, '数据管理', const Color(0xFFE8EAF6), const Color(0xFF3F51B5)),
       _FunctionItem(Icons.grid_view_rounded, '模块化设置', const Color(0xFFE0F7FA), const Color(0xFF00BCD4)),
       _FunctionItem(Icons.palette_outlined, '个性化', const Color(0xFFFBE9E7), const Color(0xFFFF5722)),
       _FunctionItem(Icons.delete_outline_rounded, '最近删除', const Color(0xFFEFEBE9), const Color(0xFF795548)),
-      _FunctionItem(Icons.chat_bubble_outline_rounded, '意见反馈', const Color(0xFFE8F5E9), const Color(0xFF4CAF50)),
-      _FunctionItem(Icons.info_outline_rounded, '关于我们', const Color(0xFFF1F8E9), const Color(0xFF689F38)),
-      _FunctionItem(Icons.settings_outlined, '设置', const Color(0xFFF5F5F5), const Color(0xFF757575)),
+      _FunctionItem(Icons.menu_book_outlined, '使用指南', const Color(0xFFE8F5E9), const Color(0xFF4CAF50)),
     ];
 
     return Container(
@@ -357,38 +351,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Navigation ──
   void _handleFunctionTap(String label) {
     switch (label) {
       case '分类管理':
         _showCategoryModulePicker();
+        break;
       case '标签管理':
         _push(const TagManageScreen());
+        break;
       case '收藏夹':
         _push(const FavoritesScreen());
+        break;
       case '全局搜索':
         _push(const GlobalSearchScreen());
+        break;
       case '数据导出':
         _push(const ExportScreen());
+        break;
       case '模块化设置':
         _push(const ModularSettingsScreen());
-      default:
-        _showComingSoon(label);
+        break;
+      case '数据管理':
+        _push(const DataManagementScreen());
+        break;
+      case '个性化':
+        _push(const PersonalizationScreen());
+        break;
+      case '最近删除':
+        _push(const RecentlyDeletedScreen());
+        break;
+      case '使用指南':
+        _push(const GuideScreen());
+        break;
     }
   }
 
   void _push(Widget screen) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
-  }
-
-  void _showComingSoon(String name) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$name — 功能开发中'),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   void _showCategoryModulePicker() {

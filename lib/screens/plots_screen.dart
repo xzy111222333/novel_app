@@ -116,7 +116,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
     final categories = ['全部', ...DataService.instance.plotCategories];
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [

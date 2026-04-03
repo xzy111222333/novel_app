@@ -75,7 +75,7 @@ class ShareCardUtil {
 
     canvas.drawRect(
       const Rect.fromLTWH(0, 0, width, height),
-      Paint()..color = AppTheme.background,
+      Paint()..color = AppTheme.scaffoldBackground,
     );
 
     final cardRect = RRect.fromRectAndRadius(

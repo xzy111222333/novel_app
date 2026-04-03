@@ -51,9 +51,7 @@ class AppBottomNav extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: isActive
-                          ? AppTheme.textPrimary
-                          : Colors.transparent,
+                      color: isActive ? AppTheme.textPrimary : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
@@ -68,9 +66,7 @@ class AppBottomNav extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
-                      color: isActive
-                          ? AppTheme.textPrimary
-                          : AppTheme.textTertiary,
+                      color: isActive ? AppTheme.textPrimary : AppTheme.textTertiary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

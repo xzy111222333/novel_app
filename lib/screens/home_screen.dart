@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../theme/app_theme.dart';
-import '../models/material_item.dart';
-import '../models/vocabulary_item.dart';
+
 import '../models/inspiration_item.dart';
+import '../models/material_item.dart';
 import '../models/plot_item.dart';
+import '../models/vocabulary_item.dart';
 import '../screens/inspiration_screen.dart';
 import '../screens/materials_screen.dart';
 import '../screens/plots_screen.dart';
 import '../screens/vocabulary_screen.dart';
 import '../services/data_service.dart';
+import '../theme/app_theme.dart';
 import '../utils/share_card_util.dart';
-import '../widgets/add_material_sheet.dart';
-import '../widgets/add_vocabulary_sheet.dart';
 import '../widgets/add_inspiration_sheet.dart';
+import '../widgets/add_material_sheet.dart';
 import '../widgets/add_plot_sheet.dart';
+import '../widgets/add_vocabulary_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
-  final ValueChanged<int>? onNavigateToTab;
+  final ValueChanged<String>? onNavigateToTab;
+
   const HomeScreen({super.key, this.onNavigateToTab});
 
   @override
@@ -34,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
   InspirationItem? _randomInspiration;
   bool _isCalendarExpanded = true;
 
-  /// The date range shown in the scroller: 4 days before today → 3 days after.
   List<DateTime> get _dateRange {
     final today = DateTime.now();
     return List.generate(8, (i) {
@@ -70,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _scrollToToday() {
-    // Today is at index 4 (center). Each cell is ~48px with 4px margin.
     final offset = 4 * 52.0 - (MediaQuery.of(context).size.width / 2 - 26);
     if (_dateScrollController.hasClients) {
       _dateScrollController.animateTo(
@@ -81,8 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // ── Date filtering helpers ────────────────────────────────────────────
-
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
@@ -92,15 +90,13 @@ class _HomeScreenState extends State<HomeScreen> {
       .where((m) => _isSameDay(m.createdAt, _selectedDate))
       .toList();
 
-  List<VocabularyItem> get _selectedVocabulary =>
-      DataService.instance.vocabulary
-          .where((v) => _isSameDay(v.createdAt, _selectedDate))
-          .toList();
+  List<VocabularyItem> get _selectedVocabulary => DataService.instance.vocabulary
+      .where((v) => _isSameDay(v.createdAt, _selectedDate))
+      .toList();
 
-  List<InspirationItem> get _selectedInspirations =>
-      DataService.instance.inspirations
-          .where((i) => _isSameDay(i.createdAt, _selectedDate))
-          .toList();
+  List<InspirationItem> get _selectedInspirations => DataService.instance.inspirations
+      .where((i) => _isSameDay(i.createdAt, _selectedDate))
+      .toList();
 
   List<PlotItem> get _selectedPlots => DataService.instance.plots
       .where((p) => _isSameDay(p.createdAt, _selectedDate))
@@ -169,6 +165,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openListPageForType(String typeLabel) {
+    if (widget.onNavigateToTab != null) {
+      switch (typeLabel) {
+        case '素材':
+          widget.onNavigateToTab!.call('materials');
+          return;
+        case '词汇':
+          widget.onNavigateToTab!.call('vocabulary');
+          return;
+        case '剧情':
+          widget.onNavigateToTab!.call('plots');
+          return;
+        default:
+          widget.onNavigateToTab!.call('inspirations');
+          return;
+      }
+    }
+
     Widget screen;
     switch (typeLabel) {
       case '素材':
@@ -213,12 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('复制内容', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
               onTap: () {
                 Navigator.pop(ctx);
-                String contentToCopy = '';
-                if (item is PlotItem) {
-                  contentToCopy = item.displayContent;
-                } else {
-                  contentToCopy = item.content;
-                }
+                final contentToCopy = item is PlotItem ? item.displayContent : item.content;
                 Clipboard.setData(ClipboardData(text: contentToCopy));
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
@@ -259,8 +267,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
     final inspirations = _selectedInspirations;
@@ -269,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final plots = _selectedPlots;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -307,8 +313,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  // ── 1. Header ─────────────────────────────────────────────────────────
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
@@ -420,19 +424,15 @@ class _HomeScreenState extends State<HomeScreen> {
       dense: true,
       visualDensity: const VisualDensity(vertical: -2),
       leading: Icon(icon, size: 18, color: AppTheme.textSecondary),
-      title: Text(label,
-          style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
+      title: Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
       onTap: onTap,
     );
   }
 
-  // ── 2. Horizontal date scroller ───────────────────────────────────────
-
   Widget _buildDateScroller() {
     final dates = _dateRange;
-    return Container(
+    return SizedBox(
       height: 62,
-      margin: const EdgeInsets.only(top: 4),
       child: ListView.builder(
         controller: _dateScrollController,
         scrollDirection: Axis.horizontal,
@@ -447,8 +447,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final isSelected = _isSameDay(date, _selectedDate);
     final isToday = _isSameDay(date, DateTime.now());
     final weekday = _weekdays[date.weekday - 1];
-    final dayStr = date.day.toString();
-    // Show month label on 1st or if it's the first cell
     final showMonth = date.day == 1;
 
     return GestureDetector(
@@ -472,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 2),
             Text(
-              dayStr,
+              '${date.day}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -503,8 +501,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── 3. Quick action pills ─────────────────────────────────────────────
-
   Widget _buildQuickActionPills(BuildContext context) {
     final actions = [
       ('添加素材', () => showAddMaterialSheet(context)),
@@ -534,8 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: Alignment.center,
               child: Text(
                 label,
-                style: const TextStyle(
-                    fontSize: 11, color: AppTheme.textSecondary),
+                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
               ),
             ),
           );
@@ -543,8 +538,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  // ── 4. 随机回顾 card ──────────────────────────────────────────────────
 
   Widget _buildRandomReviewCard(InspirationItem item) {
     final dateStr = DateFormat('yyyy.MM.dd').format(item.createdAt);
@@ -558,87 +551,76 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                const Text('●',
-                    style: TextStyle(fontSize: 10, color: AppTheme.accent)),
+                const Text('●', style: TextStyle(fontSize: 10, color: AppTheme.accent)),
                 const SizedBox(width: 6),
-                Text(dateStr,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppTheme.textTertiary)),
+                Text(dateStr, style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item, '灵感', () {
                     DataService.instance.deleteInspiration(item.id);
                     _refreshRandomInspiration();
                   }),
-                  child: const Icon(Icons.more_horiz,
-                      size: 16, color: AppTheme.textTertiary),
+                  child: const Icon(Icons.more_horiz, size: 16, color: AppTheme.textTertiary),
                 ),
                 const SizedBox(width: 12),
                 GestureDetector(
                   onTap: _refreshRandomInspiration,
-                  child: const Icon(Icons.refresh,
-                      size: 14, color: AppTheme.textTertiary),
+                  child: const Icon(Icons.refresh, size: 14, color: AppTheme.textTertiary),
                 ),
               ],
             ),
-          if (item.title != null && item.title!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              item.title!,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textPrimary,
+            if (item.title != null && item.title!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                item.title!,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.textPrimary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
+            ],
+            const SizedBox(height: 6),
+            Text(
+              item.content,
+              style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppTheme.softBackground,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                '随机回顾',
+                style: TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+              ),
+            ),
           ],
-          const SizedBox(height: 6),
-          Text(
-            item.content,
-            style: const TextStyle(
-                fontSize: 12, color: AppTheme.textSecondary, height: 1.5),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppTheme.background,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Text(
-              '随机回顾',
-              style: TextStyle(fontSize: 10, color: AppTheme.textTertiary),
-            ),
-          ),
-        ],
+        ),
       ),
-    ),
-  );
-}
-
-  // ── 5. 今日词汇 section ───────────────────────────────────────────────
+    );
+  }
 
   Widget _buildVocabularySection(List<VocabularyItem> items) {
-    final dayLabel = _isToday(_selectedDate)
-        ? '今日'
-        : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('$dayLabel词汇', items.length, onMore: () {
-          widget.onNavigateToTab?.call(2);
+          widget.onNavigateToTab?.call('vocabulary');
         }),
         const SizedBox(height: 6),
         if (items.isEmpty)
           const Padding(
             padding: EdgeInsets.only(left: 4),
-            child: Text('暂无',
-                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+            child: Text('暂无', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           )
         else
           Wrap(
@@ -647,9 +629,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               ...items.take(6).map((v) => _vocabPill(v)),
               if (items.length > 6)
-                const Text('···',
-                    style: TextStyle(
-                        fontSize: 11, color: AppTheme.textTertiary)),
+                const Text('···', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
             ],
           ),
       ],
@@ -679,25 +659,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── 6. 今日素材 section ───────────────────────────────────────────────
-
   Widget _buildMaterialsSection(List<MaterialItem> items) {
-    final dayLabel = _isToday(_selectedDate)
-        ? '今日'
-        : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('$dayLabel素材', items.length, onMore: () {
-          widget.onNavigateToTab?.call(1);
+          widget.onNavigateToTab?.call('materials');
         }),
         const SizedBox(height: 6),
         if (items.isEmpty)
           const Padding(
             padding: EdgeInsets.only(left: 4),
-            child: Text('暂无',
-                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+            child: Text('暂无', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           )
         else
           ...items.take(3).map(_buildMaterialCard),
@@ -741,48 +716,41 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 6),
-          Text(
-            item.content,
-            style: const TextStyle(
-                fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (item.tags.isNotEmpty) ...[
-            const SizedBox(height: 6),
             Text(
-              item.tags.map((t) => '#$t').join(' '),
-              style:
-                  const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
-              maxLines: 1,
+              item.content,
+              style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            if (item.tags.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                item.tags.map((t) => '#$t').join(' '),
+                style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
     );
   }
 
-  // ── 7. 今日灵感 section ───────────────────────────────────────────────
-
   Widget _buildInspirationsSection(List<InspirationItem> items) {
-    final dayLabel = _isToday(_selectedDate)
-        ? '今日'
-        : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('$dayLabel灵感', items.length, onMore: () {
-          widget.onNavigateToTab?.call(3);
+          widget.onNavigateToTab?.call('inspirations');
         }),
         const SizedBox(height: 6),
         if (items.isEmpty)
           const Padding(
             padding: EdgeInsets.only(left: 4),
-            child: Text('暂无',
-                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+            child: Text('暂无', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           )
         else
           ...items.take(3).map(_buildInspirationEntry),
@@ -800,8 +768,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Padding(
               padding: EdgeInsets.only(top: 4),
-              child: Text('●',
-                  style: TextStyle(fontSize: 8, color: AppTheme.accent)),
+              child: Text('●', style: TextStyle(fontSize: 8, color: AppTheme.accent)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -813,8 +780,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         _formatTime(item.createdAt),
-                        style: const TextStyle(
-                            fontSize: 11, color: AppTheme.textTertiary),
+                        style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
                       ),
                       GestureDetector(
                         onTap: () => _showOptionsSheet(item, '灵感', () {
@@ -827,10 +793,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 3),
                   Text(
                     item.content,
-                    style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textPrimary,
-                        height: 1.5),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -843,18 +806,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── 8. 今日剧情 section ───────────────────────────────────────────────
-
   Widget _buildPlotsSection(List<PlotItem> items) {
-    final dayLabel = _isToday(_selectedDate)
-        ? '今日'
-        : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('$dayLabel剧情', items.length, onMore: () {
-          widget.onNavigateToTab?.call(4);
+          widget.onNavigateToTab?.call('plots');
         }),
         const SizedBox(height: 6),
         ...items.take(3).map(_buildPlotCard),
@@ -898,33 +857,28 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 6),
-          Text(
-            item.displayContent,
-            style: const TextStyle(
-                fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (item.tags.isNotEmpty) ...[
-            const SizedBox(height: 6),
             Text(
-              item.tags.map((t) => '#$t').join(' '),
-              style:
-                  const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
-              maxLines: 1,
+              item.displayContent,
+              style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            if (item.tags.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                item.tags.map((t) => '#$t').join(' '),
+                style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
     );
   }
 
-  // ── Shared section header ─────────────────────────────────────────────
-
-  Widget _buildSectionHeader(String title, int count,
-      {VoidCallback? onMore}) {
+  Widget _buildSectionHeader(String title, int count, {VoidCallback? onMore}) {
     return Row(
       children: [
         Text(
@@ -940,13 +894,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
             decoration: BoxDecoration(
-              color: AppTheme.background,
+              color: AppTheme.softBackground,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               '$count',
-              style:
-                  const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+              style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
             ),
           ),
         ],
