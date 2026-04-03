@@ -143,14 +143,6 @@ class _TagManageScreenState extends State<TagManageScreen> {
     return '';
   }
 
-  Color _itemTypeColor(dynamic item) {
-    if (item is MaterialItem) return AppTheme.materialColor;
-    if (item is VocabularyItem) return AppTheme.vocabularyColor;
-    if (item is InspirationItem) return AppTheme.inspirationColor;
-    if (item is PlotItem) return AppTheme.plotColor;
-    return AppTheme.textSecondary;
-  }
-
   String _itemContent(dynamic item) {
     if (item is MaterialItem) return item.content;
     if (item is VocabularyItem) return item.content;
@@ -188,15 +180,32 @@ class _TagManageScreenState extends State<TagManageScreen> {
         title: const Text('标签管理',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             )),
       ),
       body: tags.isEmpty
-          ? const Center(
-              child: Text('暂无标签',
-                  style:
-                      TextStyle(color: AppTheme.textTertiary, fontSize: 12)))
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.label_outlined,
+                        color: AppTheme.textTertiary, size: 24),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('暂无标签',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 13)),
+                ],
+              ),
+            )
           : Column(
               children: [
                 // Tag chips — scrollable to fix overflow
@@ -224,10 +233,10 @@ class _TagManageScreenState extends State<TagManageScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 10),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? const Color(0xFF1F2937)
+                                          ? AppTheme.textPrimary
                                           : Colors.white,
                                       borderRadius: BorderRadius.circular(14),
-                                      border: isSelected ? null : Border.all(color: const Color(0xFFE5E7EB)),
+                                      border: isSelected ? null : Border.all(color: AppTheme.divider),
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
@@ -266,10 +275,10 @@ class _TagManageScreenState extends State<TagManageScreen> {
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFF1F2937)
+                                        ? AppTheme.textPrimary
                                         : Colors.white,
                                     borderRadius: BorderRadius.circular(14),
-                                    border: isSelected ? null : Border.all(color: const Color(0xFFE5E7EB)),
+                                    border: isSelected ? null : Border.all(color: AppTheme.divider),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -327,22 +336,11 @@ class _TagManageScreenState extends State<TagManageScreen> {
                       itemBuilder: (context, index) {
                         final item = _itemsWithTag(_selectedTag!)[index];
                         final typeLabel = _itemTypeLabel(item);
-                        final typeColor = _itemTypeColor(item);
                         final content = _itemContent(item);
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
-                                blurRadius: 6,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                          ),
+                          decoration: AppTheme.smallCardDecoration,
                           child: ListTile(
                             onTap: () => _openItem(item),
                             dense: true,
@@ -352,12 +350,12 @@ class _TagManageScreenState extends State<TagManageScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: typeColor.withValues(alpha: 0.1),
+                                color: const Color(0xFFF5F5F5),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(typeLabel,
-                                  style: TextStyle(
-                                      color: typeColor,
+                                  style: const TextStyle(
+                                      color: AppTheme.textSecondary,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600)),
                             ),
@@ -367,7 +365,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: AppTheme.textPrimary,
-                                fontSize: 12,
+                                fontSize: 13,
                               ),
                             ),
                           ),

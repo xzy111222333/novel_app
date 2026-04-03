@@ -152,7 +152,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                       width: 32,
                       height: 32,
                       decoration: const BoxDecoration(
-                        color: AppTheme.textPrimary,
+                        color: Color(0xFF1F2937),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add,
@@ -223,42 +223,34 @@ class _InspirationScreenState extends State<InspirationScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('✨',
-                              style: TextStyle(
-                                  fontSize: 48,
-                                  color: AppTheme.textTertiary
-                                      .withValues(alpha: 0.5))),
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(Icons.lightbulb_outline_rounded,
+                                size: 36,
+                                color: AppTheme.textTertiary
+                                    .withValues(alpha: 0.5)),
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             _searchQuery.isNotEmpty
                                 ? '没有找到匹配的灵感'
-                                : '记录你的第一个灵感吧 ✨',
+                                : '暂无灵感',
                             style: const TextStyle(
                               fontSize: 13,
-                              color: AppTheme.textTertiary,
-                              fontWeight: FontWeight.w500,
+                              color: AppTheme.textSecondary,
                             ),
                           ),
-                          if (_searchQuery.isEmpty) ...[
-                            const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: () =>
-                                  showAddInspirationSheet(context),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.textPrimary,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Text('记录灵感',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600)),
-                              ),
-                            ),
-                          ],
+                          const SizedBox(height: 6),
+                          if (_searchQuery.isEmpty)
+                            const Text('点击右上角 + 添加',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textTertiary)),
                         ],
                       ),
                     )

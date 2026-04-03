@@ -48,7 +48,19 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
-        title: const Text('个性化'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: const Text(
+          '个性化',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -58,7 +70,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             child: const Text(
               '完成',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: AppTheme.textPrimary,
               ),
@@ -78,8 +90,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 const Text(
                   '昵称',
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                   ),
                 ),
@@ -87,8 +99,10 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 TextField(
                   controller: _nameController,
                   onSubmitted: (_) => _saveName(),
+                  style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary),
                   decoration: InputDecoration(
                     hintText: '输入你的昵称',
+                    hintStyle: const TextStyle(color: AppTheme.textTertiary, fontSize: 13),
                     filled: true,
                     fillColor: AppTheme.softBackground,
                     contentPadding: const EdgeInsets.symmetric(
@@ -97,7 +111,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                     ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -114,17 +128,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 const Text(
                   '主题背景',
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  '保持小日常那种轻白基底，只允许很轻的背景变化。',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -150,7 +156,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: preset.background,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: selected
                                       ? AppTheme.textPrimary
@@ -180,21 +186,25 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                                       height: 34,
                                       decoration: BoxDecoration(
                                         color: preset.surface,
-                                        borderRadius: BorderRadius.circular(14),
+                                        borderRadius: BorderRadius.circular(10),
                                         border: Border.all(color: AppTheme.divider),
                                       ),
                                     ),
                                   ),
                                   if (selected)
-                                    const Positioned(
-                                      right: 10,
-                                      top: 10,
-                                      child: CircleAvatar(
-                                        radius: 10,
-                                        backgroundColor: AppTheme.textPrimary,
-                                        child: Icon(
+                                    Positioned(
+                                      right: 8,
+                                      top: 8,
+                                      child: Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: const BoxDecoration(
+                                          color: AppTheme.textPrimary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
                                           Icons.check,
-                                          size: 12,
+                                          size: 11,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -208,7 +218,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                             preset.label,
                             style: const TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: AppTheme.textPrimary,
                             ),
                           ),

@@ -62,21 +62,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     }
   }
 
-  Color _typeColor(String type) {
-    switch (type) {
-      case 'material':
-        return AppTheme.materialColor;
-      case 'vocabulary':
-        return AppTheme.vocabularyColor;
-      case 'inspiration':
-        return AppTheme.inspirationColor;
-      case 'plot':
-        return AppTheme.plotColor;
-      default:
-        return AppTheme.textSecondary;
-    }
-  }
-
   String _contentPreview(Map<String, dynamic> result) {
     final item = result['item'];
     if (item is MaterialItem) return item.content;
@@ -111,7 +96,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
   Widget build(BuildContext context) {
     final query = _searchController.text.trim();
 
-    // Group results by type
     final grouped = <String, List<Map<String, dynamic>>>{};
     for (final r in _results) {
       final type = r['type'] as String;
@@ -125,79 +109,72 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 18),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: const Text('全局搜索',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             )),
       ),
       body: Column(
         children: [
-          // Search bar
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-            child: SizedBox(
-              height: 36,
-              child: Container(
-                decoration: AppTheme.smallCardDecoration,
-                child: TextField(
-                  controller: _searchController,
-                  autofocus: true,
-                  onChanged: _doSearch,
-                  style: const TextStyle(fontSize: 12),
-                  decoration: InputDecoration(
-                    hintText: '搜索素材、词汇、灵感、剧情...',
-                    hintStyle:
-                        const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
-                    prefixIcon: const Icon(Icons.search,
-                        color: AppTheme.textTertiary, size: 18),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 36),
-                    suffixIcon: query.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear,
-                                color: AppTheme.textTertiary, size: 16),
-                            onPressed: () {
-                              _searchController.clear();
-                              _doSearch('');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
+            padding: const EdgeInsets.fromLTRB(14, 4, 14, 8),
+            child: Container(
+              height: 40,
+              decoration: AppTheme.smallCardDecoration,
+              child: TextField(
+                controller: _searchController,
+                autofocus: true,
+                onChanged: _doSearch,
+                style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary),
+                decoration: InputDecoration(
+                  hintText: '搜索素材、词汇、灵感、剧情...',
+                  hintStyle:
+                      const TextStyle(color: AppTheme.textTertiary, fontSize: 13),
+                  prefixIcon: const Icon(Icons.search,
+                      color: AppTheme.textTertiary, size: 18),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 40),
+                  suffixIcon: query.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear,
+                              color: AppTheme.textTertiary, size: 16),
+                          onPressed: () {
+                            _searchController.clear();
+                            _doSearch('');
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 ),
               ),
             ),
           ),
-
-          // Results
           Expanded(
             child: query.isEmpty
                 ? const Center(
                     child: Text('搜索素材、词汇、灵感、剧情...',
                         style: TextStyle(
-                            color: AppTheme.textTertiary, fontSize: 12)),
+                            color: AppTheme.textTertiary, fontSize: 13)),
                   )
                 : _results.isEmpty
                     ? const Center(
                         child: Text('未找到相关内容',
                             style: TextStyle(
-                                color: AppTheme.textTertiary, fontSize: 12)),
+                                color: AppTheme.textTertiary, fontSize: 13)),
                       )
                     : ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         children: grouped.entries.expand((entry) {
                           final type = entry.key;
                           final items = entry.value;
-                          final color = _typeColor(type);
                           return [
-                            // Section header
                             Padding(
                               padding:
                                   const EdgeInsets.only(top: 8, bottom: 6),
@@ -205,20 +182,19 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: color.withValues(alpha: 0.12),
+                                  color: const Color(0xFFF5F5F5),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   '${_typeLabel(type)} (${items.length})',
-                                  style: TextStyle(
-                                    color: color,
+                                  style: const TextStyle(
+                                    color: AppTheme.textSecondary,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
                             ),
-                            // Items
                             ...items.map((r) => _buildResultCard(r)),
                           ];
                         }).toList(),
@@ -231,7 +207,6 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
 
   Widget _buildResultCard(Map<String, dynamic> result) {
     final type = result['type'] as String;
-    final color = _typeColor(type);
     final content = _contentPreview(result);
     final category = _categoryTag(result);
 
@@ -247,30 +222,32 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         leading: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
+            color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(_typeLabel(type),
-              style: TextStyle(
-                  color: color, fontSize: 10, fontWeight: FontWeight.w600)),
+              style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600)),
         ),
         title: Text(
           content,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12),
+          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
         ),
         trailing: category.isNotEmpty
             ? Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.getCategoryBgColor(category),
+                  color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(category,
-                    style: TextStyle(
-                      color: AppTheme.getCategoryColor(category),
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
                       fontSize: 10,
                     )),
               )

@@ -48,21 +48,6 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     }
   }
 
-  Color _typeColor(String type) {
-    switch (type) {
-      case 'material':
-        return AppTheme.materialColor;
-      case 'vocabulary':
-        return AppTheme.vocabularyColor;
-      case 'inspiration':
-        return AppTheme.inspirationColor;
-      case 'plot':
-        return AppTheme.plotColor;
-      default:
-        return AppTheme.textSecondary;
-    }
-  }
-
   String _preview(DeletedRecord record) {
     switch (record.type) {
       case 'material':
@@ -119,7 +104,19 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
-        title: const Text('最近删除'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: const Text(
+          '最近删除',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         actions: [
           if (items.isNotEmpty)
             TextButton(
@@ -141,23 +138,23 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: AppTheme.softBackground,
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.delete_outline_rounded,
                       color: AppTheme.textTertiary,
-                      size: 32,
+                      size: 24,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   const Text(
                     '最近删除为空',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,
                     ),
@@ -166,7 +163,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                   const Text(
                     '删除的内容会先进入这里，你可以恢复或彻底清除。',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: AppTheme.textSecondary,
                     ),
                   ),
@@ -174,10 +171,9 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
               ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
               itemBuilder: (context, index) {
                 final item = items[index];
-                final color = _typeColor(item.type);
                 return Container(
                   decoration: AppTheme.smallCardDecoration,
                   child: Padding(
@@ -193,15 +189,15 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.12),
+                                color: const Color(0xFFF5F5F5),
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
                                 _typeLabel(item.type),
-                                style: TextStyle(
-                                  color: color,
+                                style: const TextStyle(
+                                  color: AppTheme.textSecondary,
                                   fontSize: 10,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -236,10 +232,11 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                   foregroundColor: AppTheme.danger,
                                   side: const BorderSide(color: AppTheme.divider),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('彻底删除'),
+                                child: const Text('彻底删除',
+                                    style: TextStyle(fontSize: 13)),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -249,10 +246,11 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                 style: FilledButton.styleFrom(
                                   backgroundColor: AppTheme.textPrimary,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('恢复'),
+                                child: const Text('恢复',
+                                    style: TextStyle(fontSize: 13)),
                               ),
                             ),
                           ],

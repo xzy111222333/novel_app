@@ -300,7 +300,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                     Text(tag,
                                         style: const TextStyle(
                                             fontSize: 12,
-                                            color: AppTheme.textPrimary)),
+                                            color: AppTheme.textSecondary)),
                                     const SizedBox(width: 6),
                                     GestureDetector(
                                       onTap: () => _removeTag(tag),

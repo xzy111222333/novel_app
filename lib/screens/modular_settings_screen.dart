@@ -36,15 +36,15 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 18),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text('模块化设置',
+        title: const Text('模块设置',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             )),
       ),
       body: ListView(
@@ -55,40 +55,38 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
             child: Text('自定义底部标签栏显示的页面',
                 style: TextStyle(
                   color: AppTheme.textSecondary,
-                  fontSize: 12,
+                  fontSize: 11,
                 )),
           ),
 
-          // Default tabs section
           const Padding(
             padding: EdgeInsets.only(bottom: 8),
-            child: Text('默认标签页（不可关闭）',
+            child: Text('默认标签页',
                 style: TextStyle(
                   color: AppTheme.textPrimary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                 )),
           ),
-          _buildLockedRow(Icons.today, '今日', '查看今日创作内容'),
+          _buildLockedRow(Icons.today_outlined, '今日', '查看今日创作内容'),
           _buildLockedRow(Icons.description_outlined, '素材', '管理写作素材'),
           _buildLockedRow(Icons.lightbulb_outline, '灵感', '记录灵感闪念'),
-          _buildLockedRow(Icons.bar_chart, '统计', '查看创作数据统计'),
+          _buildLockedRow(Icons.bar_chart_outlined, '统计', '查看创作数据统计'),
           _buildLockedRow(Icons.person_outline, '我的', '个人中心与设置'),
 
           const SizedBox(height: 16),
 
-          // Optional tabs section
           const Padding(
             padding: EdgeInsets.only(bottom: 8),
-            child: Text('可选标签页（可开关）',
+            child: Text('可选标签页',
                 style: TextStyle(
                   color: AppTheme.textPrimary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                 )),
           ),
           _buildToggleRow(
-            Icons.text_fields,
+            Icons.text_fields_outlined,
             '词汇',
             '收集好词好句',
             'vocabulary',
@@ -102,22 +100,21 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
 
           const SizedBox(height: 16),
 
-          // Note
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.inspirationBg,
+              color: const Color(0xFFF5F5F5),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(
               children: [
                 Icon(Icons.info_outline,
-                    color: AppTheme.inspirationColor, size: 16),
+                    color: AppTheme.textSecondary, size: 16),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text('开启后将显示在底部标签栏中',
                       style: TextStyle(
-                        color: AppTheme.inspirationColor,
+                        color: AppTheme.textSecondary,
                         fontSize: 11,
                       )),
                 ),
@@ -142,7 +139,7 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: AppTheme.textTertiary.withValues(alpha: 0.1),
+            color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppTheme.textSecondary, size: 16),
@@ -150,7 +147,7 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
         title: Text(label,
             style: const TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
             )),
         subtitle: Text(desc,
@@ -180,21 +177,15 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: enabled
-                ? AppTheme.materialColor.withValues(alpha: 0.12)
-                : AppTheme.textTertiary.withValues(alpha: 0.1),
+            color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon,
-              color: enabled
-                  ? AppTheme.materialColor
-                  : AppTheme.textSecondary,
-              size: 16),
+          child: Icon(icon, color: AppTheme.textSecondary, size: 16),
         ),
         title: Text(label,
             style: const TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
             )),
         subtitle: Text(desc,
@@ -207,8 +198,8 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           child: Switch(
             value: enabled,
             onChanged: (_) => _ds.toggleOptionalTab(tabKey),
-            activeTrackColor: AppTheme.materialColor.withValues(alpha: 0.4),
-            activeThumbColor: AppTheme.materialColor,
+            activeTrackColor: AppTheme.accent.withValues(alpha: 0.4),
+            activeThumbColor: AppTheme.accent,
           ),
         ),
       ),

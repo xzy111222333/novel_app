@@ -70,18 +70,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   IconData _typeIcon(dynamic item) {
     if (item is MaterialItem) return Icons.description_outlined;
-    if (item is VocabularyItem) return Icons.text_fields;
+    if (item is VocabularyItem) return Icons.text_fields_outlined;
     if (item is InspirationItem) return Icons.lightbulb_outline;
     if (item is PlotItem) return Icons.auto_stories_outlined;
     return Icons.article_outlined;
-  }
-
-  Color _typeColor(dynamic item) {
-    if (item is MaterialItem) return AppTheme.materialColor;
-    if (item is VocabularyItem) return AppTheme.vocabularyColor;
-    if (item is InspirationItem) return AppTheme.inspirationColor;
-    if (item is PlotItem) return AppTheme.plotColor;
-    return AppTheme.textSecondary;
   }
 
   String _contentPreview(dynamic item) {
@@ -96,13 +88,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     final allFavs = _ds.favorites;
 
-    // Group by type
-    final materialFavs =
-        allFavs.whereType<MaterialItem>().toList();
-    final vocabFavs =
-        allFavs.whereType<VocabularyItem>().toList();
-    final inspirationFavs =
-        allFavs.whereType<InspirationItem>().toList();
+    final materialFavs = allFavs.whereType<MaterialItem>().toList();
+    final vocabFavs = allFavs.whereType<VocabularyItem>().toList();
+    final inspirationFavs = allFavs.whereType<InspirationItem>().toList();
     final plotFavs = allFavs.whereType<PlotItem>().toList();
 
     final sections = <MapEntry<String, List<dynamic>>>[];
@@ -125,40 +113,58 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: const Text('收藏夹',
             style: TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             )),
       ),
       body: allFavs.isEmpty
-          ? const Center(
-              child: Text('暂无收藏内容',
-                  style:
-                      TextStyle(color: AppTheme.textTertiary, fontSize: 16)))
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.star_outline_rounded,
+                      color: AppTheme.textTertiary,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('暂无收藏内容',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 13)),
+                ],
+              ),
+            )
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
               itemCount: sections.fold<int>(
                   0, (sum, s) => sum + 1 + s.value.length),
               itemBuilder: (context, index) {
-                // Map flat index to section header or item
                 int cursor = 0;
                 for (final section in sections) {
                   if (index == cursor) {
-                    // Section header
                     return Padding(
                       padding: EdgeInsets.only(
-                          top: cursor == 0 ? 0 : 20, bottom: 10),
+                          top: cursor == 0 ? 0 : 18, bottom: 8),
                       child: Text(section.key,
                           style: const TextStyle(
-                            color: AppTheme.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textSecondary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
                           )),
                     );
                   }
@@ -176,23 +182,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildFavoriteCard(dynamic item) {
-    final color = _typeColor(item);
-
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: AppTheme.smallCardDecoration,
       child: ListTile(
         onTap: () => _openItem(item),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: Container(
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(_typeIcon(item), color: color, size: 20),
+          child: Icon(_typeIcon(item), color: AppTheme.textSecondary, size: 18),
         ),
         title: Text(
           _contentPreview(item),
@@ -200,13 +204,30 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: AppTheme.textPrimary,
-            fontSize: 14,
+            fontSize: 13,
           ),
         ),
-        subtitle: Text(_typeLabel(item),
-            style: TextStyle(color: color, fontSize: 12)),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(_typeLabel(item),
+                    style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500)),
+              ),
+            ],
+          ),
+        ),
         trailing: IconButton(
-          icon: const Icon(Icons.favorite, color: Colors.redAccent, size: 22),
+          icon: const Icon(Icons.favorite, color: Colors.redAccent, size: 20),
           onPressed: () => _toggleFavorite(item),
         ),
       ),

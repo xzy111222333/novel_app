@@ -125,7 +125,7 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.danger),
             child: const Text('删除'),
           ),
         ],
@@ -146,34 +146,50 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 18),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: Text(_title,
             style: const TextStyle(
               color: AppTheme.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             )),
       ),
       floatingActionButton: FloatingActionButton.small(
         onPressed: _showAddDialog,
-        backgroundColor: AppTheme.materialColor,
+        backgroundColor: AppTheme.textPrimary,
         child: const Icon(Icons.add, color: Colors.white, size: 20),
       ),
       body: categories.isEmpty
-          ? const Center(
-              child: Text('暂无分类',
-                  style: TextStyle(
-                      color: AppTheme.textTertiary, fontSize: 12)))
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.folder_outlined,
+                        color: AppTheme.textTertiary, size: 24),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('暂无分类',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 13)),
+                ],
+              ),
+            )
           : ListView.builder(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final cat = categories[index];
                 final count = _countItemsInCategory(cat);
-                final color = AppTheme.getCategoryColor(cat);
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
@@ -184,17 +200,19 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 2),
                     leading: Container(
-                      width: 8,
-                      height: 8,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Icon(Icons.folder_outlined,
+                          color: AppTheme.textSecondary, size: 16),
                     ),
                     title: Text(cat,
                         style: const TextStyle(
                           color: AppTheme.textPrimary,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                         )),
                     subtitle: Text('$count 个条目',
@@ -214,7 +232,7 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline,
-                              color: Colors.redAccent, size: 18),
+                              color: AppTheme.danger, size: 18),
                           constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                           padding: EdgeInsets.zero,
                           onPressed: () => _showDeleteDialog(cat),

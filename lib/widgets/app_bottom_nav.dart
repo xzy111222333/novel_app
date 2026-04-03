@@ -22,15 +22,15 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.only(left: 14, right: 14, bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
@@ -56,7 +56,7 @@ class AppBottomNav extends StatelessWidget {
                     ),
                     child: Icon(
                       item.icon,
-                      size: 20,
+                      size: 18,
                       color: isActive ? Colors.white : AppTheme.textTertiary,
                     ),
                   ),
@@ -65,7 +65,7 @@ class AppBottomNav extends StatelessWidget {
                     item.label,
                     style: TextStyle(
                       fontSize: 9,
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.w400,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                       color: isActive ? AppTheme.textPrimary : AppTheme.textTertiary,
                     ),
                     maxLines: 1,

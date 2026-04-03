@@ -165,7 +165,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       width: 32,
                       height: 32,
                       decoration: const BoxDecoration(
-                        color: AppTheme.textPrimary,
+                        color: Color(0xFF1F2937),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add,
@@ -243,15 +243,31 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.auto_stories_outlined,
-                              size: 56,
-                              color: AppTheme.textTertiary
-                                  .withValues(alpha: 0.5)),
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(Icons.auto_stories_outlined,
+                                size: 36,
+                                color: AppTheme.textTertiary
+                                    .withValues(alpha: 0.5)),
+                          ),
                           const SizedBox(height: 16),
                           const Text(
-                            '暂无剧情，点击右上角 + 添加',
+                            '暂无剧情',
                             style: TextStyle(
                               fontSize: 13,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            '点击右上角 + 添加',
+                            style: TextStyle(
+                              fontSize: 11,
                               color: AppTheme.textTertiary,
                             ),
                           ),

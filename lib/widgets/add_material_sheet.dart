@@ -346,7 +346,7 @@ class _AddMaterialSheetState extends State<_AddMaterialSheet> {
                                         style: const TextStyle(
                                             fontSize: 12,
                                             color:
-                                                AppTheme.textPrimary)),
+                                                AppTheme.textSecondary)),
                                     const SizedBox(width: 4),
                                     GestureDetector(
                                       onTap: () => _removeTag(tag),

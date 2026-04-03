@@ -15,6 +15,21 @@ class _StatsScreenState extends State<StatsScreen> {
   final _ds = DataService.instance;
   _RangeMode _mode = _RangeMode.week;
   int _offset = 0;
+  int _topTab = 0; // 0 = 素材打卡, 1 = 创作总览
+
+  // Soft checkin colors: (background circle, checkmark/text)
+  static const _checkinBg = [
+    Color(0xFFD4E6D4), // 素材 — soft green
+    Color(0xFFD4E0E8), // 词汇 — soft blue
+    Color(0xFFE8DED0), // 灵感 — soft gold
+    Color(0xFFE0D4E0), // 剧情 — soft purple
+  ];
+  static const _checkinFg = [
+    Color(0xFF7AB57A),
+    Color(0xFF7AABB5),
+    Color(0xFFC4B07A),
+    Color(0xFFAA8FAA),
+  ];
 
   @override
   void initState() {
@@ -31,6 +46,8 @@ class _StatsScreenState extends State<StatsScreen> {
     _ds.removeListener(_onDataChanged);
     super.dispose();
   }
+
+  // ─── Date range computation ───────────────────────────────────────────
 
   DateTime get _rangeStart {
     final now = DateTime.now();
@@ -58,18 +75,28 @@ class _StatsScreenState extends State<StatsScreen> {
     }
   }
 
-  String get _rangeLabel {
+  String get _rangeTitleLabel {
+    switch (_mode) {
+      case _RangeMode.week:
+        return _offset == 0 ? '本周' : (_offset == -1 ? '上周' : '');
+      case _RangeMode.month:
+        return _offset == 0 ? '本月' : '';
+      case _RangeMode.year:
+        return _offset == 0 ? '今年' : '';
+    }
+  }
+
+  String get _rangeDateLabel {
     final s = _rangeStart;
     final e = _rangeEnd;
     String pad(int v) => v.toString().padLeft(2, '0');
     switch (_mode) {
       case _RangeMode.week:
-        final label = _offset == 0 ? '本周' : (_offset == -1 ? '上周' : '');
-        return '$label ${pad(s.month)}/${pad(s.day)} → ${pad(e.month)}/${pad(e.day)}';
+        return '${pad(s.month)}/${pad(s.day)} → ${pad(e.month)}/${pad(e.day)}';
       case _RangeMode.month:
-        return _offset == 0 ? '本月 ${s.year}/${pad(s.month)}' : '${s.year}/${pad(s.month)}';
+        return '${s.year}/${pad(s.month)}';
       case _RangeMode.year:
-        return _offset == 0 ? '今年 ${s.year}' : '${s.year}';
+        return '${s.year}';
     }
   }
 
@@ -79,6 +106,8 @@ class _StatsScreenState extends State<StatsScreen> {
     final e = DateTime(_rangeEnd.year, _rangeEnd.month, _rangeEnd.day);
     return !d.isBefore(s) && !d.isAfter(e);
   }
+
+  // ─── Data aggregation ─────────────────────────────────────────────────
 
   int get _rangeWordCount {
     int c = 0;
@@ -201,6 +230,39 @@ class _StatsScreenState extends State<StatsScreen> {
     return active;
   }
 
+  Map<String, Set<int>> get _moduleMonthlyActiveDays {
+    final s = _rangeStart;
+    final result = <String, Set<int>>{
+      'materials': {},
+      'vocabulary': {},
+      'inspirations': {},
+      'plots': {},
+    };
+    for (final m in _ds.materials) {
+      if (m.createdAt.year == s.year && m.createdAt.month == s.month) {
+        result['materials']!.add(m.createdAt.day);
+      }
+    }
+    for (final v in _ds.vocabulary) {
+      if (v.createdAt.year == s.year && v.createdAt.month == s.month) {
+        result['vocabulary']!.add(v.createdAt.day);
+      }
+    }
+    for (final i in _ds.inspirations) {
+      if (i.createdAt.year == s.year && i.createdAt.month == s.month) {
+        result['inspirations']!.add(i.createdAt.day);
+      }
+    }
+    for (final p in _ds.plots) {
+      if (p.createdAt.year == s.year && p.createdAt.month == s.month) {
+        result['plots']!.add(p.createdAt.day);
+      }
+    }
+    return result;
+  }
+
+  // ─── Build ────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,20 +273,24 @@ class _StatsScreenState extends State<StatsScreen> {
           child: Column(
             children: [
               _buildHeader(),
+              const SizedBox(height: 12),
+              _buildTopTabBar(),
               const SizedBox(height: 14),
               _buildToggle(),
               const SizedBox(height: 10),
               _buildDateNavigator(),
               const SizedBox(height: 14),
-              _buildSummaryCard(),
-              const SizedBox(height: 12),
-              _buildModuleRow(),
-              const SizedBox(height: 12),
-              if (_mode == _RangeMode.week) ...[
-                _buildActivityTable(),
+              if (_topTab == 0) ...[
+                if (_mode == _RangeMode.week) _buildWeeklyCheckinTable(),
+                if (_mode == _RangeMode.month) _buildMonthlyCheckinView(),
+                if (_mode == _RangeMode.year) _buildYearlyCheckinSummary(),
+              ] else ...[
+                _buildSummaryCard(),
                 const SizedBox(height: 12),
+                _buildModuleRow(),
+                const SizedBox(height: 12),
+                _buildCalendarHeatmap(),
               ],
-              _buildCalendarHeatmap(),
               const SizedBox(height: 16),
             ],
           ),
@@ -233,18 +299,71 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
+  // ─── Header ───────────────────────────────────────────────────────────
+
   Widget _buildHeader() {
     return const Center(
       child: Text(
         '统计',
         style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
           color: AppTheme.textPrimary,
         ),
       ),
     );
   }
+
+  // ─── Top Tab Bar (素材打卡 | 创作总览) ────────────────────────────────
+
+  Widget _buildTopTabBar() {
+    const tabs = ['素材打卡', '创作总览'];
+    return Container(
+      height: 36,
+      margin: const EdgeInsets.symmetric(horizontal: 32),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: List.generate(2, (i) {
+          final active = _topTab == i;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _topTab = i),
+              child: Container(
+                alignment: Alignment.center,
+                margin: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: active ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: active
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  tabs[i],
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    color: active ? AppTheme.textPrimary : AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  // ─── Time Toggle (周 / 月 / 年) ──────────────────────────────────────
 
   Widget _buildToggle() {
     const labels = ['周', '月', '年'];
@@ -260,17 +379,20 @@ class _StatsScreenState extends State<StatsScreen> {
           }),
           child: Container(
             height: 28,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            margin: EdgeInsets.only(left: i > 0 ? 6 : 0),
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            margin: EdgeInsets.only(left: i > 0 ? 8 : 0),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: active ? const Color(0xFF1F2937) : Colors.white,
               borderRadius: BorderRadius.circular(14),
+              border: active
+                  ? null
+                  : Border.all(color: const Color(0xFFE5E7EB), width: 0.5),
             ),
             child: Text(
               labels[i],
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: active ? Colors.white : AppTheme.textSecondary,
               ),
@@ -281,31 +403,454 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
+  // ─── Date Navigator (< 本周  03/30 → 04/05 >) ───────────────────────
+
   Widget _buildDateNavigator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    final title = _rangeTitleLabel;
+    return Column(
       children: [
-        GestureDetector(
-          onTap: () => setState(() => _offset--),
-          child: const Icon(Icons.chevron_left, size: 18, color: AppTheme.textTertiary),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          _rangeLabel,
-          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-        ),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: _offset < 0 ? () => setState(() => _offset++) : null,
-          child: Icon(
-            Icons.chevron_right,
-            size: 18,
-            color: _offset < 0 ? AppTheme.textTertiary : AppTheme.divider,
+        if (title.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
           ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => setState(() => _offset--),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.chevron_left,
+                    size: 20, color: AppTheme.textSecondary),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              _rangeDateLabel,
+              style: const TextStyle(
+                  fontSize: 13, color: AppTheme.textSecondary),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _offset < 0 ? () => setState(() => _offset++) : null,
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color:
+                      _offset < 0 ? AppTheme.textSecondary : AppTheme.divider,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  //  素材打卡 Tab
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  // ─── Weekly Checkin Table ─────────────────────────────────────────────
+
+  Widget _buildWeeklyCheckinTable() {
+    final dots = _weeklyDots;
+    const headers = ['全部', '一', '二', '三', '四', '五', '六', '日'];
+    const keys = ['materials', 'vocabulary', 'inspirations', 'plots'];
+    const labels = ['素材', '词汇', '灵感', '剧情'];
+    const icons = ['📝', '📖', '💡', '🎭'];
+
+    int totalActive = 0;
+    for (final k in keys) {
+      totalActive += (dots[k] ?? <bool>[]).where((b) => b).length;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          // Column headers
+          Row(
+            children: [
+              const SizedBox(width: 60),
+              ...headers.map((h) => Expanded(
+                    child: Center(
+                      child: Text(
+                        h,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: h == '全部'
+                              ? AppTheme.textSecondary
+                              : AppTheme.textTertiary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: AppTheme.divider),
+
+          // Module rows
+          ...List.generate(4, (row) {
+            final active = dots[keys[row]] ?? List.filled(7, false);
+            final rowTotal = active.where((b) => b).length;
+
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    children: [
+                      // Icon + name
+                      SizedBox(
+                        width: 60,
+                        child: Row(
+                          children: [
+                            Text(icons[row],
+                                style: const TextStyle(fontSize: 14)),
+                            const SizedBox(width: 4),
+                            Text(
+                              labels[row],
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // "全部" column — total count
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            '$rowTotal',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: rowTotal > 0
+                                  ? _checkinFg[row]
+                                  : AppTheme.textTertiary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // 7 day cells
+                      ...List.generate(7, (col) {
+                        return Expanded(
+                          child: Center(
+                            child: active[col]
+                                ? Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _checkinBg[row],
+                                    ),
+                                    child: Icon(Icons.check,
+                                        size: 14, color: _checkinFg[row]),
+                                  )
+                                : Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: const Color(0xFFE5E7EB),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                if (row < 3) const Divider(height: 1, color: AppTheme.divider),
+              ],
+            );
+          }),
+
+          const Divider(height: 1, color: AppTheme.divider),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '总计：$totalActive',
+              style: const TextStyle(
+                  fontSize: 12, color: AppTheme.textSecondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Monthly Checkin View (per-module calendars) ──────────────────────
+
+  Widget _buildMonthlyCheckinView() {
+    final moduleActive = _moduleMonthlyActiveDays;
+    const keys = ['materials', 'vocabulary', 'inspirations', 'plots'];
+    const labels = ['素材', '词汇', '灵感', '剧情'];
+    const icons = ['📝', '📖', '💡', '🎭'];
+
+    final s = _rangeStart;
+    final daysInMonth = DateTime(s.year, s.month + 1, 0).day;
+    final firstWeekday = s.weekday;
+    final now = DateTime.now();
+
+    return Column(
+      children: List.generate(4, (idx) {
+        final activeDays = moduleActive[keys[idx]]!;
+        final total = activeDays.length;
+
+        final cells = <int?>[
+          ...List.filled(firstWeekday - 1, null),
+          ...List.generate(daysInMonth, (i) => i + 1),
+        ];
+        while (cells.length % 7 != 0) {
+          cells.add(null);
+        }
+
+        return Container(
+          width: double.infinity,
+          margin: EdgeInsets.only(bottom: idx < 3 ? 12 : 0),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Module header
+              Row(
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _checkinBg[idx],
+                    ),
+                    child: Center(
+                      child: Text(icons[idx],
+                          style: const TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          labels[idx],
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '总计 $total',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Weekday headers
+              Row(
+                children: ['一', '二', '三', '四', '五', '六', '日']
+                    .map((h) => Expanded(
+                          child: Center(
+                            child: Text(
+                              h,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.textTertiary,
+                              ),
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 6),
+
+              // Calendar grid
+              ...List.generate(cells.length ~/ 7, (row) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Row(
+                    children: List.generate(7, (col) {
+                      final day = cells[row * 7 + col];
+                      if (day == null) {
+                        return const Expanded(child: SizedBox(height: 28));
+                      }
+                      final isActive = activeDays.contains(day);
+                      final isToday = s.year == now.year &&
+                          s.month == now.month &&
+                          day == now.day;
+
+                      return Expanded(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isActive
+                                    ? _checkinBg[idx]
+                                    : (isToday
+                                        ? const Color(0xFFF0F1F3)
+                                        : null),
+                                border: isToday && !isActive
+                                    ? Border.all(
+                                        color: AppTheme.textTertiary,
+                                        width: 1)
+                                    : null,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '$day',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: isActive || isToday
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: isActive
+                                        ? _checkinFg[idx]
+                                        : (isToday
+                                            ? AppTheme.textPrimary
+                                            : AppTheme.textTertiary),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  // ─── Yearly Checkin Summary ───────────────────────────────────────────
+
+  Widget _buildYearlyCheckinSummary() {
+    final counts = _rangeModuleCounts;
+    const keys = ['materials', 'vocabulary', 'inspirations', 'plots'];
+    const labels = ['素材', '词汇', '灵感', '剧情'];
+    const icons = ['📝', '📖', '💡', '🎭'];
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            '年度打卡总览',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: List.generate(4, (i) {
+              return Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _checkinBg[i],
+                      ),
+                      child: Center(
+                        child: Text(icons[i],
+                            style: const TextStyle(fontSize: 20)),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      labels[i],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${counts[keys[i]]}条',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: AppTheme.divider),
+          const SizedBox(height: 12),
+          Text(
+            '总计 ${counts.values.fold<int>(0, (a, b) => a + b)} 条记录',
+            style: const TextStyle(
+                fontSize: 13, color: AppTheme.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  //  创作总览 Tab
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   Widget _buildSummaryCard() {
     final periodLabel = _mode == _RangeMode.week
@@ -432,91 +977,6 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildActivityTable() {
-    final dots = _weeklyDots;
-    const dayLabels = ['一', '二', '三', '四', '五', '六', '日'];
-    const moduleKeys = ['materials', 'vocabulary', 'inspirations', 'plots'];
-    const moduleLabels = ['素材', '词汇', '灵感', '剧情'];
-    const moduleColors = [
-      AppTheme.materialColor,
-      AppTheme.vocabularyColor,
-      AppTheme.inspirationColor,
-      AppTheme.plotColor,
-    ];
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const SizedBox(width: 36),
-              ...dayLabels.map((d) => Expanded(
-                    child: Center(
-                      child: Text(
-                        d,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.textTertiary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  )),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Divider(height: 1, color: AppTheme.divider),
-          ...List.generate(4, (row) {
-            final active = dots[moduleKeys[row]] ?? List.filled(7, false);
-            return Column(
-              children: [
-                SizedBox(
-                  height: 28,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 36,
-                        child: Text(
-                          moduleLabels[row],
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: moduleColors[row],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      ...List.generate(7, (col) {
-                        return Expanded(
-                          child: Center(
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: active[col] ? moduleColors[row] : const Color(0xFFE5E7EB),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-                if (row < 3) Divider(height: 1, color: AppTheme.divider),
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCalendarHeatmap() {
     final now = DateTime.now();
     final monthDate = DateTime(now.year, now.month + _offset, 1);
@@ -589,7 +1049,8 @@ class _StatsScreenState extends State<StatsScreen> {
                                 height: 20,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: AppTheme.accent.withValues(alpha: 0.18),
+                                  color:
+                                      AppTheme.accent.withValues(alpha: 0.18),
                                 ),
                                 child: Center(
                                   child: Text(

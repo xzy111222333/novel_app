@@ -32,16 +32,19 @@ class CategoryPills extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF1F2937) : Colors.white,
+                    color: isSelected
+                        ? const Color(0xFF1A1A1A)
+                        : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(14),
-                    border: isSelected ? null : Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                   child: Text(
                     cat,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: isSelected ? Colors.white : AppTheme.textPrimary,
+                      color: isSelected
+                          ? Colors.white
+                          : AppTheme.textSecondary,
                     ),
                   ),
                 ),
@@ -54,11 +57,10 @@ class CategoryPills extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: Icon(Icons.add, size: 14, color: AppTheme.textTertiary),
+                child: const Icon(Icons.add, size: 14, color: AppTheme.textTertiary),
               ),
             ),
         ],

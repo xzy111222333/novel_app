@@ -258,7 +258,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                       width: 32,
                       height: 32,
                       decoration: const BoxDecoration(
-                        color: AppTheme.textPrimary,
+                        color: Color(0xFF1F2937),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add,

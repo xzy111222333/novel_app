@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/data_service.dart';
 
-/// 小日常-inspired minimal theme: mostly white, small fonts, subtle accents
 class ThemePreset {
   final String id;
   final String label;
@@ -16,52 +15,36 @@ class ThemePreset {
   });
 }
 
+/// 极简白色系主题，对齐小日常App风格
 class AppTheme {
-  static const Color background = Color(0xFFF5F6F8);
+  static const Color background = Color(0xFFF7F8FA);
   static const Color cardBackground = Colors.white;
-  static const Color textPrimary = Color(0xFF1F2937);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textTertiary = Color(0xFFB0B6BF);
-  static const Color divider = Color(0xFFF0F0F0);
+  static const Color textPrimary = Color(0xFF1A1A1A);
+  static const Color textSecondary = Color(0xFF999999);
+  static const Color textTertiary = Color(0xFFCCCCCC);
+  static const Color divider = Color(0xFFF0F1F3);
   static const Color accent = Color(0xFFF7B500);
-  static const Color accentSoft = Color(0xFFFFF4CC);
-  static const Color danger = Color(0xFFE16A6A);
+  static const Color accentSoft = Color(0xFFFFF8E1);
+  static const Color danger = Color(0xFFE85D5D);
 
-  static const Color materialColor = Color(0xFF6B9F6B);
-  static const Color materialBg = Color(0xFFEDF5ED);
-  static const Color vocabularyColor = Color(0xFFC47A7A);
-  static const Color vocabularyBg = Color(0xFFFAF0F0);
-  static const Color inspirationColor = Color(0xFF6B9FB5);
-  static const Color inspirationBg = Color(0xFFEDF4F7);
-  static const Color plotColor = Color(0xFFCCA945);
-  static const Color plotBg = Color(0xFFFAF6EC);
+  // 模块色 — 极淡柔和，仅用于卡片背景/标记点
+  static const Color materialColor = Color(0xFF8CB58C);
+  static const Color materialBg = Color(0xFFF2F7F2);
+  static const Color vocabularyColor = Color(0xFFBB9A9A);
+  static const Color vocabularyBg = Color(0xFFF9F3F3);
+  static const Color inspirationColor = Color(0xFF9AB5C4);
+  static const Color inspirationBg = Color(0xFFF3F7FA);
+  static const Color plotColor = Color(0xFFC4B07A);
+  static const Color plotBg = Color(0xFFFAF7F0);
 
   static const List<ThemePreset> presets = [
-    ThemePreset(id: 'default', label: '默认', background: Color(0xFFF5F6F8), surface: Colors.white),
-    ThemePreset(id: 'rice', label: '米白', background: Color(0xFFF8F4EC), surface: Colors.white),
-    ThemePreset(id: 'blue', label: '淡蓝', background: Color(0xFFF2F6FB), surface: Colors.white),
-    ThemePreset(id: 'green', label: '淡绿', background: Color(0xFFF2F8F4), surface: Colors.white),
-    ThemePreset(id: 'pink', label: '淡粉', background: Color(0xFFFBF3F6), surface: Colors.white),
-    ThemePreset(id: 'gray', label: '浅灰', background: Color(0xFFF2F3F5), surface: Colors.white),
+    ThemePreset(id: 'default', label: '基础白', background: Color(0xFFF7F8FA), surface: Colors.white),
+    ThemePreset(id: 'rice', label: '米白', background: Color(0xFFF8F5EE), surface: Colors.white),
+    ThemePreset(id: 'blue', label: '淡蓝', background: Color(0xFFF3F6FB), surface: Colors.white),
+    ThemePreset(id: 'green', label: '淡绿', background: Color(0xFFF3F8F5), surface: Colors.white),
+    ThemePreset(id: 'pink', label: '淡粉', background: Color(0xFFFBF4F6), surface: Colors.white),
+    ThemePreset(id: 'gray', label: '浅灰', background: Color(0xFFF3F4F6), surface: Colors.white),
   ];
-
-  static const Map<String, Color> categoryColors = {
-    '对话': Color(0xFF8B7EC8),
-    '动作描写': Color(0xFFC4845A),
-    '心理描写': Color(0xFF6B8FC4),
-    '人物描写': Color(0xFFC46B8A),
-    '环境描写': Color(0xFF6BAF6B),
-    '情绪描写': Color(0xFFC49F45),
-    '颜色词汇': Color(0xFF8B7EC8),
-    '打脸剧情': Color(0xFFC49F45),
-    '总裁剧情': Color(0xFF6B8FC4),
-    '宫斗剧情': Color(0xFF8B7EC8),
-    '甜宠剧情': Color(0xFFC46B8A),
-    '校园剧情': Color(0xFF6BAF6B),
-    '装逼剧情': Color(0xFFC4845A),
-    '憋屈剧情': Color(0xFF8B9BAF),
-    '未婚先孕': Color(0xFFC47A7A),
-  };
 
   static ThemePreset get currentPreset {
     final id = DataService.instance.themePresetId;
@@ -74,13 +57,11 @@ class AppTheme {
   static Color get scaffoldBackground => currentPreset.background;
   static Color get softBackground => currentPreset.background;
 
-  static Color getCategoryColor(String category) {
-    return categoryColors[category] ?? textSecondary;
-  }
+  // 分类标签统一用灰色调，不按分类名区分颜色
+  static Color getCategoryColor(String category) => textSecondary;
 
   static Color getCategoryBgColor(String category) {
-    final color = getCategoryColor(category);
-    return color.withValues(alpha: 0.08);
+    return const Color(0xFFF5F5F5);
   }
 
   static BoxDecoration cardDecoration = BoxDecoration(
@@ -88,8 +69,8 @@ class AppTheme {
     borderRadius: BorderRadius.circular(16),
     boxShadow: [
       BoxShadow(
-        color: Colors.black.withValues(alpha: 0.02),
-        blurRadius: 8,
+        color: Colors.black.withValues(alpha: 0.03),
+        blurRadius: 10,
         offset: const Offset(0, 2),
       ),
     ],
@@ -111,24 +92,25 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: scaffoldBackground,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: background,
+      appBarTheme: AppBarTheme(
+        backgroundColor: scaffoldBackground,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           color: textPrimary,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
-        iconTheme: IconThemeData(color: textSecondary, size: 20),
+        iconTheme: const IconThemeData(color: textSecondary, size: 20),
       ),
       colorScheme: ColorScheme.fromSeed(
         seedColor: accent,
         surface: background,
       ),
       textTheme: const TextTheme(
-        titleLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textPrimary),
-        titleMedium: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
+        titleLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textPrimary),
+        titleMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: textPrimary),
         bodyMedium: TextStyle(fontSize: 13, color: textPrimary),
         bodySmall: TextStyle(fontSize: 11, color: textSecondary),
         labelSmall: TextStyle(fontSize: 10, color: textTertiary),

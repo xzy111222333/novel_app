@@ -28,20 +28,56 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const _weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  static const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
   static const Color _darkBg = Color(0xFF1F2937);
 
   late DateTime _selectedDate;
-  late ScrollController _dateScrollController;
+  late PageController _weekPageController;
   InspirationItem? _randomInspiration;
-  bool _isCalendarExpanded = true;
+  bool _isMonthExpanded = false;
 
-  List<DateTime> get _dateRange {
-    final today = DateTime.now();
-    return List.generate(8, (i) {
-      return DateTime(today.year, today.month, today.day)
-          .subtract(Duration(days: 4 - i));
-    });
+  // Week-based calendar: page 0 = far past, center page = current week
+  static const int _totalWeekPages = 200;
+  static const int _centerWeekPage = 100;
+  late DateTime _baseMonday; // Monday of current week
+
+  DateTime _mondayOfWeek(DateTime date) {
+    final d = DateTime(date.year, date.month, date.day);
+    return d.subtract(Duration(days: d.weekday - 1));
+  }
+
+  List<DateTime> _weekDaysForPage(int page) {
+    final offset = page - _centerWeekPage;
+    final monday = _baseMonday.add(Duration(days: offset * 7));
+    return List.generate(7, (i) => monday.add(Duration(days: i)));
+  }
+
+  // Month calendar for expanded view
+  DateTime get _displayMonth {
+    final page = _weekPageController.hasClients
+        ? (_weekPageController.page?.round() ?? _centerWeekPage)
+        : _centerWeekPage;
+    final weekDays = _weekDaysForPage(page);
+    // Use Thursday of week to determine which month we're in
+    return DateTime(weekDays[3].year, weekDays[3].month);
+  }
+
+  List<DateTime> _monthGridDays(DateTime month) {
+    final first = DateTime(month.year, month.month, 1);
+    final last = DateTime(month.year, month.month + 1, 0);
+    final startOffset = first.weekday - 1; // days to pad from Monday
+    final start = first.subtract(Duration(days: startOffset));
+    final totalDays = startOffset + last.day;
+    final rows = (totalDays / 7).ceil();
+    return List.generate(rows * 7, (i) => start.add(Duration(days: i)));
+  }
+
+  bool _dayHasEntries(DateTime date) {
+    final ds = DataService.instance;
+    return ds.materials.any((m) => _isSameDay(m.createdAt, date)) ||
+        ds.vocabulary.any((v) => _isSameDay(v.createdAt, date)) ||
+        ds.inspirations.any((i) => _isSameDay(i.createdAt, date)) ||
+        ds.plots.any((p) => _isSameDay(p.createdAt, date));
   }
 
   @override
@@ -49,16 +85,16 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     final now = DateTime.now();
     _selectedDate = DateTime(now.year, now.month, now.day);
-    _dateScrollController = ScrollController();
+    _baseMonday = _mondayOfWeek(_selectedDate);
+    _weekPageController = PageController(initialPage: _centerWeekPage);
     DataService.instance.addListener(_onDataChanged);
     _refreshRandomInspiration();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToToday());
   }
 
   @override
   void dispose() {
     DataService.instance.removeListener(_onDataChanged);
-    _dateScrollController.dispose();
+    _weekPageController.dispose();
     super.dispose();
   }
 
@@ -70,15 +106,16 @@ class _HomeScreenState extends State<HomeScreen> {
     _randomInspiration = DataService.instance.getRandomPastInspiration();
   }
 
-  void _scrollToToday() {
-    final offset = 4 * 52.0 - (MediaQuery.of(context).size.width / 2 - 26);
-    if (_dateScrollController.hasClients) {
-      _dateScrollController.animateTo(
-        offset.clamp(0.0, _dateScrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+  void _goToToday() {
+    final now = DateTime.now();
+    setState(() {
+      _selectedDate = DateTime(now.year, now.month, now.day);
+    });
+    _weekPageController.animateToPage(
+      _centerWeekPage,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   bool _isSameDay(DateTime a, DateTime b) =>
@@ -90,13 +127,15 @@ class _HomeScreenState extends State<HomeScreen> {
       .where((m) => _isSameDay(m.createdAt, _selectedDate))
       .toList();
 
-  List<VocabularyItem> get _selectedVocabulary => DataService.instance.vocabulary
-      .where((v) => _isSameDay(v.createdAt, _selectedDate))
-      .toList();
+  List<VocabularyItem> get _selectedVocabulary =>
+      DataService.instance.vocabulary
+          .where((v) => _isSameDay(v.createdAt, _selectedDate))
+          .toList();
 
-  List<InspirationItem> get _selectedInspirations => DataService.instance.inspirations
-      .where((i) => _isSameDay(i.createdAt, _selectedDate))
-      .toList();
+  List<InspirationItem> get _selectedInspirations =>
+      DataService.instance.inspirations
+          .where((i) => _isSameDay(i.createdAt, _selectedDate))
+          .toList();
 
   List<PlotItem> get _selectedPlots => DataService.instance.plots
       .where((p) => _isSameDay(p.createdAt, _selectedDate))
@@ -105,10 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _formatTime(DateTime d) =>
       '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 
-  String _headerTitle() {
-    final now = DateTime.now();
-    final weekday = _weekdays[now.weekday - 1];
-    return '今日 · $weekday';
+  String _headerMonthLabel() {
+    return '${_selectedDate.year}年${_selectedDate.month}月';
   }
 
   String _menuLabelForType(String typeLabel) {
@@ -133,7 +170,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (item is MaterialItem) {
       content = item.content;
-      meta = item.source.isEmpty ? item.category : '${item.category} · ${item.source}';
+      meta = item.source.isEmpty
+          ? item.category
+          : '${item.category} · ${item.source}';
       tags = item.tags;
       accentColor = AppTheme.getCategoryColor(item.category);
     } else if (item is VocabularyItem) {
@@ -200,7 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
-  void _showOptionsSheet(dynamic item, String typeLabel, VoidCallback onDelete) {
+  void _showOptionsSheet(
+      dynamic item, String typeLabel, VoidCallback onDelete) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -222,30 +262,37 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 8),
             ListTile(
-              leading: const Icon(Icons.copy, size: 22, color: AppTheme.textSecondary),
-              title: const Text('复制内容', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.copy, size: 20, color: AppTheme.textSecondary),
+              title: const Text('复制内容',
+                  style: TextStyle(fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () {
                 Navigator.pop(ctx);
-                final contentToCopy = item is PlotItem ? item.displayContent : item.content;
+                final contentToCopy =
+                    item is PlotItem ? item.displayContent : item.content;
                 Clipboard.setData(ClipboardData(text: contentToCopy));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('已复制'), behavior: SnackBarBehavior.floating),
+                  const SnackBar(
+                      content: Text('已复制'),
+                      behavior: SnackBarBehavior.floating),
                 );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.image_outlined, size: 22, color: AppTheme.textSecondary),
-              title: const Text('分享为图片', style: TextStyle(fontSize: 15, color: AppTheme.textPrimary)),
+              leading: const Icon(Icons.image_outlined,
+                  size: 20, color: AppTheme.textSecondary),
+              title: const Text('分享为图片',
+                  style: TextStyle(fontSize: 14, color: AppTheme.textPrimary)),
               onTap: () async {
                 Navigator.pop(ctx);
                 await _shareItemAsImage(item, typeLabel);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.notes, size: 22, color: AppTheme.textSecondary),
+              leading: const Icon(Icons.notes, size: 20, color: AppTheme.textSecondary),
               title: Text(
                 _menuLabelForType(typeLabel),
-                style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary),
+                style:
+                    const TextStyle(fontSize: 14, color: AppTheme.textPrimary),
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -253,8 +300,11 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, size: 22, color: Colors.redAccent),
-              title: Text('删除$typeLabel', style: const TextStyle(fontSize: 15, color: Colors.redAccent)),
+              leading: const Icon(Icons.delete_outline,
+                  size: 20, color: AppTheme.danger),
+              title: Text('删除$typeLabel',
+                  style:
+                      const TextStyle(fontSize: 14, color: AppTheme.danger)),
               onTap: () {
                 Navigator.pop(ctx);
                 onDelete();
@@ -280,14 +330,19 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildHeader(context),
+            _buildWeekdayLabels(),
             AnimatedSize(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              child: _isCalendarExpanded ? _buildDateScroller() : const SizedBox(height: 10),
+              child: _isMonthExpanded
+                  ? _buildMonthGrid()
+                  : _buildWeekPageView(),
             ),
+            // Collapse / Expand toggle
+            _buildCalendarToggle(),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(14, 6, 14, 24),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                 children: [
                   _buildQuickActionPills(context),
                   if (_randomInspiration != null) ...[
@@ -314,41 +369,40 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ── Header: month label (left) + add button (right)
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 12, 2),
+      padding: const EdgeInsets.fromLTRB(16, 10, 14, 4),
       child: Row(
         children: [
-          const Spacer(),
           GestureDetector(
-            onTap: () => setState(() => _isCalendarExpanded = !_isCalendarExpanded),
-            child: Column(
+            onTap: _goToToday,
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _headerTitle(),
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 3),
-                    Icon(
-                      _isCalendarExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                      size: 18,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ],
+                Text(
+                  _headerMonthLabel(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
-                const SizedBox(height: 1),
-                const Text(
-                  '写作灵感收集',
-                  style: TextStyle(fontSize: 10, color: AppTheme.textTertiary),
-                ),
+                if (!_isToday(_selectedDate)) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentSoft,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '今天',
+                      style: TextStyle(fontSize: 10, color: AppTheme.accent),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -363,13 +417,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => _showQuickAddMenu(context),
       child: Container(
-        width: 36,
-        height: 36,
+        width: 32,
+        height: 32,
         decoration: const BoxDecoration(
           color: _darkBg,
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.add, size: 18, color: Colors.white),
+        child: const Icon(Icons.add, size: 16, color: Colors.white),
       ),
     );
   }
@@ -424,78 +478,156 @@ class _HomeScreenState extends State<HomeScreen> {
       dense: true,
       visualDensity: const VisualDensity(vertical: -2),
       leading: Icon(icon, size: 18, color: AppTheme.textSecondary),
-      title: Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
+      title: Text(label,
+          style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
       onTap: onTap,
     );
   }
 
-  Widget _buildDateScroller() {
-    final dates = _dateRange;
-    return SizedBox(
-      height: 62,
-      child: ListView.builder(
-        controller: _dateScrollController,
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: dates.length,
-        itemBuilder: (_, i) => _buildDateCell(dates[i]),
+  // ── Weekday header row (一 二 三 … 日)
+  Widget _buildWeekdayLabels() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: _weekdays.map((d) {
+          return Expanded(
+            child: Center(
+              child: Text(
+                d,
+                style: const TextStyle(
+                    fontSize: 11, color: AppTheme.textTertiary),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildDateCell(DateTime date) {
+  // ── Week-mode: swipeable PageView showing one week row
+  Widget _buildWeekPageView() {
+    return SizedBox(
+      height: 44,
+      child: PageView.builder(
+        controller: _weekPageController,
+        itemCount: _totalWeekPages,
+        onPageChanged: (_) => setState(() {}),
+        itemBuilder: (_, page) {
+          final days = _weekDaysForPage(page);
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: days.map((d) => Expanded(child: _dayCell(d))).toList(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ── Month-mode: full calendar grid
+  Widget _buildMonthGrid() {
+    final month = _displayMonth;
+    final days = _monthGridDays(month);
+    final rows = days.length ~/ 7;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: List.generate(rows, (row) {
+          return SizedBox(
+            height: 44,
+            child: Row(
+              children: List.generate(7, (col) {
+                final day = days[row * 7 + col];
+                final inMonth = day.month == month.month;
+                return Expanded(
+                  child: inMonth
+                      ? _dayCell(day)
+                      : const SizedBox.shrink(),
+                );
+              }),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  // ── Individual day cell
+  Widget _dayCell(DateTime date) {
     final isSelected = _isSameDay(date, _selectedDate);
-    final isToday = _isSameDay(date, DateTime.now());
-    final weekday = _weekdays[date.weekday - 1];
-    final showMonth = date.day == 1;
+    final today = _isToday(date);
+    final hasData = _dayHasEntries(date);
 
     return GestureDetector(
       onTap: () => setState(() => _selectedDate = date),
-      child: Container(
-        width: 44,
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        decoration: BoxDecoration(
-          color: isSelected ? _darkBg : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              weekday,
-              style: TextStyle(
-                fontSize: 10,
-                color: isSelected ? Colors.white70 : AppTheme.textTertiary,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${date.day}',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : AppTheme.textPrimary,
-              ),
-            ),
-            if (showMonth)
+      child: Center(
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: isSelected ? _darkBg : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               Text(
-                '${date.month}月',
+                '${date.day}',
                 style: TextStyle(
-                  fontSize: 9,
-                  color: isSelected ? Colors.white60 : AppTheme.textTertiary,
+                  fontSize: 14,
+                  fontWeight: isSelected || today
+                      ? FontWeight.w700
+                      : FontWeight.w400,
+                  color: isSelected
+                      ? Colors.white
+                      : today
+                          ? AppTheme.accent
+                          : AppTheme.textPrimary,
                 ),
               ),
-            if (isToday && !isSelected)
-              Container(
-                margin: const EdgeInsets.only(top: 2),
-                width: 4,
-                height: 4,
-                decoration: const BoxDecoration(
-                  color: AppTheme.accent,
-                  shape: BoxShape.circle,
+              if (hasData && !isSelected)
+                Container(
+                  margin: const EdgeInsets.only(top: 1),
+                  width: 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: today ? AppTheme.accent : AppTheme.textTertiary,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-          ],
+              if (isSelected && hasData)
+                Container(
+                  margin: const EdgeInsets.only(top: 1),
+                  width: 4,
+                  height: 4,
+                  decoration: const BoxDecoration(
+                    color: Colors.white54,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Toggle bar between week / month
+  Widget _buildCalendarToggle() {
+    return GestureDetector(
+      onTap: () => setState(() => _isMonthExpanded = !_isMonthExpanded),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        alignment: Alignment.center,
+        child: Container(
+          width: 28,
+          height: 3,
+          decoration: BoxDecoration(
+            color: AppTheme.divider,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
       ),
     );
@@ -503,14 +635,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuickActionPills(BuildContext context) {
     final actions = [
-      ('添加素材', () => showAddMaterialSheet(context)),
-      ('添加词汇', () => showAddVocabularySheet(context)),
-      ('添加灵感', () => showAddInspirationSheet(context)),
-      ('添加剧情', () => showAddPlotSheet(context)),
+      ('素材', () => showAddMaterialSheet(context)),
+      ('词汇', () => showAddVocabularySheet(context)),
+      ('灵感', () => showAddInspirationSheet(context)),
+      ('剧情', () => showAddPlotSheet(context)),
     ];
 
     return SizedBox(
-      height: 34,
+      height: 30,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: actions.length,
@@ -520,17 +652,25 @@ class _HomeScreenState extends State<HomeScreen> {
           return GestureDetector(
             onTap: onTap,
             child: Container(
-              height: 28,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              height: 26,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(13),
                 border: Border.all(color: AppTheme.divider, width: 0.8),
               ),
               alignment: Alignment.center,
-              child: Text(
-                label,
-                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add, size: 12, color: AppTheme.textTertiary),
+                  const SizedBox(width: 2),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                        fontSize: 11, color: AppTheme.textSecondary),
+                  ),
+                ],
               ),
             ),
           );
@@ -551,21 +691,32 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                const Text('●', style: TextStyle(fontSize: 10, color: AppTheme.accent)),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.accent,
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 const SizedBox(width: 6),
-                Text(dateStr, style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+                Text(dateStr,
+                    style: const TextStyle(
+                        fontSize: 11, color: AppTheme.textTertiary)),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item, '灵感', () {
                     DataService.instance.deleteInspiration(item.id);
                     _refreshRandomInspiration();
                   }),
-                  child: const Icon(Icons.more_horiz, size: 16, color: AppTheme.textTertiary),
+                  child: const Icon(Icons.more_horiz,
+                      size: 16, color: AppTheme.textTertiary),
                 ),
                 const SizedBox(width: 12),
                 GestureDetector(
-                  onTap: _refreshRandomInspiration,
-                  child: const Icon(Icons.refresh, size: 14, color: AppTheme.textTertiary),
+                  onTap: () => setState(() => _refreshRandomInspiration()),
+                  child: const Icon(Icons.refresh,
+                      size: 14, color: AppTheme.textTertiary),
                 ),
               ],
             ),
@@ -575,7 +726,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 item.title!,
                 style: const TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: AppTheme.textPrimary,
                 ),
                 maxLines: 1,
@@ -585,7 +736,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 6),
             Text(
               item.content,
-              style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.5),
+              style: const TextStyle(
+                  fontSize: 13, color: AppTheme.textSecondary, height: 1.5),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -593,7 +745,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: AppTheme.softBackground,
+                color: const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
@@ -608,7 +760,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildVocabularySection(List<VocabularyItem> items) {
-    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate)
+        ? '今日'
+        : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +774,8 @@ class _HomeScreenState extends State<HomeScreen> {
         if (items.isEmpty)
           const Padding(
             padding: EdgeInsets.only(left: 4),
-            child: Text('暂无', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+            child: Text('暂无记录',
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           )
         else
           Wrap(
@@ -629,7 +784,9 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               ...items.take(6).map((v) => _vocabPill(v)),
               if (items.length > 6)
-                const Text('···', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+                const Text('···',
+                    style: TextStyle(
+                        fontSize: 11, color: AppTheme.textTertiary)),
             ],
           ),
       ],
@@ -660,7 +817,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildMaterialsSection(List<MaterialItem> items) {
-    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate)
+        ? '今日'
+        : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -672,7 +831,8 @@ class _HomeScreenState extends State<HomeScreen> {
         if (items.isEmpty)
           const Padding(
             padding: EdgeInsets.only(left: 4),
-            child: Text('暂无', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+            child: Text('暂无记录',
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           )
         else
           ...items.take(3).map(_buildMaterialCard),
@@ -694,31 +854,32 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.getCategoryBgColor(item.category),
+                    color: const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     item.category,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.getCategoryColor(item.category),
-                    ),
+                    style: const TextStyle(
+                        fontSize: 10, color: AppTheme.textSecondary),
                   ),
                 ),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item, '素材', () {
                     DataService.instance.deleteMaterial(item.id);
                   }),
-                  child: const Icon(Icons.more_horiz, size: 16, color: AppTheme.textTertiary),
+                  child: const Icon(Icons.more_horiz,
+                      size: 16, color: AppTheme.textTertiary),
                 ),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               item.content,
-              style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
+              style: const TextStyle(
+                  fontSize: 13, color: AppTheme.textPrimary, height: 1.5),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -726,7 +887,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 6),
               Text(
                 item.tags.map((t) => '#$t').join(' '),
-                style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+                style: const TextStyle(
+                    fontSize: 10, color: AppTheme.textTertiary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -738,7 +900,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildInspirationsSection(List<InspirationItem> items) {
-    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate)
+        ? '今日'
+        : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -750,7 +914,8 @@ class _HomeScreenState extends State<HomeScreen> {
         if (items.isEmpty)
           const Padding(
             padding: EdgeInsets.only(left: 4),
-            child: Text('暂无', style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+            child: Text('暂无记录',
+                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
           )
         else
           ...items.take(3).map(_buildInspirationEntry),
@@ -766,9 +931,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 4),
-              child: Text('●', style: TextStyle(fontSize: 8, color: AppTheme.accent)),
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: AppTheme.accent,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -780,20 +952,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         _formatTime(item.createdAt),
-                        style: const TextStyle(fontSize: 11, color: AppTheme.textTertiary),
+                        style: const TextStyle(
+                            fontSize: 11, color: AppTheme.textTertiary),
                       ),
                       GestureDetector(
                         onTap: () => _showOptionsSheet(item, '灵感', () {
                           DataService.instance.deleteInspiration(item.id);
                         }),
-                        child: const Icon(Icons.more_horiz, size: 16, color: AppTheme.textTertiary),
+                        child: const Icon(Icons.more_horiz,
+                            size: 16, color: AppTheme.textTertiary),
                       ),
                     ],
                   ),
                   const SizedBox(height: 3),
                   Text(
                     item.content,
-                    style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
+                    style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textPrimary,
+                        height: 1.5),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -807,7 +984,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPlotsSection(List<PlotItem> items) {
-    final dayLabel = _isToday(_selectedDate) ? '今日' : '${_selectedDate.month}/${_selectedDate.day}';
+    final dayLabel = _isToday(_selectedDate)
+        ? '今日'
+        : '${_selectedDate.month}/${_selectedDate.day}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -835,31 +1014,32 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.getCategoryBgColor(item.category),
+                    color: const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     item.category,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: AppTheme.getCategoryColor(item.category),
-                    ),
+                    style: const TextStyle(
+                        fontSize: 10, color: AppTheme.textSecondary),
                   ),
                 ),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item, '剧情', () {
                     DataService.instance.deletePlot(item.id);
                   }),
-                  child: const Icon(Icons.more_horiz, size: 16, color: AppTheme.textTertiary),
+                  child: const Icon(Icons.more_horiz,
+                      size: 16, color: AppTheme.textTertiary),
                 ),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               item.displayContent,
-              style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary, height: 1.5),
+              style: const TextStyle(
+                  fontSize: 13, color: AppTheme.textPrimary, height: 1.5),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -867,7 +1047,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 6),
               Text(
                 item.tags.map((t) => '#$t').join(' '),
-                style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+                style: const TextStyle(
+                    fontSize: 10, color: AppTheme.textTertiary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -884,8 +1065,8 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -894,12 +1075,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
             decoration: BoxDecoration(
-              color: AppTheme.softBackground,
+              color: const Color(0xFFF5F5F5),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               '$count',
-              style: const TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+              style: const TextStyle(
+                  fontSize: 10, color: AppTheme.textTertiary),
             ),
           ),
         ],
@@ -908,8 +1090,8 @@ class _HomeScreenState extends State<HomeScreen> {
           GestureDetector(
             onTap: onMore,
             child: const Text(
-              '查看更多 >',
-              style: TextStyle(fontSize: 12, color: AppTheme.textTertiary),
+              '更多 >',
+              style: TextStyle(fontSize: 11, color: AppTheme.textTertiary),
             ),
           ),
       ],

@@ -140,13 +140,25 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
       appBar: AppBar(
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
-        title: const Text('数据管理'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: const Text(
+          '数据管理',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+        ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 24),
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             decoration: AppTheme.cardDecoration,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,8 +166,8 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
                 const Text(
                   '当前数据',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                   ),
                 ),
@@ -175,21 +187,21 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           _ActionCard(
             title: '复制完整备份',
             subtitle: '将当前所有内容导出成 JSON 并复制到剪贴板',
             icon: Icons.copy_all_outlined,
             onTap: _copyBackup,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           _ActionCard(
             title: '导入备份',
             subtitle: _isImporting ? '正在导入...' : '从 JSON 备份恢复数据',
             icon: Icons.upload_file_outlined,
             onTap: _isImporting ? null : _showImportDialog,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           _ActionCard(
             title: '清空所有数据',
             subtitle: '谨慎使用，会重置当前所有内容',
@@ -218,8 +230,8 @@ class _StatChip extends StatelessWidget {
       width: 96,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.softBackground,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,8 +239,8 @@ class _StatChip extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
               color: AppTheme.textPrimary,
             ),
           ),
@@ -266,22 +278,23 @@ class _ActionCard extends StatelessWidget {
     final color = destructive ? AppTheme.danger : AppTheme.textPrimary;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       child: Ink(
         decoration: AppTheme.smallCardDecoration,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           child: Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: (destructive ? AppTheme.danger : AppTheme.accent)
-                      .withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon,
+                    color: destructive ? AppTheme.danger : AppTheme.textSecondary,
+                    size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -291,12 +304,12 @@ class _ActionCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: color,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Text(
                       subtitle,
                       style: const TextStyle(
@@ -310,6 +323,7 @@ class _ActionCard extends StatelessWidget {
               const Icon(
                 Icons.chevron_right_rounded,
                 color: AppTheme.textTertiary,
+                size: 20,
               ),
             ],
           ),

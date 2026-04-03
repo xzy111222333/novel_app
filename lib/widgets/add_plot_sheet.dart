@@ -557,7 +557,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                           style: const TextStyle(
                                               fontSize: 12,
                                               color: AppTheme
-                                                  .textPrimary)),
+                                                  .textSecondary)),
                                       const SizedBox(width: 6),
                                       GestureDetector(
                                         onTap: () =>
