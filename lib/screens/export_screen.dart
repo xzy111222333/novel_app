@@ -52,7 +52,7 @@ class _ExportScreenState extends State<ExportScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -75,8 +75,8 @@ class _ExportScreenState extends State<ExportScreen> {
                   width: 48,
                   height: 48,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
                   ),
                   child: const Icon(Icons.file_download_outlined,
                       color: AppTheme.textSecondary, size: 24),
@@ -109,9 +109,9 @@ class _ExportScreenState extends State<ExportScreen> {
                             fontSize: 13,
                             fontWeight: FontWeight.w600)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.textPrimary,
+                      backgroundColor: AppTheme.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       elevation: 0,
                     ),
@@ -161,6 +161,23 @@ class _ExportScreenState extends State<ExportScreen> {
   }
 
   Widget _buildStatRow(IconData icon, String label, String value) {
+    Color iconColor;
+    switch (label) {
+      case '素材':
+        iconColor = AppTheme.materialColor;
+        break;
+      case '词汇':
+        iconColor = AppTheme.vocabularyColor;
+        break;
+      case '灵感':
+        iconColor = AppTheme.inspirationColor;
+        break;
+      case '剧情':
+        iconColor = AppTheme.plotColor;
+        break;
+      default:
+        iconColor = AppTheme.textSecondary;
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -169,10 +186,10 @@ class _ExportScreenState extends State<ExportScreen> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
+              color: AppTheme.muted,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppTheme.textSecondary, size: 14),
+            child: Icon(icon, color: iconColor, size: 14),
           ),
           const SizedBox(width: 10),
           Text(label,

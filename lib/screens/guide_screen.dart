@@ -13,7 +13,7 @@ class GuideScreen extends StatelessWidget {
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,

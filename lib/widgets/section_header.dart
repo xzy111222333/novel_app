@@ -24,29 +24,22 @@ class SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
+                style: AppTheme.headingMD.copyWith(fontSize: 16),
               ),
               if (count != null) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Container(
-                  width: 18,
-                  height: 18,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppTheme.textPrimary,
-                    borderRadius: BorderRadius.circular(9),
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
-                  child: Center(
-                    child: Text(
-                      '$count',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -57,11 +50,11 @@ class SectionHeader extends StatelessWidget {
             GestureDetector(
               onTap: onMore,
               child: Text(
-                '查看更多 >',
+                '查看更多 →',
                 style: TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.textTertiary,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

@@ -80,10 +80,26 @@ class ShareCardUtil {
 
     final cardRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(outerPadding, cardTop, cardWidth, 1200),
-      const Radius.circular(42),
+      const Radius.circular(16),
     );
-    canvas.drawShadow(Path()..addRRect(cardRect), Colors.black26, 18, false);
+    // Flat Design: no shadow, solid color block
     canvas.drawRRect(cardRect, Paint()..color = Colors.white);
+
+    // Decorative geometric shape — large circle, low opacity
+    canvas.drawCircle(
+      Offset(width - 100, cardTop + 60),
+      120,
+      Paint()..color = accentColor.withValues(alpha: 0.06),
+    );
+    // Decorative rotated square
+    canvas.save();
+    canvas.translate(outerPadding + 40, cardTop + 1050);
+    canvas.rotate(0.5);
+    canvas.drawRect(
+      const Rect.fromLTWH(0, 0, 80, 80),
+      Paint()..color = accentColor.withValues(alpha: 0.04),
+    );
+    canvas.restore();
 
     double y = cardTop + cardPadding;
     final double left = outerPadding + cardPadding;

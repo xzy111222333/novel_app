@@ -29,7 +29,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const _weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-  static const Color _darkBg = Color(0xFF1F2937);
+  static const Color _darkBg = Color(0xFF3B82F6); // Primary blue
 
   late DateTime _selectedDate;
   late PageController _weekPageController;
@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
@@ -364,11 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   dateLabel,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: AppTheme.headingLG,
                 ),
                 const SizedBox(width: 2),
                 Icon(
@@ -389,12 +385,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentSoft,
-                  borderRadius: BorderRadius.circular(8),
+                  color: AppTheme.primaryLight,
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
                   '回今天',
-                  style: TextStyle(fontSize: 10, color: AppTheme.accent),
+                  style: TextStyle(fontSize: 10, color: AppTheme.primary),
                 ),
               ),
             ),
@@ -410,14 +406,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () => _showQuickAddMenu(context),
       child: Container(
-        width: 36,
-        height: 36,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+          color: AppTheme.primary,
+          borderRadius: BorderRadius.circular(6),
         ),
-        child: const Icon(Icons.add, size: 18, color: Color(0xFF666666)),
+        child: const Icon(Icons.add, size: 20, color: Colors.white),
       ),
     );
   }
@@ -427,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
@@ -514,9 +509,9 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 54,
           decoration: BoxDecoration(
             color: isSelected ? _darkBg : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
             border: today && !isSelected
-                ? Border.all(color: const Color(0xFFE0E0E0), width: 1.5)
+                ? Border.all(color: AppTheme.divider, width: 2)
                 : null,
           ),
           child: Column(
@@ -550,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: 4,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white54 : AppTheme.textTertiary,
+                    color: isSelected ? Colors.white70 : AppTheme.primary,
                     shape: BoxShape.circle,
                   ),
                 )
@@ -566,40 +561,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuickActionPills(BuildContext context) {
     final actions = [
-      ('素材', () => showAddMaterialSheet(context)),
-      ('词汇', () => showAddVocabularySheet(context)),
-      ('灵感', () => showAddInspirationSheet(context)),
-      ('剧情', () => showAddPlotSheet(context)),
+      ('素材', AppTheme.materialBg, AppTheme.materialColor, () => showAddMaterialSheet(context)),
+      ('词汇', AppTheme.vocabularyBg, AppTheme.vocabularyColor, () => showAddVocabularySheet(context)),
+      ('灵感', AppTheme.inspirationBg, AppTheme.inspirationColor, () => showAddInspirationSheet(context)),
+      ('剧情', AppTheme.plotBg, AppTheme.plotColor, () => showAddPlotSheet(context)),
     ];
 
     return SizedBox(
-      height: 30,
+      height: 34,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: actions.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
-          final (label, onTap) = actions[i];
+          final (label, bg, fg, onTap) = actions[i];
           return GestureDetector(
             onTap: onTap,
             child: Container(
-              height: 26,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              height: 34,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: AppTheme.divider, width: 0.8),
+                color: bg,
+                borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.add, size: 12, color: AppTheme.textTertiary),
-                  const SizedBox(width: 2),
+                  Icon(Icons.add, size: 14, color: fg),
+                  const SizedBox(width: 4),
                   Text(
                     label,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppTheme.textSecondary),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: fg,
+                    ),
                   ),
                 ],
               ),
@@ -676,8 +673,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.muted,
+                borderRadius: BorderRadius.circular(6),
               ),
               child: const Text(
                 '随机回顾',
@@ -733,9 +730,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.divider, width: 0.8),
+          color: AppTheme.vocabularyBg,
+          borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
           v.content,
@@ -788,8 +784,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     item.category,
@@ -952,8 +948,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     item.category,
@@ -1000,23 +996,23 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
             color: AppTheme.textPrimary,
           ),
         ),
         if (count > 0) ...[
           const SizedBox(width: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.primary,
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               '$count',
               style: const TextStyle(
-                  fontSize: 10, color: AppTheme.textTertiary),
+                  fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white),
             ),
           ),
         ],
@@ -1026,11 +1022,10 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+              color: AppTheme.muted,
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: const Icon(Icons.more_vert, size: 16, color: Color(0xFF666666)),
+            child: const Icon(Icons.more_vert, size: 16, color: AppTheme.textSecondary),
           ),
           const SizedBox(width: 8),
           GestureDetector(
@@ -1039,11 +1034,10 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                color: AppTheme.primary,
+                borderRadius: BorderRadius.circular(6),
               ),
-              child: const Icon(Icons.add, size: 16, color: Color(0xFF666666)),
+              child: const Icon(Icons.add, size: 16, color: Colors.white),
             ),
           ),
         ],

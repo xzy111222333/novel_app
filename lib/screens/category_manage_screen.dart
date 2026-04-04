@@ -146,7 +146,7 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -159,7 +159,7 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
       ),
       floatingActionButton: FloatingActionButton.small(
         onPressed: _showAddDialog,
-        backgroundColor: AppTheme.textPrimary,
+        backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.white, size: 20),
       ),
       body: categories.isEmpty
@@ -195,7 +195,7 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
+                        color: AppTheme.muted,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.folder_outlined,

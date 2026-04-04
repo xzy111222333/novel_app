@@ -141,7 +141,7 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -230,8 +230,8 @@ class _StatChip extends StatelessWidget {
       width: 96,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.muted,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +278,7 @@ class _ActionCard extends StatelessWidget {
     final color = destructive ? AppTheme.danger : AppTheme.textPrimary;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(8),
       child: Ink(
         decoration: AppTheme.smallCardDecoration,
         child: Padding(
@@ -289,8 +289,8 @@ class _ActionCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.muted,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon,
                     color: destructive ? AppTheme.danger : AppTheme.textSecondary,

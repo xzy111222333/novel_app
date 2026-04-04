@@ -131,23 +131,20 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       if (!_showSearch) _searchQuery = '';
                     }),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
                         color: _showSearch
-                            ? AppTheme.textPrimary
-                            : Colors.white,
-                        shape: BoxShape.circle,
-                        border: _showSearch
-                            ? null
-                            : Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                            ? AppTheme.primary
+                            : AppTheme.muted,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                           _showSearch ? Icons.close : Icons.search,
-                          size: 18,
+                          size: 20,
                           color: _showSearch
                               ? Colors.white
-                              : const Color(0xFF666666)),
+                              : AppTheme.textSecondary),
                     ),
                   ),
                   const Expanded(
@@ -155,8 +152,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       child: Text(
                         '剧情',
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -165,15 +162,14 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   GestureDetector(
                     onTap: () => showAddPlotSheet(context),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.add,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 20, color: Colors.white),
                     ),
                   ),
                 ],
@@ -188,8 +184,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDDDDDD)),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: TextField(
                     autofocus: true,
@@ -251,7 +247,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                             width: 72,
                             height: 72,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
+                              color: AppTheme.muted,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Icon(Icons.auto_stories_outlined,
@@ -296,7 +292,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
@@ -352,11 +348,11 @@ class _PlotsScreenState extends State<PlotsScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline,
-                  size: 22, color: Colors.redAccent),
-              title: const Text('删除剧情',
+              leading: Icon(Icons.delete_outline,
+                  size: 22, color: AppTheme.danger),
+              title: Text('删除剧情',
                   style: TextStyle(
-                      fontSize: 14, color: Colors.redAccent)),
+                      fontSize: 14, color: AppTheme.danger)),
               onTap: () {
                 Navigator.pop(ctx);
                 DataService.instance.deletePlot(item.id);
@@ -379,14 +375,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,8 +395,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -439,7 +428,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                         : Icons.star_border_rounded,
                     size: 16,
                     color: item.isFavorite
-                        ? const Color(0xFFF59E0B)
+                        ? AppTheme.accent
                         : AppTheme.textTertiary,
                   ),
                 ),
@@ -477,16 +466,16 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   width: 18,
                   height: 18,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
+                    color: AppTheme.plotBg,
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: Center(
                     child: Text(
                       '${e.key + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.plotColor,
                       ),
                     ),
                   ),

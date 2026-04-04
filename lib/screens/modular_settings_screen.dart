@@ -36,7 +36,7 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -103,8 +103,8 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(10),
+              color: AppTheme.muted,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Row(
               children: [
@@ -139,7 +139,7 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+            color: AppTheme.muted,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppTheme.textSecondary, size: 16),
@@ -177,7 +177,7 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+            color: AppTheme.muted,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppTheme.textSecondary, size: 16),
@@ -198,8 +198,8 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           child: Switch(
             value: enabled,
             onChanged: (_) => _ds.toggleOptionalTab(tabKey),
-            activeTrackColor: AppTheme.accent.withValues(alpha: 0.4),
-            activeThumbColor: AppTheme.accent,
+            activeTrackColor: AppTheme.primary.withValues(alpha: 0.3),
+            activeThumbColor: AppTheme.primary,
           ),
         ),
       ),

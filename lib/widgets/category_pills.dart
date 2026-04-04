@@ -18,7 +18,7 @@ class CategoryPills extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 28,
+      height: 32,
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -26,25 +26,22 @@ class CategoryPills extends StatelessWidget {
           ...categories.map((cat) {
             final isSelected = cat == selected;
             return Padding(
-              padding: const EdgeInsets.only(right: 6),
+              padding: const EdgeInsets.only(right: 8),
               child: GestureDetector(
                 onTap: () => onSelect(cat),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? const Color(0xFF1A1A1A)
-                        : const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(14),
+                    color: isSelected ? AppTheme.primary : AppTheme.muted,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                   child: Text(
                     cat,
                     style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: isSelected
-                          ? Colors.white
-                          : AppTheme.textSecondary,
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -55,12 +52,12 @@ class CategoryPills extends StatelessWidget {
             GestureDetector(
               onTap: onAdd,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(14),
+                  color: AppTheme.muted,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
-                child: const Icon(Icons.add, size: 14, color: AppTheme.textTertiary),
+                child: const Icon(Icons.add, size: 16, color: AppTheme.textSecondary),
               ),
             ),
         ],

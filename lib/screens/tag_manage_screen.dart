@@ -173,7 +173,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -225,9 +225,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
                                     padding: const EdgeInsets.symmetric(horizontal: 10),
                                     decoration: BoxDecoration(
                                       color: isSelected
-                                          ? AppTheme.textPrimary
+                                          ? AppTheme.primary
                                           : Colors.white,
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(6),
                                       border: isSelected ? null : Border.all(color: AppTheme.divider),
                                     ),
                                     alignment: Alignment.center,
@@ -267,9 +267,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? AppTheme.textPrimary
+                                        ? AppTheme.primary
                                         : Colors.white,
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(6),
                                     border: isSelected ? null : Border.all(color: AppTheme.divider),
                                   ),
                                   alignment: Alignment.center,
@@ -342,7 +342,7 @@ class _TagManageScreenState extends State<TagManageScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF5F5F5),
+                                color: AppTheme.muted,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(typeLabel,

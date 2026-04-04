@@ -124,15 +124,14 @@ class _InspirationScreenState extends State<InspirationScreen> {
                   GestureDetector(
                     onTap: () => _showGlobalMenu(context),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                        color: AppTheme.muted,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.more_vert,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 20, color: AppTheme.textSecondary),
                     ),
                   ),
                   const Expanded(
@@ -140,8 +139,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                       child: Text(
                         '灵感',
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -150,15 +149,14 @@ class _InspirationScreenState extends State<InspirationScreen> {
                   GestureDetector(
                     onTap: () => showAddInspirationSheet(context),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.add,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 20, color: Colors.white),
                     ),
                   ),
                 ],
@@ -173,13 +171,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _showSearch
-                          ? AppTheme.textSecondary
-                          : const Color(0xFFDDDDDD),
-                      style: BorderStyle.solid,
-                    ),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: _showSearch
                       ? TextField(
@@ -229,7 +222,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                             width: 72,
                             height: 72,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
+                              color: AppTheme.muted,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Icon(Icons.lightbulb_outline_rounded,
@@ -306,14 +299,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -325,9 +311,9 @@ class _InspirationScreenState extends State<InspirationScreen> {
                 Container(
                   width: 20,
                   height: 20,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFBBF24),
-                    shape: BoxShape.circle,
+                  decoration: BoxDecoration(
+                    color: AppTheme.accent,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -406,7 +392,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                         : Icons.bookmark_border_rounded,
                     size: 14,
                     color: item.isFavorite
-                        ? const Color(0xFFFBBF24)
+                        ? AppTheme.accent
                         : AppTheme.textTertiary,
                   ),
                 ),
@@ -416,8 +402,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(4),
+                      color: AppTheme.muted,
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text('随机回顾',
                         style: TextStyle(
@@ -463,7 +449,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
@@ -502,7 +488,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
@@ -557,11 +543,11 @@ class _InspirationScreenState extends State<InspirationScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline,
-                  size: 22, color: Colors.redAccent),
-              title: const Text('删除灵感',
+              leading: Icon(Icons.delete_outline,
+                  size: 22, color: AppTheme.danger),
+              title: Text('删除灵感',
                   style: TextStyle(
-                      fontSize: 14, color: Colors.redAccent)),
+                      fontSize: 14, color: AppTheme.danger)),
               onTap: () {
                 Navigator.pop(ctx);
                 DataService.instance.deleteInspiration(item.id);

@@ -49,7 +49,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -72,7 +72,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
+                color: AppTheme.primary,
               ),
             ),
           ),
@@ -111,7 +111,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                     ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                 ),
@@ -156,10 +156,10 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: preset.background,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
                                   color: selected
-                                      ? AppTheme.textPrimary
+                                      ? AppTheme.primary
                                       : AppTheme.divider,
                                   width: selected ? 2 : 1,
                                 ),
@@ -174,7 +174,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                                       height: 12,
                                       decoration: BoxDecoration(
                                         color: preset.surface,
-                                        borderRadius: BorderRadius.circular(999),
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),
                                   ),
@@ -186,7 +186,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                                       height: 34,
                                       decoration: BoxDecoration(
                                         color: preset.surface,
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.circular(6),
                                         border: Border.all(color: AppTheme.divider),
                                       ),
                                     ),
@@ -199,8 +199,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                                         width: 18,
                                         height: 18,
                                         decoration: const BoxDecoration(
-                                          color: AppTheme.textPrimary,
-                                          shape: BoxShape.circle,
+                                          color: AppTheme.primary,
                                         ),
                                         child: const Icon(
                                           Icons.check,

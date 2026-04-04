@@ -138,7 +138,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) => SafeArea(
         child: Column(
@@ -223,23 +223,20 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                       if (!_showSearch) _searchQuery = '';
                     }),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
                         color: _showSearch
-                            ? AppTheme.textPrimary
-                            : Colors.white,
-                        shape: BoxShape.circle,
-                        border: _showSearch
-                            ? null
-                            : Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                            ? AppTheme.primary
+                            : AppTheme.muted,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                           _showSearch ? Icons.close : Icons.search,
-                          size: 18,
+                          size: 20,
                           color: _showSearch
                               ? Colors.white
-                              : const Color(0xFF666666)),
+                              : AppTheme.textSecondary),
                     ),
                   ),
                   const Expanded(
@@ -247,8 +244,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                       child: Text(
                         '词汇',
                         style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
                         ),
                       ),
@@ -258,15 +255,14 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                   GestureDetector(
                     onTap: () => showAddVocabularySheet(context),
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.add,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 20, color: Colors.white),
                     ),
                   ),
                 ],
@@ -280,8 +276,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                 child: Container(
                   height: 40,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDDDDDD)),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: TextField(
                     autofocus: true,
@@ -387,7 +383,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: AppTheme.muted,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(Icons.text_fields_rounded,
@@ -416,14 +412,7 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
@@ -448,8 +437,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(4),
+                          color: AppTheme.muted,
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         alignment: Alignment.center,
                         child: Text(item.category,
@@ -493,8 +482,8 @@ class _VocabularyScreenState extends State<VocabularyScreen> {
                         : Icons.star_border_rounded,
                     size: 16,
                     color: item.isFavorite
-                        ? const Color(0xFFF59E0B)
-                        : AppTheme.textTertiary.withValues(alpha: 0.4),
+                        ? AppTheme.accent
+                        : AppTheme.textTertiary,
                   ),
                 ),
                 const SizedBox(height: 8),

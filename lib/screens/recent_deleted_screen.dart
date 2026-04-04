@@ -48,6 +48,36 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     }
   }
 
+  Color _typeBadgeColor(String type) {
+    switch (type) {
+      case 'material':
+        return AppTheme.materialBg;
+      case 'vocabulary':
+        return AppTheme.vocabularyBg;
+      case 'inspiration':
+        return AppTheme.inspirationBg;
+      case 'plot':
+        return AppTheme.plotBg;
+      default:
+        return AppTheme.muted;
+    }
+  }
+
+  Color _typeTextColor(String type) {
+    switch (type) {
+      case 'material':
+        return AppTheme.materialColor;
+      case 'vocabulary':
+        return AppTheme.vocabularyColor;
+      case 'inspiration':
+        return AppTheme.inspirationColor;
+      case 'plot':
+        return AppTheme.plotColor;
+      default:
+        return AppTheme.textSecondary;
+    }
+  }
+
   String _preview(DeletedRecord record) {
     switch (record.type) {
       case 'material':
@@ -105,7 +135,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -181,13 +211,13 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(999),
+                                color: _typeBadgeColor(item.type),
+                                borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 _typeLabel(item.type),
-                                style: const TextStyle(
-                                  color: AppTheme.textSecondary,
+                                style: TextStyle(
+                                  color: _typeTextColor(item.type),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -224,7 +254,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                   foregroundColor: AppTheme.danger,
                                   side: const BorderSide(color: AppTheme.divider),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
                                 child: const Text('彻底删除',
@@ -236,9 +266,9 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                               child: FilledButton(
                                 onPressed: () => _data.restoreDeleted(item.id),
                                 style: FilledButton.styleFrom(
-                                  backgroundColor: AppTheme.textPrimary,
+                                  backgroundColor: AppTheme.primary,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
                                 child: const Text('恢复',

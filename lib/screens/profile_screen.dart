@@ -64,13 +64,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildHeader() {
     return Row(
       children: [
-        const SizedBox(width: 36, height: 36),
+        const SizedBox(width: 38, height: 38),
         const Spacer(),
         const Text(
           '我的',
           style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
             color: AppTheme.textPrimary,
           ),
         ),
@@ -78,10 +78,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         GestureDetector(
           onTap: () => _push(const PersonalizationScreen()),
           child: Container(
-            width: 36,
-            height: 36,
-            decoration: AppTheme.outlinedCircleDecoration(),
-            child: const Icon(Icons.settings_outlined, size: 18, color: Color(0xFF666666)),
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppTheme.muted,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.settings_outlined, size: 20, color: AppTheme.textSecondary),
           ),
         ),
       ],
@@ -94,28 +97,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppTheme.divider, width: 2),
       ),
       child: Column(
         children: [
           Row(
             children: [
               const CircleAvatar(
-                radius: 24,
-                backgroundColor: Color(0xFFFCEFC7),
+                radius: 28,
+                backgroundColor: AppTheme.primary,
                 child: Text(
                   '灵',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFD4A017),
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -148,20 +145,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF8E1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.accentSoft,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.star_rounded, size: 14, color: Color(0xFFFF8F00)),
+                      Icon(Icons.star_rounded, size: 14, color: AppTheme.accent),
                       SizedBox(width: 4),
                       Text(
                         '收藏夹',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFFFF8F00),
+                          color: AppTheme.accent,
                         ),
                       ),
                     ],
@@ -176,13 +173,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IntrinsicHeight(
             child: Row(
               children: [
-                _buildStatColumn('素材数', '${_data.materials.length}'),
+                _buildStatColumn('素材数', '${_data.materials.length}', color: AppTheme.materialColor),
                 _buildVerticalDivider(),
-                _buildStatColumn('词汇数', '${_data.vocabulary.length}'),
+                _buildStatColumn('词汇数', '${_data.vocabulary.length}', color: AppTheme.vocabularyColor),
                 _buildVerticalDivider(),
-                _buildStatColumn('灵感数', '${_data.inspirations.length}'),
+                _buildStatColumn('灵感数', '${_data.inspirations.length}', color: AppTheme.inspirationColor),
                 _buildVerticalDivider(),
-                _buildStatColumn('剧情数', '${_data.plots.length}'),
+                _buildStatColumn('剧情数', '${_data.plots.length}', color: AppTheme.plotColor),
               ],
             ),
           ),
@@ -197,18 +194,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.storage_outlined, size: 12, color: AppTheme.textTertiary),
+                      Icon(Icons.storage_outlined, size: 12, color: AppTheme.primary),
                       SizedBox(width: 4),
                       Text(
                         '数据管理',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       SizedBox(width: 2),
-                      Icon(Icons.chevron_right, size: 12, color: AppTheme.textTertiary),
+                      Icon(Icons.chevron_right, size: 12, color: AppTheme.primary),
                     ],
                   ),
                 ),
@@ -220,13 +217,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.menu_book_outlined, size: 12, color: AppTheme.textTertiary),
+                      Icon(Icons.menu_book_outlined, size: 12, color: AppTheme.primary),
                       SizedBox(width: 4),
                       Text(
                         '使用指南',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -241,16 +238,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatColumn(String label, String value) {
+  Widget _buildStatColumn(String label, String value, {Color color = AppTheme.textPrimary}) {
     return Expanded(
       child: Column(
         children: [
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: color,
             ),
           ),
           const SizedBox(height: 2),
@@ -292,14 +289,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppTheme.divider, width: 2),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -320,12 +311,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildFunctionItem(_FunctionItem item) {
+    Color iconColor;
+    Color bgColor;
+    switch (item.label) {
+      case '统计':
+        iconColor = AppTheme.primary;
+        bgColor = AppTheme.primaryLight;
+        break;
+      case '分类管理':
+        iconColor = AppTheme.materialColor;
+        bgColor = AppTheme.materialBg;
+        break;
+      case '标签管理':
+        iconColor = AppTheme.vocabularyColor;
+        bgColor = AppTheme.vocabularyBg;
+        break;
+      case '收藏夹':
+        iconColor = AppTheme.accent;
+        bgColor = AppTheme.accentSoft;
+        break;
+      case '全局搜索':
+        iconColor = AppTheme.textSecondary;
+        bgColor = AppTheme.muted;
+        break;
+      case '个性化':
+        iconColor = AppTheme.plotColor;
+        bgColor = AppTheme.plotBg;
+        break;
+      case '模块设置':
+        iconColor = AppTheme.secondary;
+        bgColor = AppTheme.secondaryLight;
+        break;
+      case '数据导出':
+        iconColor = AppTheme.primary;
+        bgColor = AppTheme.primaryLight;
+        break;
+      case '最近删除':
+        iconColor = AppTheme.danger;
+        bgColor = AppTheme.dangerLight;
+        break;
+      default:
+        iconColor = AppTheme.textSecondary;
+        bgColor = AppTheme.muted;
+    }
     return GestureDetector(
       onTap: () => _handleFunctionTap(item.label),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(item.icon, size: 24, color: AppTheme.textSecondary),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(item.icon, size: 22, color: iconColor),
+          ),
           const SizedBox(height: 8),
           Text(
             item.label,
@@ -380,7 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       builder: (ctx) {
         final options = [

@@ -113,7 +113,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -156,7 +156,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           style: const TextStyle(
                             color: AppTheme.textSecondary,
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                           )),
                     );
                   }
@@ -185,8 +185,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(10),
+            color: AppTheme.muted,
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(_typeIcon(item), color: AppTheme.textSecondary, size: 18),
         ),
@@ -206,7 +206,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  color: AppTheme.muted,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(_typeLabel(item),
@@ -219,7 +219,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.favorite, color: Colors.redAccent, size: 20),
+          icon: const Icon(Icons.favorite, color: AppTheme.danger, size: 20),
           onPressed: () => _toggleFavorite(item),
         ),
       ),

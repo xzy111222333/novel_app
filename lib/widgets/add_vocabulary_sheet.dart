@@ -150,11 +150,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
         ),
         title: Text(
           widget.item != null ? '编辑词汇' : '新建词汇',
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingMD,
         ),
         centerTitle: true,
         actions: [
@@ -162,7 +158,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
             onPressed: _submit,
             child: const Text('完成',
                 style: TextStyle(
-                    color: AppTheme.textPrimary,
+                    color: AppTheme.primary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600)),
           ),
@@ -181,8 +177,8 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(16),
+                        color: AppTheme.muted,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                       child: TextField(
                         controller: _contentController,
@@ -232,9 +228,9 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFF1A1A1A)
-                                      : const Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.circular(16),
+                                      ? AppTheme.primary
+                                      : AppTheme.muted,
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                 ),
                                 child: Text(
                                   cat,
@@ -243,7 +239,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                     fontWeight: FontWeight.w500,
                                     color: isSelected
                                         ? Colors.white
-                                        : AppTheme.textSecondary,
+                                        : AppTheme.textPrimary,
                                   ),
                                 ),
                               ),
@@ -256,8 +252,8 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(16),
+                              color: AppTheme.muted,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                             ),
                             child: const Icon(Icons.add,
                                 size: 16, color: AppTheme.textTertiary),
@@ -291,8 +287,8 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.circular(14),
+                                  color: AppTheme.muted,
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -319,8 +315,8 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(16),
+                        color: AppTheme.muted,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
                       child: TextField(
                         controller: _tagController,
@@ -351,22 +347,22 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+              border: Border(top: BorderSide(color: AppTheme.divider, width: 2)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F6F8),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.muted,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 13, color: Color(0xFF999999)),
+                      const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
                       const SizedBox(width: 4),
-                      Text(dateString, style: const TextStyle(color: Color(0xFF999999), fontSize: 11)),
+                      Text(dateString, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
                     ],
                   ),
                 ),
@@ -383,7 +379,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                         : Icons.star_border_rounded,
                     size: 22,
                     color: _isFavorite
-                        ? const Color(0xFFF59E0B)
+                        ? AppTheme.accent
                         : AppTheme.textTertiary,
                   ),
                 ),
@@ -397,11 +393,11 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFEBEB),
-                        shape: BoxShape.circle,
+                      decoration: BoxDecoration(
+                        color: AppTheme.dangerLight,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
-                      child: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B6B)),
+                      child: const Icon(Icons.delete_outline, size: 18, color: AppTheme.danger),
                     ),
                   ),
                 ],

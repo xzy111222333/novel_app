@@ -212,11 +212,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
         ),
         title: Text(
           widget.item != null ? '编辑情节' : '新建情节',
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingMD,
         ),
         centerTitle: true,
         actions: [
@@ -224,7 +220,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
             onPressed: _submit,
             child: const Text('完成',
                 style: TextStyle(
-                    color: AppTheme.textPrimary,
+                    color: AppTheme.primary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600)),
           ),
@@ -245,8 +241,8 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                           const EdgeInsets.symmetric(horizontal: 16),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(10),
+                          color: AppTheme.muted,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                         ),
                         padding: const EdgeInsets.all(3),
                         child: Row(
@@ -260,10 +256,10 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                       vertical: 8),
                                   decoration: BoxDecoration(
                                     color: _type == 'steps'
-                                        ? const Color(0xFF1A1A1A)
+                                        ? AppTheme.primary
                                         : Colors.transparent,
                                     borderRadius:
-                                        BorderRadius.circular(8),
+                                        BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -288,10 +284,10 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                       vertical: 8),
                                   decoration: BoxDecoration(
                                     color: _type == 'free'
-                                        ? const Color(0xFF1A1A1A)
+                                        ? AppTheme.primary
                                         : Colors.transparent,
                                     borderRadius:
-                                        BorderRadius.circular(8),
+                                        BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -325,7 +321,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                 width: 24,
                                 height: 24,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
+                                  color: AppTheme.primaryLight,
                                   borderRadius:
                                       BorderRadius.circular(12),
                                 ),
@@ -335,7 +331,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: AppTheme.textSecondary,
+                                    color: AppTheme.primary,
                                   ),
                                 ),
                               ),
@@ -343,9 +339,9 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                               Expanded(
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF9FAFB),
+                                    color: AppTheme.muted,
                                     borderRadius:
-                                        BorderRadius.circular(10),
+                                        BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   child: TextField(
                                     controller:
@@ -394,9 +390,9 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF5F5F5),
+                              color: AppTheme.muted,
                               borderRadius:
-                                  BorderRadius.circular(10),
+                                  BorderRadius.circular(AppTheme.radiusMd),
                             ),
                             alignment: Alignment.center,
                             child: Row(
@@ -426,9 +422,9 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                             horizontal: 16),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF9FAFB),
+                            color: AppTheme.muted,
                             borderRadius:
-                                BorderRadius.circular(16),
+                                BorderRadius.circular(AppTheme.radiusMd),
                           ),
                           child: TextField(
                             controller: _freeContentController,
@@ -482,10 +478,10 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                           vertical: 6),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFF1A1A1A)
-                                        : const Color(0xFFF5F5F5),
+                                        ? AppTheme.primary
+                                        : AppTheme.muted,
                                     borderRadius:
-                                        BorderRadius.circular(16),
+                                        BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   child: Text(
                                     cat,
@@ -494,7 +490,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                       fontWeight: FontWeight.w500,
                                       color: isSelected
                                           ? Colors.white
-                                          : AppTheme.textSecondary,
+                                          : AppTheme.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -507,9 +503,9 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
+                                color: AppTheme.muted,
                                 borderRadius:
-                                    BorderRadius.circular(16),
+                                    BorderRadius.circular(AppTheme.radiusMd),
                               ),
                               child: const Icon(Icons.add,
                                   size: 16,
@@ -545,9 +541,9 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                                           horizontal: 10),
                                   decoration: BoxDecoration(
                                     color:
-                                        const Color(0xFFF5F5F5),
+                                        AppTheme.muted,
                                     borderRadius:
-                                        BorderRadius.circular(14),
+                                        BorderRadius.circular(AppTheme.radiusMd),
                                   ),
                                   child: Row(
                                     mainAxisSize:
@@ -581,9 +577,9 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                           horizontal: 16),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
+                          color: AppTheme.muted,
                           borderRadius:
-                              BorderRadius.circular(10),
+                              BorderRadius.circular(AppTheme.radiusMd),
                         ),
                         child: TextField(
                           controller: _tagController,
@@ -616,8 +612,8 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                 color: Colors.white,
                 border: Border(
                   top: BorderSide(
-                    color: const Color(0xFFF3F4F6),
-                    width: 0.5,
+                    color: AppTheme.divider,
+                    width: 2,
                   ),
                 ),
               ),
@@ -626,15 +622,15 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F6F8),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppTheme.muted,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.calendar_today_outlined, size: 13, color: Color(0xFF999999)),
+                        const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
                         const SizedBox(width: 4),
-                        Text(_formatDate(createdAt), style: const TextStyle(color: Color(0xFF999999), fontSize: 11)),
+                        Text(_formatDate(createdAt), style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -653,7 +649,7 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                             : Icons.star_border_rounded,
                         size: 22,
                         color: widget.item!.isFavorite
-                            ? const Color(0xFFF59E0B)
+                            ? AppTheme.accent
                             : AppTheme.textTertiary,
                       ),
                     ),
@@ -667,11 +663,11 @@ class _AddPlotPageState extends State<_AddPlotPage> {
                       child: Container(
                         width: 36,
                         height: 36,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFFEBEB),
-                          shape: BoxShape.circle,
+                        decoration: BoxDecoration(
+                          color: AppTheme.dangerLight,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                         ),
-                        child: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B6B)),
+                        child: const Icon(Icons.delete_outline, size: 18, color: AppTheme.danger),
                       ),
                     ),
                   ],

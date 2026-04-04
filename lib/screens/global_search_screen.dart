@@ -109,7 +109,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         backgroundColor: AppTheme.scaffoldBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary, size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
@@ -182,7 +182,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
+                                  color: AppTheme.muted,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
@@ -222,7 +222,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         leading: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+            color: AppTheme.muted,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(_typeLabel(type),
@@ -242,7 +242,7 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  color: AppTheme.muted,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(category,
