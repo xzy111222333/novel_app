@@ -23,15 +23,18 @@ class AppBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: const BoxDecoration(
+        color: AppTheme.cardBackground,
+        borderRadius: AppTheme.wobblyMd,
+        border: Border.fromBorderSide(
+          BorderSide(color: AppTheme.border, width: 2.5),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, -2),
+            color: Color(0xFF2D2D2D),
+            offset: Offset(4, 4),
+            blurRadius: 0,
           ),
         ],
       ),
@@ -47,12 +50,16 @@ class AppBottomNav extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 150),
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: isActive ? AppTheme.textPrimary : Colors.transparent,
-                      borderRadius: BorderRadius.circular(18),
+                      color: isActive
+                          ? AppTheme.textPrimary
+                          : Colors.transparent,
+                      borderRadius: isActive
+                          ? AppTheme.wobblySmall
+                          : BorderRadius.circular(18),
                     ),
                     child: Icon(
                       item.icon,
@@ -64,9 +71,11 @@ class AppBottomNav extends StatelessWidget {
                   Text(
                     item.label,
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 10,
                       fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      color: isActive ? AppTheme.textPrimary : AppTheme.textTertiary,
+                      color: isActive
+                          ? AppTheme.textPrimary
+                          : AppTheme.textTertiary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -79,18 +79,32 @@ class _PlotsScreenState extends State<PlotsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('新增剧情分类'),
+        title: Text('新增剧情分类',
+            style: AppTheme.headingStyleWith(fontSize: 18)),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: '输入分类名称'),
+          decoration: InputDecoration(
+            hintText: '输入分类名称',
+            hintStyle: TextStyle(color: AppTheme.textPrimary.withAlpha(100)),
+            border: OutlineInputBorder(
+              borderRadius: AppTheme.wobblySmall,
+              borderSide: const BorderSide(color: AppTheme.border, width: 2),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: AppTheme.wobblySmall,
+              borderSide: const BorderSide(color: AppTheme.border, width: 2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: AppTheme.wobblySmall,
+              borderSide: const BorderSide(color: AppTheme.secondary, width: 2),
+            ),
+          ),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('取消')),
+              child: const Text('取消', style: TextStyle(color: AppTheme.textSecondary))),
           TextButton(
             onPressed: () {
               final name = controller.text.trim();
@@ -99,7 +113,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
               }
               Navigator.pop(ctx);
             },
-            child: const Text('确定'),
+            child: const Text('确定', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -116,13 +130,14 @@ class _PlotsScreenState extends State<PlotsScreen> {
     final categories = ['全部', ...DataService.instance.plotCategories];
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
             // ── Header ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
                 children: [
                   GestureDetector(
@@ -133,32 +148,27 @@ class _PlotsScreenState extends State<PlotsScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: _showSearch
-                            ? AppTheme.textPrimary
-                            : Colors.white,
-                        shape: BoxShape.circle,
-                        border: _showSearch
-                            ? null
-                            : Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-                      ),
+                      decoration: _showSearch
+                          ? BoxDecoration(
+                              color: AppTheme.textPrimary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppTheme.border, width: 2),
+                              boxShadow: const [BoxShadow(color: Color(0xFF2D2D2D), offset: Offset(2, 2))],
+                            )
+                          : AppTheme.outlinedCircleDecoration(),
                       child: Icon(
                           _showSearch ? Icons.close : Icons.search,
                           size: 18,
                           color: _showSearch
                               ? Colors.white
-                              : const Color(0xFF666666)),
+                              : AppTheme.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
                         '剧情',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        ),
+                        style: AppTheme.headingStyleWith(fontSize: 20),
                       ),
                     ),
                   ),
@@ -167,46 +177,43 @@ class _PlotsScreenState extends State<PlotsScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-                      ),
+                      decoration: AppTheme.outlinedCircleDecoration(),
                       child: const Icon(Icons.add,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 18, color: AppTheme.textPrimary),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
 
             // ── Toggleable search bar ──
             if (_showSearch) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Container(
-                  height: 40,
+                  height: 42,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDDDDDD)),
+                    color: AppTheme.cardBackground,
+                    borderRadius: AppTheme.wobblySmall,
+                    border: Border.all(color: AppTheme.border, width: 2),
+                    boxShadow: AppTheme.hardShadowHover,
                   ),
                   child: TextField(
                     autofocus: true,
                     onChanged: (v) =>
                         setState(() => _searchQuery = v),
-                    style: const TextStyle(fontSize: 12),
-                    decoration: const InputDecoration(
+                    style: const TextStyle(fontSize: 13),
+                    decoration: InputDecoration(
                       hintText: '搜索剧情内容、分类、标签...',
                       hintStyle: TextStyle(
-                          color: AppTheme.textTertiary, fontSize: 11),
+                          color: AppTheme.textPrimary.withAlpha(100), fontSize: 13),
                       prefixIcon: Icon(Icons.search,
-                          color: AppTheme.textTertiary, size: 16),
+                          color: AppTheme.textPrimary.withAlpha(100), size: 18),
                       prefixIconConstraints:
-                          BoxConstraints(minWidth: 36),
+                          const BoxConstraints(minWidth: 40),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
                     ),
                   ),
                 ),
@@ -232,8 +239,9 @@ class _PlotsScreenState extends State<PlotsScreen> {
                 child: Text(
                   '共 ${plots.length} 条剧情',
                   style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.textTertiary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ),
@@ -248,31 +256,30 @@ class _PlotsScreenState extends State<PlotsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(20),
+                            width: 80,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.muted,
+                              borderRadius: AppTheme.wobblyMd,
+                              border: Border.fromBorderSide(
+                                BorderSide(color: AppTheme.border, width: 2),
+                              ),
+                              boxShadow: [BoxShadow(color: Color(0xFF2D2D2D), offset: Offset(3, 3))],
                             ),
-                            child: Icon(Icons.auto_stories_outlined,
-                                size: 36,
-                                color: AppTheme.textTertiary
-                                    .withValues(alpha: 0.5)),
+                            child: const Icon(Icons.auto_stories_outlined,
+                                size: 36, color: AppTheme.textSecondary),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             '暂无剧情',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textSecondary,
-                            ),
+                            style: AppTheme.headingStyleWith(fontSize: 16),
                           ),
                           const SizedBox(height: 6),
                           const Text(
                             '点击右上角 + 添加',
                             style: TextStyle(
-                              fontSize: 11,
-                              color: AppTheme.textTertiary,
+                              fontSize: 12,
+                              color: AppTheme.textSecondary,
                             ),
                           ),
                         ],
@@ -294,24 +301,20 @@ class _PlotsScreenState extends State<PlotsScreen> {
   void _showOptionsSheet(PlotItem item) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Container(
-              width: 32,
+              width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.divider,
+                color: AppTheme.muted,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Icons.copy,
                   size: 22, color: AppTheme.textSecondary),
@@ -353,16 +356,16 @@ class _PlotsScreenState extends State<PlotsScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline,
-                  size: 22, color: Colors.redAccent),
+                  size: 22, color: AppTheme.accent),
               title: const Text('删除剧情',
                   style: TextStyle(
-                      fontSize: 14, color: Colors.redAccent)),
+                      fontSize: 14, color: AppTheme.accent)),
               onTap: () {
                 Navigator.pop(ctx);
                 DataService.instance.deletePlot(item.id);
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -377,17 +380,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
+        decoration: AppTheme.cardDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -402,20 +395,20 @@ class _PlotsScreenState extends State<PlotsScreen> {
             Row(
               children: [
                 Container(
-                  height: 20,
+                  height: 22,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.muted,
+                    borderRadius: AppTheme.wobblyPill,
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     item.category,
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -425,8 +418,8 @@ class _PlotsScreenState extends State<PlotsScreen> {
                         padding: const EdgeInsets.only(right: 4),
                         child: Text('#$tag',
                             style: const TextStyle(
-                                fontSize: 10,
-                                color: AppTheme.textTertiary)),
+                                fontSize: 11,
+                                color: AppTheme.secondary)),
                       )),
                 ],
                 const Spacer(),
@@ -437,9 +430,9 @@ class _PlotsScreenState extends State<PlotsScreen> {
                     item.isFavorite
                         ? Icons.star_rounded
                         : Icons.star_border_rounded,
-                    size: 16,
+                    size: 18,
                     color: item.isFavorite
-                        ? const Color(0xFFF59E0B)
+                        ? AppTheme.accent
                         : AppTheme.textTertiary,
                   ),
                 ),
@@ -447,7 +440,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item),
                   child: const Icon(Icons.more_vert,
-                      size: 16, color: AppTheme.textTertiary),
+                      size: 18, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -474,11 +467,14 @@ class _PlotsScreenState extends State<PlotsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(9),
+                  width: 20,
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.muted,
+                    borderRadius: AppTheme.wobblySmall,
+                    border: Border.fromBorderSide(
+                      BorderSide(color: AppTheme.border, width: 1.5),
+                    ),
                   ),
                   child: Center(
                     child: Text(
@@ -486,7 +482,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                       style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ),
@@ -496,7 +492,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
                   child: Text(
                     e.value,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: AppTheme.textPrimary,
                       height: 1.4,
                     ),
@@ -511,7 +507,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
             padding: EdgeInsets.only(top: 4),
             child: Text('...',
                 style: TextStyle(
-                    fontSize: 13, color: AppTheme.textTertiary)),
+                    fontSize: 14, color: AppTheme.textSecondary)),
           ),
       ],
     );
@@ -524,7 +520,7 @@ class _PlotsScreenState extends State<PlotsScreen> {
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(
-        fontSize: 13,
+        fontSize: 14,
         color: AppTheme.textPrimary,
         height: 1.5,
       ),

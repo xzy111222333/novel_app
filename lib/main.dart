@@ -155,10 +155,18 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: tabs.map((t) => t.screen).toList(),
+      backgroundColor: AppTheme.background,
+      body: Stack(
+        children: [
+          // 纸张纹理背景 — 圆点网格
+          Positioned.fill(
+            child: CustomPaint(painter: _PaperTexturePainter()),
+          ),
+          IndexedStack(
+            index: _currentIndex,
+            children: tabs.map((t) => t.screen).toList(),
+          ),
+        ],
       ),
       bottomNavigationBar: AppBottomNav(
         currentIndex: _currentIndex,
@@ -173,4 +181,23 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
+}
+
+/// 草稿纸圆点纹理
+class _PaperTexturePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFFE5E0D8).withAlpha(60)
+      ..style = PaintingStyle.fill;
+    const spacing = 24.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        canvas.drawCircle(Offset(x, y), 0.8, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

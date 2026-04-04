@@ -73,7 +73,9 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('清空最近删除'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('清空最近删除', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: const Text('清空后无法恢复，确定继续吗？'),
         actions: [
           TextButton(
@@ -100,22 +102,18 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     final items = _data.recentlyDeleted;
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '最近删除',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingStyleWith(fontSize: 18),
         ),
         actions: [
           if (items.isNotEmpty)
@@ -181,7 +179,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF5F5F5),
+                                color: AppTheme.muted,
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
@@ -222,9 +220,9 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                 onPressed: () => _data.purgeDeleted(item.id),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppTheme.danger,
-                                  side: const BorderSide(color: AppTheme.divider),
+                                  side: const BorderSide(color: AppTheme.muted),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: AppTheme.wobblySmall,
                                   ),
                                 ),
                                 child: const Text('彻底删除',
@@ -238,7 +236,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                                 style: FilledButton.styleFrom(
                                   backgroundColor: AppTheme.textPrimary,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: AppTheme.wobblySmall,
                                   ),
                                 ),
                                 child: const Text('恢复',

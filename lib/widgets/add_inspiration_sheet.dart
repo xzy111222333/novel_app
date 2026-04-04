@@ -104,9 +104,9 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
         '${dateToShow.year}年${dateToShow.month.toString().padLeft(2, '0')}月${dateToShow.day.toString().padLeft(2, '0')}日 ${dateToShow.hour.toString().padLeft(2, '0')}:${dateToShow.minute.toString().padLeft(2, '0')}';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leadingWidth: 70,
         leading: TextButton(
@@ -117,11 +117,7 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
         ),
         title: Text(
           isEditing ? '编辑灵感' : '新建灵感',
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingStyleWith(fontSize: 18),
         ),
         centerTitle: true,
         actions: [
@@ -151,10 +147,10 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '标题（选填）',
                         hintStyle: TextStyle(
-                            color: AppTheme.textTertiary,
+                            color: AppTheme.textPrimary.withAlpha(100),
                             fontSize: 14,
                             fontWeight: FontWeight.w600),
                         border: InputBorder.none,
@@ -169,10 +165,10 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                           fontSize: 14,
                           color: AppTheme.textPrimary,
                           height: 1.5),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '写下你的灵感...',
                         hintStyle: TextStyle(
-                            color: AppTheme.textTertiary, fontSize: 14),
+                            color: AppTheme.textPrimary.withAlpha(100), fontSize: 14),
                         border: InputBorder.none,
                       ),
                     ),
@@ -184,12 +180,13 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                         runSpacing: 8,
                         children: _tags
                             .map((tag) => Container(
+                                  height: 30,
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
+                                      horizontal: 10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF5F5F5),
-                                    borderRadius:
-                                        BorderRadius.circular(16),
+                                    color: AppTheme.muted,
+                                    borderRadius: AppTheme.wobblyPill,
+                                    border: Border.all(color: AppTheme.border.withAlpha(60), width: 1),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -198,14 +195,14 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                                           style: const TextStyle(
                                               fontSize: 12,
                                               color:
-                                                  AppTheme.textSecondary)),
+                                                  AppTheme.textPrimary)),
                                       const SizedBox(width: 4),
                                       GestureDetector(
                                         onTap: () => _removeTag(tag),
                                         child: const Icon(Icons.close,
                                             size: 14,
                                             color:
-                                                AppTheme.textTertiary),
+                                                AppTheme.textSecondary),
                                       ),
                                     ],
                                   ),
@@ -214,17 +211,25 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                       ),
                       const SizedBox(height: 12),
                     ],
-                    TextField(
-                      controller: _tagController,
-                      style: const TextStyle(fontSize: 14),
-                      decoration: const InputDecoration(
-                        hintText: '添加标签...',
-                        hintStyle: TextStyle(
-                            color: AppTheme.textTertiary, fontSize: 14),
-                        border: InputBorder.none,
-                        isDense: true,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardBackground,
+                        borderRadius: AppTheme.wobblySmall,
+                        border: Border.all(color: AppTheme.border, width: 1.5),
                       ),
-                      onSubmitted: (_) => _addTag(),
+                      child: TextField(
+                        controller: _tagController,
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: '添加标签...',
+                          hintStyle: TextStyle(
+                              color: AppTheme.textPrimary.withAlpha(100), fontSize: 14),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        ),
+                        onSubmitted: (_) => _addTag(),
+                      ),
                     ),
                   ],
                 ),
@@ -235,23 +240,24 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
               padding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
+                color: AppTheme.background,
                 border: Border(
-                    top: BorderSide(color: Color(0xFFF3F4F6))),
+                    top: BorderSide(color: AppTheme.muted, width: 1.5)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F6F8),
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppTheme.muted,
+                      borderRadius: AppTheme.wobblyPill,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.calendar_today_outlined, size: 13, color: Color(0xFF999999)),
+                        const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
                         const SizedBox(width: 4),
-                        Text(dateString, style: const TextStyle(color: Color(0xFF999999), fontSize: 11)),
+                        Text(dateString, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -269,7 +275,7 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                             : Icons.star_border_rounded,
                         size: 22,
                         color: widget.item!.isFavorite
-                            ? const Color(0xFFF59E0B)
+                            ? AppTheme.accent
                             : AppTheme.textTertiary,
                       ),
                     ),
@@ -281,13 +287,14 @@ class _AddInspirationPageState extends State<_AddInspirationPage> {
                         Navigator.pop(context);
                       },
                       child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFFEBEB),
-                          shape: BoxShape.circle,
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentSoft,
+                          borderRadius: AppTheme.wobblySmall,
+                          border: Border.all(color: AppTheme.accent, width: 1.5),
                         ),
-                        child: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B6B)),
+                        child: const Icon(Icons.delete_outline, size: 18, color: AppTheme.accent),
                       ),
                     ),
                   ],

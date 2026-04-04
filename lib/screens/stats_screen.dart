@@ -266,7 +266,7 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -307,15 +307,11 @@ class _StatsScreenState extends State<StatsScreen> {
       child: Row(
         children: [
           const SizedBox(width: 36),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 '统计',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
-                ),
+                style: AppTheme.headingStyleWith(fontSize: 20),
               ),
             ),
           ),
@@ -330,11 +326,12 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget _buildTopTabBar() {
     const tabs = ['素材打卡', '创作总览'];
     return Container(
-      height: 36,
+      height: 38,
       margin: const EdgeInsets.symmetric(horizontal: 32),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(18),
+        color: AppTheme.muted,
+        borderRadius: AppTheme.wobblySmall,
+        border: Border.all(color: AppTheme.border, width: 1.5),
       ),
       child: Row(
         children: List.generate(2, (i) {
@@ -346,17 +343,10 @@ class _StatsScreenState extends State<StatsScreen> {
                 alignment: Alignment.center,
                 margin: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: active ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: active
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ]
-                      : null,
+                  color: active ? AppTheme.cardBackground : Colors.transparent,
+                  borderRadius: AppTheme.wobblySmall,
+                  border: active ? Border.all(color: AppTheme.border, width: 1.5) : null,
+                  boxShadow: active ? AppTheme.hardShadowHover : null,
                 ),
                 child: Text(
                   tabs[i],
@@ -394,11 +384,11 @@ class _StatsScreenState extends State<StatsScreen> {
             margin: EdgeInsets.only(left: i > 0 ? 8 : 0),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: active ? const Color(0xFF1F2937) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: active ? AppTheme.textPrimary : AppTheme.cardBackground,
+              borderRadius: AppTheme.wobblyPill,
               border: active
                   ? null
-                  : Border.all(color: const Color(0xFFE5E7EB), width: 0.5),
+                  : Border.all(color: AppTheme.border, width: 1),
             ),
             child: Text(
               labels[i],
@@ -425,11 +415,7 @@ class _StatsScreenState extends State<StatsScreen> {
             padding: const EdgeInsets.only(bottom: 2),
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
+              style: AppTheme.headingStyleWith(fontSize: 14),
             ),
           ),
         Row(
@@ -458,7 +444,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   Icons.chevron_right,
                   size: 20,
                   color:
-                      _offset < 0 ? AppTheme.textSecondary : AppTheme.divider,
+                      _offset < 0 ? AppTheme.textSecondary : AppTheme.muted,
                 ),
               ),
             ),
@@ -490,8 +476,10 @@ class _StatsScreenState extends State<StatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardBackground,
+        borderRadius: AppTheme.wobblyMd,
+        border: Border.all(color: AppTheme.border, width: 1.5),
+        boxShadow: AppTheme.hardShadowSubtle,
       ),
       child: Column(
         children: [
@@ -569,22 +557,23 @@ class _StatsScreenState extends State<StatsScreen> {
                           child: Center(
                             child: active[col]
                                 ? Container(
-                                    width: 24,
-                                    height: 24,
+                                    width: 26,
+                                    height: 26,
                                     decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
+                                      borderRadius: AppTheme.wobblySmall,
                                       color: _checkinBg[row],
+                                      border: Border.all(color: _checkinFg[row], width: 1.5),
                                     ),
                                     child: Icon(Icons.check,
                                         size: 14, color: _checkinFg[row]),
                                   )
                                 : Container(
-                                    width: 24,
-                                    height: 24,
+                                    width: 26,
+                                    height: 26,
                                     decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
+                                      borderRadius: AppTheme.wobblySmall,
                                       border: Border.all(
-                                        color: const Color(0xFFE5E7EB),
+                                        color: AppTheme.muted,
                                         width: 1.5,
                                       ),
                                     ),
@@ -646,8 +635,10 @@ class _StatsScreenState extends State<StatsScreen> {
           margin: EdgeInsets.only(bottom: idx < 3 ? 12 : 0),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: AppTheme.cardBackground,
+            borderRadius: AppTheme.wobblyMd,
+            border: Border.all(color: AppTheme.border, width: 1.5),
+            boxShadow: AppTheme.hardShadowSubtle,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -656,11 +647,12 @@ class _StatsScreenState extends State<StatsScreen> {
               Row(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: AppTheme.wobblySmall,
                       color: _checkinBg[idx],
+                      border: Border.all(color: _checkinFg[idx], width: 1.5),
                     ),
                     child: Center(
                       child: Text(icons[idx],
@@ -734,20 +726,20 @@ class _StatsScreenState extends State<StatsScreen> {
                           height: 28,
                           child: Center(
                             child: Container(
-                              width: 26,
-                              height: 26,
+                              width: 28,
+                              height: 28,
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
+                                borderRadius: AppTheme.wobblySmall,
                                 color: isActive
                                     ? _checkinBg[idx]
-                                    : (isToday
-                                        ? const Color(0xFFF0F1F3)
-                                        : null),
+                                    : null,
                                 border: isToday && !isActive
                                     ? Border.all(
-                                        color: AppTheme.textTertiary,
+                                        color: AppTheme.border,
                                         width: 1)
-                                    : null,
+                                    : isActive
+                                        ? Border.all(color: _checkinFg[idx], width: 1)
+                                        : null,
                               ),
                               child: Center(
                                 child: Text(
@@ -792,18 +784,16 @@ class _StatsScreenState extends State<StatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardBackground,
+        borderRadius: AppTheme.wobblyMd,
+        border: Border.all(color: AppTheme.border, width: 1.5),
+        boxShadow: AppTheme.hardShadowSubtle,
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             '年度打卡总览',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
-            ),
+            style: AppTheme.headingStyleWith(fontSize: 14),
           ),
           const SizedBox(height: 14),
           Row(
@@ -812,11 +802,12 @@ class _StatsScreenState extends State<StatsScreen> {
                 child: Column(
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
+                        borderRadius: AppTheme.wobblySmall,
                         color: _checkinBg[i],
+                        border: Border.all(color: _checkinFg[i], width: 1.5),
                       ),
                       child: Center(
                         child: Text(icons[i],
@@ -871,8 +862,10 @@ class _StatsScreenState extends State<StatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardBackground,
+        borderRadius: AppTheme.wobblyMd,
+        border: Border.all(color: AppTheme.border, width: 1.5),
+        boxShadow: AppTheme.hardShadowSubtle,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -918,8 +911,10 @@ class _StatsScreenState extends State<StatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardBackground,
+        borderRadius: AppTheme.wobblyMd,
+        border: Border.all(color: AppTheme.border, width: 1.5),
+        boxShadow: AppTheme.hardShadowSubtle,
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -931,7 +926,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   if (i > 0)
                     Container(
                       width: 0.5,
-                      color: AppTheme.divider,
+                      color: AppTheme.muted,
                       margin: const EdgeInsets.symmetric(vertical: 2),
                     ),
                   Expanded(
@@ -942,10 +937,10 @@ class _StatsScreenState extends State<StatsScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 6,
-                              height: 6,
+                              width: 8,
+                              height: 8,
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
+                                borderRadius: AppTheme.wobblySmall,
                                 color: color,
                               ),
                             ),
@@ -1010,18 +1005,16 @@ class _StatsScreenState extends State<StatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.cardBackground,
+        borderRadius: AppTheme.wobblyMd,
+        border: Border.all(color: AppTheme.border, width: 1.5),
+        boxShadow: AppTheme.hardShadowSubtle,
       ),
       child: Column(
         children: [
           Text(
             monthLabel,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
-            ),
+            style: AppTheme.headingStyleWith(fontSize: 12),
           ),
           const SizedBox(height: 8),
           Row(
@@ -1059,7 +1052,7 @@ class _StatsScreenState extends State<StatsScreen> {
                                 width: 20,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                                  borderRadius: AppTheme.wobblySmall,
                                   color:
                                       AppTheme.accent.withValues(alpha: 0.18),
                                 ),

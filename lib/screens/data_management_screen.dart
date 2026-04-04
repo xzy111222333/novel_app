@@ -48,7 +48,9 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     final shouldImport = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('导入备份'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('导入备份', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: SizedBox(
           width: double.maxFinite,
           child: TextField(
@@ -103,7 +105,9 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('清空所有数据'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('清空所有数据', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: const Text('这会删除当前所有素材、词汇、灵感和剧情，并清空分类设置。'),
         actions: [
           TextButton(
@@ -136,22 +140,18 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
     final counts = _data.totalCounts;
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '数据管理',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingStyleWith(fontSize: 18),
         ),
       ),
       body: ListView(
@@ -163,13 +163,9 @@ class _DataManagementScreenState extends State<DataManagementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '当前数据',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: AppTheme.headingStyleWith(fontSize: 14),
                 ),
                 const SizedBox(height: 14),
                 Wrap(
@@ -230,8 +226,8 @@ class _StatChip extends StatelessWidget {
       width: 96,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.muted,
+        borderRadius: AppTheme.wobblySmall,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,7 +274,7 @@ class _ActionCard extends StatelessWidget {
     final color = destructive ? AppTheme.danger : AppTheme.textPrimary;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppTheme.wobblySmall,
       child: Ink(
         decoration: AppTheme.smallCardDecoration,
         child: Padding(
@@ -289,8 +285,8 @@ class _ActionCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.muted,
+                  borderRadius: AppTheme.wobblySmall,
                 ),
                 child: Icon(icon,
                     color: destructive ? AppTheme.danger : AppTheme.textSecondary,

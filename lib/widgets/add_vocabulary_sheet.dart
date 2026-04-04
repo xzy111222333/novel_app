@@ -67,14 +67,20 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('新增分类'),
+        title: Text('新增分类', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: '输入分类名称'),
+          decoration: InputDecoration(
+            hintText: '输入分类名称',
+            hintStyle: TextStyle(color: AppTheme.textPrimary.withAlpha(100)),
+            border: OutlineInputBorder(borderRadius: AppTheme.wobblySmall, borderSide: const BorderSide(color: AppTheme.border, width: 2)),
+            enabledBorder: OutlineInputBorder(borderRadius: AppTheme.wobblySmall, borderSide: const BorderSide(color: AppTheme.border, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: AppTheme.wobblySmall, borderSide: const BorderSide(color: AppTheme.secondary, width: 2)),
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消', style: TextStyle(color: AppTheme.textSecondary))),
           TextButton(
             onPressed: () {
               final name = controller.text.trim();
@@ -84,7 +90,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
               }
               Navigator.pop(ctx);
             },
-            child: const Text('确定'),
+            child: const Text('确定', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -136,9 +142,9 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
     final dateString = "${date.year}年${date.month.toString().padLeft(2, '0')}月${date.day.toString().padLeft(2, '0')}日 ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leadingWidth: 70,
         leading: TextButton(
@@ -150,11 +156,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
         ),
         title: Text(
           widget.item != null ? '编辑词汇' : '新建词汇',
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingStyleWith(fontSize: 18),
         ),
         centerTitle: true,
         actions: [
@@ -181,35 +183,32 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(16),
+                        color: AppTheme.cardBackground,
+                        borderRadius: AppTheme.wobblySmall,
+                        border: Border.all(color: AppTheme.border, width: 2),
                       ),
                       child: TextField(
                         controller: _contentController,
                         maxLines: 8,
                         minLines: 4,
                         style: const TextStyle(fontSize: 14),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: '输入词汇或短句...',
                           hintStyle: TextStyle(
-                              color: AppTheme.textTertiary, fontSize: 14),
+                              color: AppTheme.textPrimary.withAlpha(100), fontSize: 14),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(16),
+                          contentPadding: const EdgeInsets.all(16),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   // Category label
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       '分类',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
-                      ),
+                      style: AppTheme.headingStyleWith(fontSize: 13),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -232,9 +231,13 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFF1A1A1A)
-                                      : const Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.circular(16),
+                                      ? AppTheme.textPrimary
+                                      : AppTheme.muted,
+                                  borderRadius: AppTheme.wobblyPill,
+                                  border: Border.all(
+                                    color: isSelected ? AppTheme.border : AppTheme.border.withAlpha(60),
+                                    width: isSelected ? 1.5 : 1,
+                                  ),
                                 ),
                                 child: Text(
                                   cat,
@@ -243,7 +246,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                     fontWeight: FontWeight.w500,
                                     color: isSelected
                                         ? Colors.white
-                                        : AppTheme.textSecondary,
+                                        : AppTheme.textPrimary,
                                   ),
                                 ),
                               ),
@@ -256,11 +259,12 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(16),
+                              color: AppTheme.muted,
+                              borderRadius: AppTheme.wobblyPill,
+                              border: Border.all(color: AppTheme.border.withAlpha(60), width: 1),
                             ),
                             child: const Icon(Icons.add,
-                                size: 16, color: AppTheme.textTertiary),
+                                size: 16, color: AppTheme.textSecondary),
                           ),
                         ),
                       ],
@@ -268,15 +272,11 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                   ),
                   const SizedBox(height: 20),
                   // Tags
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       '标签',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
-                      ),
+                      style: AppTheme.headingStyleWith(fontSize: 13),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -287,12 +287,13 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                       runSpacing: 8,
                       children: _tags
                           .map((tag) => Container(
-                                height: 28,
+                                height: 30,
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.circular(14),
+                                  color: AppTheme.muted,
+                                  borderRadius: AppTheme.wobblyPill,
+                                  border: Border.all(color: AppTheme.border.withAlpha(60), width: 1),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -300,13 +301,13 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                                     Text(tag,
                                         style: const TextStyle(
                                             fontSize: 12,
-                                            color: AppTheme.textSecondary)),
-                                    const SizedBox(width: 6),
+                                            color: AppTheme.textPrimary)),
+                                    const SizedBox(width: 4),
                                     GestureDetector(
                                       onTap: () => _removeTag(tag),
                                       child: const Icon(Icons.close,
                                           size: 14,
-                                          color: AppTheme.textTertiary),
+                                          color: AppTheme.textSecondary),
                                     ),
                                   ],
                                 ),
@@ -319,18 +320,19 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(16),
+                        color: AppTheme.cardBackground,
+                        borderRadius: AppTheme.wobblySmall,
+                        border: Border.all(color: AppTheme.border, width: 1.5),
                       ),
                       child: TextField(
                         controller: _tagController,
                         style: const TextStyle(fontSize: 14),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: '输入标签后按回车添加',
                           hintStyle: TextStyle(
-                              color: AppTheme.textTertiary, fontSize: 14),
+                              color: AppTheme.textPrimary.withAlpha(100), fontSize: 14),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
+                          contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                         ),
                         onSubmitted: (_) => _addTag(),
@@ -350,23 +352,23 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
               bottom: 12 + MediaQuery.of(context).padding.bottom,
             ),
             decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+              color: AppTheme.background,
+              border: Border(top: BorderSide(color: AppTheme.muted, width: 1.5)),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F6F8),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.muted,
+                    borderRadius: AppTheme.wobblyPill,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.calendar_today_outlined, size: 13, color: Color(0xFF999999)),
+                      const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
                       const SizedBox(width: 4),
-                      Text(dateString, style: const TextStyle(color: Color(0xFF999999), fontSize: 11)),
+                      Text(dateString, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
                     ],
                   ),
                 ),
@@ -383,7 +385,7 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                         : Icons.star_border_rounded,
                     size: 22,
                     color: _isFavorite
-                        ? const Color(0xFFF59E0B)
+                        ? AppTheme.accent
                         : AppTheme.textTertiary,
                   ),
                 ),
@@ -395,13 +397,14 @@ class _AddVocabularyPageState extends State<_AddVocabularyPage> {
                       Navigator.pop(context);
                     },
                     child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFEBEB),
-                        shape: BoxShape.circle,
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentSoft,
+                        borderRadius: AppTheme.wobblySmall,
+                        border: Border.all(color: AppTheme.accent, width: 1.5),
                       ),
-                      child: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF6B6B)),
+                      child: const Icon(Icons.delete_outline, size: 18, color: AppTheme.accent),
                     ),
                   ),
                 ],

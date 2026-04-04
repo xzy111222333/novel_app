@@ -29,7 +29,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const _weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-  static const Color _darkBg = Color(0xFF1F2937);
 
   late DateTime _selectedDate;
   late PageController _weekPageController;
@@ -220,24 +219,20 @@ class _HomeScreenState extends State<HomeScreen> {
       dynamic item, String typeLabel, VoidCallback onDelete) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Container(
-              width: 32,
+              width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.divider,
+                color: AppTheme.muted,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Icons.copy, size: 20, color: AppTheme.textSecondary),
               title: const Text('复制内容',
@@ -287,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onDelete();
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -302,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final plots = _selectedPlots;
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -364,11 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   dateLabel,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: AppTheme.headingStyleWith(fontSize: 16),
                 ),
                 const SizedBox(width: 2),
                 Icon(
@@ -376,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   size: 18,
-                  color: AppTheme.textTertiary,
+                  color: AppTheme.textSecondary,
                 ),
               ],
             ),
@@ -390,7 +381,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppTheme.accentSoft,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppTheme.wobblyPill,
+                  border: Border.all(color: AppTheme.accent, width: 1),
                 ),
                 child: const Text(
                   '回今天',
@@ -412,12 +404,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         width: 36,
         height: 36,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-        ),
-        child: const Icon(Icons.add, size: 18, color: Color(0xFF666666)),
+        decoration: AppTheme.outlinedCircleDecoration(),
+        child: const Icon(Icons.add, size: 18, color: AppTheme.textPrimary),
       ),
     );
   }
@@ -425,10 +413,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showQuickAddMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -436,10 +420,10 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 32,
+                width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppTheme.divider,
+                  color: AppTheme.muted,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -513,10 +497,10 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 40,
           height: 54,
           decoration: BoxDecoration(
-            color: isSelected ? _darkBg : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            color: isSelected ? AppTheme.textPrimary : Colors.transparent,
+            borderRadius: AppTheme.wobblySmall,
             border: today && !isSelected
-                ? Border.all(color: const Color(0xFFE0E0E0), width: 1.5)
+                ? Border.all(color: AppTheme.border, width: 1.5)
                 : null,
           ),
           child: Column(
@@ -528,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 10,
                   color: isSelected
                       ? Colors.white70
-                      : AppTheme.textTertiary,
+                      : AppTheme.textSecondary,
                 ),
               ),
               const SizedBox(height: 1),
@@ -547,15 +531,15 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 1),
               if (hasData)
                 Container(
-                  width: 4,
-                  height: 4,
+                  width: 5,
+                  height: 5,
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white54 : AppTheme.textTertiary,
+                    color: isSelected ? Colors.white54 : AppTheme.accent,
                     shape: BoxShape.circle,
                   ),
                 )
               else
-                const SizedBox(height: 4),
+                const SizedBox(height: 5),
             ],
           ),
         ),
@@ -583,23 +567,23 @@ class _HomeScreenState extends State<HomeScreen> {
           return GestureDetector(
             onTap: onTap,
             child: Container(
-              height: 26,
+              height: 28,
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(13),
-                border: Border.all(color: AppTheme.divider, width: 0.8),
+                color: AppTheme.cardBackground,
+                borderRadius: AppTheme.wobblyPill,
+                border: Border.all(color: AppTheme.border, width: 1.5),
               ),
               alignment: Alignment.center,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.add, size: 12, color: AppTheme.textTertiary),
+                  const Icon(Icons.add, size: 12, color: AppTheme.textPrimary),
                   const SizedBox(width: 2),
                   Text(
                     label,
                     style: const TextStyle(
-                        fontSize: 11, color: AppTheme.textSecondary),
+                        fontSize: 12, color: AppTheme.textPrimary),
                   ),
                 ],
               ),
@@ -625,15 +609,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   width: 20,
                   height: 20,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppTheme.accent,
-                    shape: BoxShape.circle,
+                    borderRadius: AppTheme.wobblySmall,
+                    border: Border.all(color: AppTheme.border, width: 1.5),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Text(dateStr,
                     style: const TextStyle(
-                        fontSize: 11, color: AppTheme.textTertiary)),
+                        fontSize: 11, color: AppTheme.textSecondary)),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item, '灵感', () {
@@ -641,13 +626,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     _refreshRandomInspiration();
                   }),
                   child: const Icon(Icons.more_vert,
-                      size: 16, color: AppTheme.textTertiary),
+                      size: 16, color: AppTheme.textSecondary),
                 ),
                 const SizedBox(width: 12),
                 GestureDetector(
                   onTap: () => setState(() => _refreshRandomInspiration()),
                   child: const Icon(Icons.refresh,
-                      size: 14, color: AppTheme.textTertiary),
+                      size: 14, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -675,13 +660,13 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(8),
+              decoration: const BoxDecoration(
+                color: AppTheme.muted,
+                borderRadius: AppTheme.wobblyPill,
               ),
               child: const Text(
                 '随机回顾',
-                style: TextStyle(fontSize: 10, color: AppTheme.textTertiary),
+                style: TextStyle(fontSize: 10, color: AppTheme.textSecondary),
               ),
             ),
           ],
@@ -706,7 +691,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Padding(
             padding: EdgeInsets.only(left: 4),
             child: Text('暂无记录',
-                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
           )
         else
           Wrap(
@@ -717,7 +702,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (items.length > 6)
                 const Text('···',
                     style: TextStyle(
-                        fontSize: 11, color: AppTheme.textTertiary)),
+                        fontSize: 11, color: AppTheme.textSecondary)),
             ],
           ),
       ],
@@ -733,13 +718,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.divider, width: 0.8),
+          color: AppTheme.cardBackground,
+          borderRadius: AppTheme.wobblyPill,
+          border: Border.all(color: AppTheme.border, width: 1.5),
         ),
         child: Text(
           v.content,
-          style: const TextStyle(fontSize: 11, color: AppTheme.textPrimary),
+          style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -763,7 +748,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Padding(
             padding: EdgeInsets.only(left: 4),
             child: Text('暂无记录',
-                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
           )
         else
           ...items.take(3).map(_buildMaterialCard),
@@ -787,9 +772,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.muted,
+                    borderRadius: AppTheme.wobblyPill,
                   ),
                   child: Text(
                     item.category,
@@ -802,7 +787,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     DataService.instance.deleteMaterial(item.id);
                   }),
                   child: const Icon(Icons.more_vert,
-                      size: 16, color: AppTheme.textTertiary),
+                      size: 16, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -810,7 +795,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               item.content,
               style: const TextStyle(
-                  fontSize: 13, color: AppTheme.textPrimary, height: 1.5),
+                  fontSize: 14, color: AppTheme.textPrimary, height: 1.5),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -819,7 +804,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 item.tags.map((t) => '#$t').join(' '),
                 style: const TextStyle(
-                    fontSize: 10, color: AppTheme.textTertiary),
+                    fontSize: 10, color: AppTheme.secondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -846,7 +831,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Padding(
             padding: EdgeInsets.only(left: 4),
             child: Text('暂无记录',
-                style: TextStyle(fontSize: 11, color: AppTheme.textTertiary)),
+                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
           )
         else
           ...items.take(3).map(_buildInspirationEntry),
@@ -868,11 +853,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: const BoxDecoration(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
                     color: AppTheme.accent,
-                    shape: BoxShape.circle,
+                    borderRadius: AppTheme.wobblySmall,
+                    border: Border.all(color: AppTheme.border, width: 1.5),
                   ),
                 ),
               ),
@@ -887,14 +873,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           _formatTime(item.createdAt),
                           style: const TextStyle(
-                              fontSize: 11, color: AppTheme.textTertiary),
+                              fontSize: 11, color: AppTheme.textSecondary),
                         ),
                         GestureDetector(
                           onTap: () => _showOptionsSheet(item, '灵感', () {
                             DataService.instance.deleteInspiration(item.id);
                           }),
                           child: const Icon(Icons.more_vert,
-                              size: 16, color: AppTheme.textTertiary),
+                              size: 16, color: AppTheme.textSecondary),
                         ),
                       ],
                     ),
@@ -902,7 +888,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       item.content,
                       style: const TextStyle(
-                          fontSize: 13,
+                          fontSize: 14,
                           color: AppTheme.textPrimary,
                           height: 1.5),
                       maxLines: 2,
@@ -951,9 +937,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.muted,
+                    borderRadius: AppTheme.wobblyPill,
                   ),
                   child: Text(
                     item.category,
@@ -966,7 +952,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     DataService.instance.deletePlot(item.id);
                   }),
                   child: const Icon(Icons.more_vert,
-                      size: 16, color: AppTheme.textTertiary),
+                      size: 16, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -974,7 +960,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               item.displayContent,
               style: const TextStyle(
-                  fontSize: 13, color: AppTheme.textPrimary, height: 1.5),
+                  fontSize: 14, color: AppTheme.textPrimary, height: 1.5),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -983,7 +969,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 item.tags.map((t) => '#$t').join(' '),
                 style: const TextStyle(
-                    fontSize: 10, color: AppTheme.textTertiary),
+                    fontSize: 10, color: AppTheme.secondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -997,27 +983,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSectionHeader(String title, int count, {VoidCallback? onMore}) {
     return Row(
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
-        ),
+        Text(title, style: AppTheme.headingStyleWith(fontSize: 16)),
         if (count > 0) ...[
           const SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(8),
+            decoration: const BoxDecoration(
+              color: AppTheme.muted,
+              borderRadius: AppTheme.wobblyPill,
             ),
-            child: Text(
-              '$count',
-              style: const TextStyle(
-                  fontSize: 10, color: AppTheme.textTertiary),
-            ),
+            child: Text('$count',
+                style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
           ),
         ],
         const Spacer(),
@@ -1025,12 +1001,8 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             width: 32,
             height: 32,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-            ),
-            child: const Icon(Icons.more_vert, size: 16, color: Color(0xFF666666)),
+            decoration: AppTheme.outlinedCircleDecoration(size: 32),
+            child: const Icon(Icons.more_vert, size: 16, color: AppTheme.textPrimary),
           ),
           const SizedBox(width: 8),
           GestureDetector(
@@ -1038,12 +1010,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               width: 32,
               height: 32,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-              ),
-              child: const Icon(Icons.add, size: 16, color: Color(0xFF666666)),
+              decoration: AppTheme.outlinedCircleDecoration(size: 32),
+              child: const Icon(Icons.add, size: 16, color: AppTheme.textPrimary),
             ),
           ),
         ],

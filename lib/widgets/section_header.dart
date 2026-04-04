@@ -24,26 +24,22 @@ class SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
+                style: AppTheme.headingStyleWith(fontSize: 16),
               ),
               if (count != null) ...[
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Container(
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
+                  width: 22,
+                  height: 22,
+                  decoration: const BoxDecoration(
                     color: AppTheme.textPrimary,
-                    borderRadius: BorderRadius.circular(9),
+                    borderRadius: AppTheme.wobblyPill,
                   ),
                   child: Center(
                     child: Text(
                       '$count',
                       style: const TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -56,12 +52,24 @@ class SectionHeader extends StatelessWidget {
           if (onMore != null)
             GestureDetector(
               onTap: onMore,
-              child: Text(
-                '查看更多 >',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.textTertiary,
-                  fontWeight: FontWeight.w500,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppTheme.textTertiary,
+                    width: 1,
+                    style: BorderStyle.solid,
+                  ),
+                  borderRadius: AppTheme.wobblyPill,
+                ),
+                child: Text(
+                  '查看更多 →',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),

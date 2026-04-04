@@ -30,7 +30,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
     final next = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('重命名标签'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('重命名标签', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -62,7 +64,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除标签'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('删除标签', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: Text('删除后，会从所有内容中移除“$current”标签。'),
         actions: [
           TextButton(
@@ -168,21 +172,17 @@ class _TagManageScreenState extends State<TagManageScreen> {
     final tags = _ds.allTags.toList()..sort();
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text('标签管理',
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            )),
+        title: Text('标签管理',
+            style: AppTheme.headingStyleWith(fontSize: 18)),
       ),
       body: tags.isEmpty
           ? Center(
@@ -226,9 +226,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? AppTheme.textPrimary
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: isSelected ? null : Border.all(color: AppTheme.divider),
+                                          : AppTheme.cardBackground,
+                                      borderRadius: AppTheme.wobblySmall,
+                                      border: isSelected ? null : Border.all(color: AppTheme.muted),
                                     ),
                                     alignment: Alignment.center,
                                     child: Text(
@@ -268,9 +268,9 @@ class _TagManageScreenState extends State<TagManageScreen> {
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? AppTheme.textPrimary
-                                        : Colors.white,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: isSelected ? null : Border.all(color: AppTheme.divider),
+                                        : AppTheme.cardBackground,
+                                    borderRadius: AppTheme.wobblySmall,
+                                    border: isSelected ? null : Border.all(color: AppTheme.muted),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -342,8 +342,8 @@ class _TagManageScreenState extends State<TagManageScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(6),
+                                color: AppTheme.muted,
+                                borderRadius: AppTheme.wobblySmall,
                               ),
                               child: Text(typeLabel,
                                   style: const TextStyle(

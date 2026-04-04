@@ -104,21 +104,17 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text('全局搜索',
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            )),
+        title: Text('全局搜索',
+            style: AppTheme.headingStyleWith(fontSize: 18)),
       ),
       body: Column(
         children: [
@@ -182,8 +178,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF5F5F5),
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: AppTheme.muted,
+                                  borderRadius: AppTheme.wobblySmall,
                                 ),
                                 child: Text(
                                   '${_typeLabel(type)} (${items.length})',
@@ -222,8 +218,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
         leading: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(6),
+            color: AppTheme.muted,
+            borderRadius: AppTheme.wobblySmall,
           ),
           child: Text(_typeLabel(type),
               style: const TextStyle(
@@ -242,8 +238,8 @@ class _GlobalSearchScreenState extends State<GlobalSearchScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(6),
+                  color: AppTheme.muted,
+                  borderRadius: AppTheme.wobblySmall,
                 ),
                 child: Text(category,
                     style: const TextStyle(

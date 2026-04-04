@@ -108,21 +108,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text('收藏夹',
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            )),
+        title: Text('收藏夹',
+            style: AppTheme.headingStyleWith(fontSize: 18)),
       ),
       body: allFavs.isEmpty
           ? Center(
@@ -153,11 +149,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       padding: EdgeInsets.only(
                           top: cursor == 0 ? 0 : 18, bottom: 8),
                       child: Text(section.key,
-                          style: const TextStyle(
-                            color: AppTheme.textSecondary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          )),
+                          style: AppTheme.headingStyleWith(fontSize: 14, color: AppTheme.textSecondary)),
                     );
                   }
                   cursor++;
@@ -185,8 +177,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(10),
+            color: AppTheme.muted,
+            borderRadius: AppTheme.wobblySmall,
           ),
           child: Icon(_typeIcon(item), color: AppTheme.textSecondary, size: 18),
         ),
@@ -206,8 +198,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(4),
+                  color: AppTheme.muted,
+                  borderRadius: AppTheme.wobblyPill,
                 ),
                 child: Text(_typeLabel(item),
                     style: const TextStyle(
@@ -219,7 +211,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.favorite, color: Colors.redAccent, size: 20),
+          icon: const Icon(Icons.favorite, color: AppTheme.accent, size: 20),
           onPressed: () => _toggleFavorite(item),
         ),
       ),

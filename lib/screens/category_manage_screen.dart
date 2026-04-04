@@ -61,7 +61,9 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('添加分类'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('添加分类', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -89,7 +91,9 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('重命名分类'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('重命名分类', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -116,7 +120,9 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('删除分类'),
+        backgroundColor: AppTheme.cardBackground,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
+        title: Text('删除分类', style: AppTheme.headingStyleWith(fontSize: 18)),
         content: Text('确定要删除分类"$name"吗？'),
         actions: [
           TextButton(
@@ -141,9 +147,9 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
     final categories = _ds.getCategories(widget.module);
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
@@ -151,15 +157,12 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
         ),
         centerTitle: true,
         title: Text(_title,
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            )),
+            style: AppTheme.headingStyleWith(fontSize: 18)),
       ),
       floatingActionButton: FloatingActionButton.small(
         onPressed: _showAddDialog,
         backgroundColor: AppTheme.textPrimary,
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.wobblySmall),
         child: const Icon(Icons.add, color: Colors.white, size: 20),
       ),
       body: categories.isEmpty
@@ -195,8 +198,8 @@ class _CategoryManageScreenState extends State<CategoryManageScreen> {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppTheme.muted,
+                        borderRadius: AppTheme.wobblySmall,
                       ),
                       child: const Icon(Icons.folder_outlined,
                           color: AppTheme.textSecondary, size: 16),

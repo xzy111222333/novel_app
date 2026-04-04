@@ -112,7 +112,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
     final dateKeys = grouped.keys.toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -126,24 +126,16 @@ class _InspirationScreenState extends State<InspirationScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-                      ),
+                      decoration: AppTheme.outlinedCircleDecoration(),
                       child: const Icon(Icons.more_vert,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 18, color: AppTheme.textPrimary),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
                         '灵感',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        ),
+                        style: AppTheme.headingStyleWith(fontSize: 20),
                       ),
                     ),
                   ),
@@ -152,65 +144,61 @@ class _InspirationScreenState extends State<InspirationScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-                      ),
+                      decoration: AppTheme.outlinedCircleDecoration(),
                       child: const Icon(Icons.add,
-                          size: 18, color: Color(0xFF666666)),
+                          size: 18, color: AppTheme.textPrimary),
                     ),
                   ),
                 ],
               ),
             ),
 
-            // Search box — dashed border style
+            // Search box — hand-drawn style
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: GestureDetector(
                 onTap: () => setState(() => _showSearch = !_showSearch),
                 child: Container(
-                  height: 40,
+                  height: 42,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.cardBackground,
+                    borderRadius: AppTheme.wobblySmall,
                     border: Border.all(
-                      color: _showSearch
-                          ? AppTheme.textSecondary
-                          : const Color(0xFFDDDDDD),
-                      style: BorderStyle.solid,
+                      color: _showSearch ? AppTheme.secondary : AppTheme.border,
+                      width: 2,
                     ),
+                    boxShadow: AppTheme.hardShadowHover,
                   ),
                   child: _showSearch
                       ? TextField(
                           autofocus: true,
                           onChanged: (v) =>
                               setState(() => _searchQuery = v),
-                          style: const TextStyle(fontSize: 12),
-                          decoration: const InputDecoration(
+                          style: const TextStyle(fontSize: 13),
+                          decoration: InputDecoration(
                             hintText: '输入笔记内容',
                             hintStyle: TextStyle(
-                                color: AppTheme.textTertiary,
-                                fontSize: 12),
+                                color: AppTheme.textPrimary.withAlpha(100),
+                                fontSize: 13),
                             prefixIcon: Icon(Icons.search,
-                                color: AppTheme.textTertiary, size: 16),
+                                color: AppTheme.textPrimary.withAlpha(100), size: 18),
                             prefixIconConstraints:
-                                BoxConstraints(minWidth: 36),
+                                const BoxConstraints(minWidth: 40),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
                           ),
                         )
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Icon(Icons.search,
-                                size: 14, color: AppTheme.textTertiary),
-                            SizedBox(width: 4),
+                                size: 16, color: AppTheme.textPrimary.withAlpha(100)),
+                            const SizedBox(width: 4),
                             Text('输入笔记内容',
                                 style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.textTertiary)),
+                                    fontSize: 13,
+                                    color: AppTheme.textPrimary.withAlpha(100))),
                           ],
                         ),
                 ),
@@ -226,33 +214,31 @@ class _InspirationScreenState extends State<InspirationScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(20),
+                            width: 80,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.muted,
+                              borderRadius: AppTheme.wobblyMd,
+                              border: Border.fromBorderSide(BorderSide(color: AppTheme.border, width: 2)),
+                              boxShadow: [BoxShadow(color: Color(0xFF2D2D2D), offset: Offset(3, 3))],
                             ),
-                            child: Icon(Icons.lightbulb_outline_rounded,
+                            child: const Icon(Icons.lightbulb_outline_rounded,
                                 size: 36,
-                                color: AppTheme.textTertiary
-                                    .withValues(alpha: 0.5)),
+                                color: AppTheme.textSecondary),
                           ),
                           const SizedBox(height: 16),
                           Text(
                             _searchQuery.isNotEmpty
                                 ? '没有找到匹配的灵感'
                                 : '暂无灵感',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textSecondary,
-                            ),
+                            style: AppTheme.headingStyleWith(fontSize: 16),
                           ),
                           const SizedBox(height: 6),
                           if (_searchQuery.isEmpty)
                             const Text('点击右上角 + 添加',
                                 style: TextStyle(
-                                    fontSize: 11,
-                                    color: AppTheme.textTertiary)),
+                                    fontSize: 12,
+                                    color: AppTheme.textSecondary)),
                         ],
                       ),
                     )
@@ -275,8 +261,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                                 child: Text(
                                   key,
                                   style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                     color: AppTheme.textSecondary,
                                   ),
                                 ),
@@ -304,17 +290,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
       onTap: () => showAddInspirationSheet(context, item: item),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
+        decoration: AppTheme.cardDecoration,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,11 +299,12 @@ class _InspirationScreenState extends State<InspirationScreen> {
             Row(
               children: [
                 Container(
-                  width: 20,
-                  height: 20,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFBBF24),
-                    shape: BoxShape.circle,
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFBBF24),
+                    borderRadius: AppTheme.wobblySmall,
+                    border: Border.all(color: AppTheme.border, width: 1.5),
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -343,7 +320,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                 GestureDetector(
                   onTap: () => _showOptionsSheet(item),
                   child: const Icon(Icons.more_vert,
-                      size: 18, color: AppTheme.textTertiary),
+                      size: 18, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -353,11 +330,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
             if (item.title != null && item.title!.isNotEmpty) ...[
               Text(
                 item.title!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
-                ),
+                style: AppTheme.headingStyleWith(fontSize: 15, color: AppTheme.textPrimary),
               ),
               const SizedBox(height: 4),
             ],
@@ -404,9 +377,9 @@ class _InspirationScreenState extends State<InspirationScreen> {
                     item.isFavorite
                         ? Icons.bookmark_rounded
                         : Icons.bookmark_border_rounded,
-                    size: 14,
+                    size: 16,
                     color: item.isFavorite
-                        ? const Color(0xFFFBBF24)
+                        ? AppTheme.accent
                         : AppTheme.textTertiary,
                   ),
                 ),
@@ -415,9 +388,9 @@ class _InspirationScreenState extends State<InspirationScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(4),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.muted,
+                      borderRadius: AppTheme.wobblyPill,
                     ),
                     child: const Text('随机回顾',
                         style: TextStyle(
@@ -430,8 +403,8 @@ class _InspirationScreenState extends State<InspirationScreen> {
                         padding: const EdgeInsets.only(right: 4),
                         child: Text('#$tag',
                             style: const TextStyle(
-                                fontSize: 10,
-                                color: AppTheme.textTertiary)),
+                                fontSize: 11,
+                                color: AppTheme.secondary)),
                       )),
                 ],
               ],
@@ -445,15 +418,22 @@ class _InspirationScreenState extends State<InspirationScreen> {
   Widget _buildActionBtn(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: AppTheme.textTertiary),
-          const SizedBox(width: 2),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 10, color: AppTheme.textTertiary)),
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          borderRadius: AppTheme.wobblyPill,
+          border: Border.all(color: AppTheme.border.withAlpha(80), width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: AppTheme.textSecondary),
+            const SizedBox(width: 3),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 11, color: AppTheme.textSecondary)),
+          ],
+        ),
       ),
     );
   }
@@ -461,24 +441,20 @@ class _InspirationScreenState extends State<InspirationScreen> {
   void _showGlobalMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Container(
-              width: 32,
+              width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.divider,
+                color: AppTheme.muted,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Icons.notes, size: 22,
                   color: AppTheme.textSecondary),
@@ -490,7 +466,7 @@ class _InspirationScreenState extends State<InspirationScreen> {
                 _showOtherNotes();
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -500,24 +476,20 @@ class _InspirationScreenState extends State<InspirationScreen> {
   void _showOptionsSheet(InspirationItem item) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Container(
-              width: 32,
+              width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.divider,
+                color: AppTheme.muted,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             ListTile(
               leading: const Icon(Icons.copy,
                   size: 22, color: AppTheme.textSecondary),
@@ -558,16 +530,16 @@ class _InspirationScreenState extends State<InspirationScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline,
-                  size: 22, color: Colors.redAccent),
+                  size: 22, color: AppTheme.accent),
               title: const Text('删除灵感',
                   style: TextStyle(
-                      fontSize: 14, color: Colors.redAccent)),
+                      fontSize: 14, color: AppTheme.accent)),
               onTap: () {
                 Navigator.pop(ctx);
                 DataService.instance.deleteInspiration(item.id);
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
           ],
         ),
       ),

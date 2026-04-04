@@ -41,25 +41,19 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedId = _data.themePresetId;
-
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text(
+        title: Text(
           '个性化',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.textPrimary,
-          ),
+          style: AppTheme.headingStyleWith(fontSize: 18),
         ),
         actions: [
           TextButton(
@@ -87,13 +81,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '昵称',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: AppTheme.headingStyleWith(fontSize: 14),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -110,8 +100,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                       vertical: 12,
                     ),
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppTheme.border, width: 1.5),
+                      borderRadius: AppTheme.wobblySmall,
                     ),
                   ),
                 ),
@@ -125,107 +115,11 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text('主题风格', style: AppTheme.headingStyleWith(fontSize: 14)),
+                const SizedBox(height: 8),
                 const Text(
-                  '主题背景',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: AppTheme.presets.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.82,
-                  ),
-                  itemBuilder: (context, index) {
-                    final preset = AppTheme.presets[index];
-                    final selected = preset.id == selectedId;
-                    return GestureDetector(
-                      onTap: () => _data.updateThemePreset(preset.id),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: preset.background,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: selected
-                                      ? AppTheme.textPrimary
-                                      : AppTheme.divider,
-                                  width: selected ? 2 : 1,
-                                ),
-                              ),
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    left: 10,
-                                    right: 10,
-                                    top: 12,
-                                    child: Container(
-                                      height: 12,
-                                      decoration: BoxDecoration(
-                                        color: preset.surface,
-                                        borderRadius: BorderRadius.circular(999),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: 10,
-                                    right: 10,
-                                    bottom: 12,
-                                    child: Container(
-                                      height: 34,
-                                      decoration: BoxDecoration(
-                                        color: preset.surface,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: AppTheme.divider),
-                                      ),
-                                    ),
-                                  ),
-                                  if (selected)
-                                    Positioned(
-                                      right: 8,
-                                      top: 8,
-                                      child: Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: const BoxDecoration(
-                                          color: AppTheme.textPrimary,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.check,
-                                          size: 11,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            preset.label,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  '当前使用「手绘草稿纸」风格',
+                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
                 ),
               ],
             ),

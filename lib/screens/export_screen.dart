@@ -47,21 +47,17 @@ class _ExportScreenState extends State<ExportScreen> {
     final counts = _ds.totalCounts;
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text('数据导出',
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            )),
+        title: Text('数据导出',
+            style: AppTheme.headingStyleWith(fontSize: 18)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(14),
@@ -74,20 +70,16 @@ class _ExportScreenState extends State<ExportScreen> {
                 Container(
                   width: 48,
                   height: 48,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                  decoration: BoxDecoration(
+                    color: AppTheme.muted,
+                    borderRadius: AppTheme.wobblySmall,
                   ),
                   child: const Icon(Icons.file_download_outlined,
                       color: AppTheme.textSecondary, size: 24),
                 ),
                 const SizedBox(height: 10),
-                const Text('导出全部数据 (JSON)',
-                    style: TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    )),
+                Text('导出全部数据 (JSON)',
+                    style: AppTheme.headingStyleWith(fontSize: 14)),
                 const SizedBox(height: 6),
                 const Text('将所有内容导出为 JSON 格式并复制到剪贴板',
                     textAlign: TextAlign.center,
@@ -111,7 +103,7 @@ class _ExportScreenState extends State<ExportScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.textPrimary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: AppTheme.wobblySmall,
                       ),
                       elevation: 0,
                     ),
@@ -129,12 +121,8 @@ class _ExportScreenState extends State<ExportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('数据概览',
-                    style: TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    )),
+                Text('数据概览',
+                    style: AppTheme.headingStyleWith(fontSize: 14)),
                 const SizedBox(height: 10),
                 _buildStatRow(
                     Icons.description_outlined,
@@ -169,8 +157,8 @@ class _ExportScreenState extends State<ExportScreen> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.muted,
+              borderRadius: AppTheme.wobblySmall,
             ),
             child: Icon(icon, color: AppTheme.textSecondary, size: 14),
           ),

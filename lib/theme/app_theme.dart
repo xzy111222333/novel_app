@@ -1,127 +1,260 @@
 import 'package:flutter/material.dart';
-import '../services/data_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class ThemePreset {
-  final String id;
-  final String label;
-  final Color background;
-  final Color surface;
-
-  const ThemePreset({
-    required this.id,
-    required this.label,
-    required this.background,
-    required this.surface,
-  });
-}
-
-/// 极简白色系主题，对齐小日常App风格
+/// 手绘 / 草稿纸风格设计系统
 class AppTheme {
-  static const Color background = Color(0xFFF7F8FA);
+  // ── 色彩 Token ────────────────────────────────────────────────────────
+  static const Color background = Color(0xFFFDFBF7);     // 暖纸色
   static const Color cardBackground = Colors.white;
-  static const Color textPrimary = Color(0xFF1A1A1A);
-  static const Color textSecondary = Color(0xFF999999);
-  static const Color textTertiary = Color(0xFFCCCCCC);
-  static const Color divider = Color(0xFFF0F1F3);
-  static const Color accent = Color(0xFFF7B500);
-  static const Color accentSoft = Color(0xFFFFF8E1);
-  static const Color danger = Color(0xFFE85D5D);
+  static const Color textPrimary = Color(0xFF2D2D2D);    // 铅笔黑
+  static const Color textSecondary = Color(0xFF6B6B6B);  // 浅铅笔
+  static const Color textTertiary = Color(0xFFADA89F);   // 淡墨
+  static const Color muted = Color(0xFFE5E0D8);          // 旧纸 / 擦除痕迹
+  static const Color divider = Color(0xFFE5E0D8);
+  static const Color accent = Color(0xFFFF4D4D);         // 红色修正笔
+  static const Color accentSoft = Color(0xFFFFE5E5);
+  static const Color secondary = Color(0xFF2D5DA1);      // 蓝色圆珠笔
+  static const Color danger = Color(0xFFFF4D4D);
+  static const Color postIt = Color(0xFFFFF9C4);         // 便签黄
+  static const Color border = Color(0xFF2D2D2D);         // 铅笔边框
 
-  // 模块色 — 极淡柔和，仅用于卡片背景/标记点
-  static const Color materialColor = Color(0xFF8CB58C);
-  static const Color materialBg = Color(0xFFF2F7F2);
-  static const Color vocabularyColor = Color(0xFFBB9A9A);
-  static const Color vocabularyBg = Color(0xFFF9F3F3);
-  static const Color inspirationColor = Color(0xFF9AB5C4);
-  static const Color inspirationBg = Color(0xFFF3F7FA);
-  static const Color plotColor = Color(0xFFC4B07A);
-  static const Color plotBg = Color(0xFFFAF7F0);
+  // 模块色 — 手绘风柔和色调
+  static const Color materialColor = Color(0xFF2D5DA1);
+  static const Color materialBg = Color(0xFFF0F4FA);
+  static const Color vocabularyColor = Color(0xFFFF4D4D);
+  static const Color vocabularyBg = Color(0xFFFFF0F0);
+  static const Color inspirationColor = Color(0xFF2D2D2D);
+  static const Color inspirationBg = Color(0xFFFDFBF7);
+  static const Color plotColor = Color(0xFF6B8E5A);
+  static const Color plotBg = Color(0xFFF5F8F2);
 
-  static const List<ThemePreset> presets = [
-    ThemePreset(id: 'default', label: '基础白', background: Color(0xFFF7F8FA), surface: Colors.white),
-    ThemePreset(id: 'rice', label: '米白', background: Color(0xFFF8F5EE), surface: Colors.white),
-    ThemePreset(id: 'blue', label: '淡蓝', background: Color(0xFFF3F6FB), surface: Colors.white),
-    ThemePreset(id: 'green', label: '淡绿', background: Color(0xFFF3F8F5), surface: Colors.white),
-    ThemePreset(id: 'pink', label: '淡粉', background: Color(0xFFFBF4F6), surface: Colors.white),
-    ThemePreset(id: 'gray', label: '浅灰', background: Color(0xFFF3F4F6), surface: Colors.white),
+  // ── 不规则 Wobbly 圆角 ────────────────────────────────────────────────
+  static const BorderRadius wobbly = BorderRadius.only(
+    topLeft: Radius.elliptical(255, 15),
+    topRight: Radius.elliptical(15, 225),
+    bottomRight: Radius.elliptical(225, 15),
+    bottomLeft: Radius.elliptical(15, 255),
+  );
+
+  static const BorderRadius wobblyMd = BorderRadius.only(
+    topLeft: Radius.elliptical(80, 12),
+    topRight: Radius.elliptical(12, 80),
+    bottomRight: Radius.elliptical(80, 12),
+    bottomLeft: Radius.elliptical(12, 80),
+  );
+
+  static const BorderRadius wobblySmall = BorderRadius.only(
+    topLeft: Radius.elliptical(40, 8),
+    topRight: Radius.elliptical(8, 40),
+    bottomRight: Radius.elliptical(40, 8),
+    bottomLeft: Radius.elliptical(8, 40),
+  );
+
+  static const BorderRadius wobblyPill = BorderRadius.only(
+    topLeft: Radius.elliptical(20, 12),
+    topRight: Radius.elliptical(12, 20),
+    bottomRight: Radius.elliptical(20, 12),
+    bottomLeft: Radius.elliptical(12, 20),
+  );
+
+  // ── 硬偏移阴影 (无模糊) ──────────────────────────────────────────────
+  static const List<BoxShadow> hardShadow = [
+    BoxShadow(
+      color: Color(0xFF2D2D2D),
+      offset: Offset(4, 4),
+      blurRadius: 0,
+    ),
   ];
 
-  static ThemePreset get currentPreset {
-    final id = DataService.instance.themePresetId;
-    return presets.firstWhere(
-      (preset) => preset.id == id,
-      orElse: () => presets.first,
+  static const List<BoxShadow> hardShadowSmall = [
+    BoxShadow(
+      color: Color(0xFF2D2D2D),
+      offset: Offset(3, 3),
+      blurRadius: 0,
+    ),
+  ];
+
+  static const List<BoxShadow> hardShadowSubtle = [
+    BoxShadow(
+      color: Color(0x1A2D2D2D),
+      offset: Offset(3, 3),
+      blurRadius: 0,
+    ),
+  ];
+
+  static const List<BoxShadow> hardShadowHover = [
+    BoxShadow(
+      color: Color(0xFF2D2D2D),
+      offset: Offset(2, 2),
+      blurRadius: 0,
+    ),
+  ];
+
+  // ── 统一背景色 ────────────────────────────────────────────────────────
+  static Color get scaffoldBackground => background;
+  static Color get softBackground => background;
+
+  // ── 分类颜色 ──────────────────────────────────────────────────────────
+  static Color getCategoryColor(String category) => textPrimary;
+  static Color getCategoryBgColor(String category) => muted;
+
+  // ── 卡片装饰 ──────────────────────────────────────────────────────────
+  static BoxDecoration get cardDecoration => const BoxDecoration(
+    color: cardBackground,
+    borderRadius: wobblyMd,
+    border: Border.fromBorderSide(BorderSide(color: border, width: 2)),
+    boxShadow: hardShadowSubtle,
+  );
+
+  static BoxDecoration get smallCardDecoration => const BoxDecoration(
+    color: cardBackground,
+    borderRadius: wobblySmall,
+    border: Border.fromBorderSide(BorderSide(color: border, width: 2)),
+    boxShadow: hardShadowSubtle,
+  );
+
+  static BoxDecoration get postItDecoration => const BoxDecoration(
+    color: postIt,
+    borderRadius: wobblyMd,
+    border: Border.fromBorderSide(BorderSide(color: border, width: 2)),
+    boxShadow: hardShadowSubtle,
+  );
+
+  /// 手绘风圆形按钮
+  static BoxDecoration outlinedCircleDecoration({double size = 36}) =>
+      const BoxDecoration(
+        color: cardBackground,
+        shape: BoxShape.circle,
+        border: Border.fromBorderSide(BorderSide(color: border, width: 2)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF2D2D2D),
+            offset: Offset(2, 2),
+            blurRadius: 0,
+          ),
+        ],
+      );
+
+  // ── 纸张纹理背景装饰 ──────────────────────────────────────────────────
+  static BoxDecoration get paperTextureDecoration => const BoxDecoration(
+    color: background,
+  );
+
+  // ── 手绘风胶带装饰 Widget ─────────────────────────────────────────────
+  static Widget tapeDecoration({double width = 60, double rotation = -0.05}) {
+    return Transform.rotate(
+      angle: rotation,
+      child: Container(
+        width: width,
+        height: 16,
+        decoration: BoxDecoration(
+          color: const Color(0xFFD4D0C8).withAlpha(180),
+          borderRadius: BorderRadius.circular(2),
+          border: Border.all(color: const Color(0xFFB8B4AC), width: 0.5),
+        ),
+      ),
     );
   }
 
-  static Color get scaffoldBackground => currentPreset.background;
-  static Color get softBackground => currentPreset.background;
-
-  // 分类标签统一用灰色调，不按分类名区分颜色
-  static Color getCategoryColor(String category) => textSecondary;
-
-  static Color getCategoryBgColor(String category) {
-    return const Color(0xFFF5F5F5);
+  /// 手绘风图钉装饰 Widget
+  static Widget tackDecoration({Color color = accent}) {
+    return Container(
+      width: 14,
+      height: 14,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: const Border.fromBorderSide(
+          BorderSide(color: Color(0xFF2D2D2D), width: 1.5),
+        ),
+        boxShadow: const [
+          BoxShadow(color: Color(0xFF2D2D2D), offset: Offset(1, 1)),
+        ],
+      ),
+    );
   }
 
-  static BoxDecoration cardDecoration = BoxDecoration(
-    color: cardBackground,
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.06),
-        blurRadius: 8,
-        offset: const Offset(0, 1),
-      ),
-    ],
+  // ── 字体样式 ──────────────────────────────────────────────────────────
+  static TextStyle get headingStyle => GoogleFonts.zcoolKuaiLe(
+    color: textPrimary,
+    fontWeight: FontWeight.w400,
   );
 
-  static BoxDecoration smallCardDecoration = BoxDecoration(
-    color: cardBackground,
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.06),
-        blurRadius: 8,
-        offset: const Offset(0, 1),
-      ),
-    ],
+  static TextStyle headingStyleWith({
+    double fontSize = 20,
+    Color? color,
+    FontWeight? fontWeight,
+  }) => GoogleFonts.zcoolKuaiLe(
+    fontSize: fontSize,
+    color: color ?? textPrimary,
+    fontWeight: fontWeight ?? FontWeight.w400,
   );
 
-  /// 小日常风格的描边圆形按钮装饰
-  static BoxDecoration outlinedCircleDecoration({double size = 36}) =>
-      BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-      );
-
+  // ── ThemeData ─────────────────────────────────────────────────────────
   static ThemeData get themeData {
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: scaffoldBackground,
+      scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(
-        backgroundColor: scaffoldBackground,
+        backgroundColor: background,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
+        titleTextStyle: GoogleFonts.zcoolKuaiLe(
           color: textPrimary,
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
+          fontSize: 18,
         ),
-        iconTheme: const IconThemeData(color: textSecondary, size: 20),
+        iconTheme: const IconThemeData(color: textPrimary, size: 22),
       ),
       colorScheme: ColorScheme.fromSeed(
         seedColor: accent,
         surface: background,
       ),
-      textTheme: const TextTheme(
-        titleLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textPrimary),
-        titleMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: textPrimary),
-        bodyMedium: TextStyle(fontSize: 13, color: textPrimary),
-        bodySmall: TextStyle(fontSize: 11, color: textSecondary),
-        labelSmall: TextStyle(fontSize: 10, color: textTertiary),
+      textTheme: TextTheme(
+        titleLarge: GoogleFonts.zcoolKuaiLe(
+          fontSize: 20,
+          color: textPrimary,
+        ),
+        titleMedium: GoogleFonts.zcoolKuaiLe(
+          fontSize: 16,
+          color: textPrimary,
+        ),
+        bodyMedium: const TextStyle(fontSize: 14, color: textPrimary),
+        bodySmall: const TextStyle(fontSize: 12, color: textSecondary),
+        labelSmall: const TextStyle(fontSize: 11, color: textTertiary),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: textPrimary,
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: wobblySmall,
+          side: const BorderSide(color: border, width: 2),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: wobblyMd,
+          side: const BorderSide(color: border, width: 2),
+        ),
+        titleTextStyle: GoogleFonts.zcoolKuaiLe(
+          fontSize: 18,
+          color: textPrimary,
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.elliptical(80, 16),
+            topRight: Radius.elliptical(16, 80),
+          ),
+          side: BorderSide(color: border, width: 2),
+        ),
       ),
     );
   }

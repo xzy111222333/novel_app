@@ -73,26 +73,74 @@ class ShareCardUtil {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
+    // Warm paper background
     canvas.drawRect(
       const Rect.fromLTWH(0, 0, width, height),
-      Paint()..color = AppTheme.scaffoldBackground,
+      Paint()..color = AppTheme.background,
     );
 
-    final cardRect = RRect.fromRectAndRadius(
+    // Dot grid paper texture
+    final dotPaint = Paint()..color = AppTheme.muted;
+    for (double dx = 0; dx < width; dx += 48) {
+      for (double dy = 0; dy < height; dy += 48) {
+        canvas.drawCircle(Offset(dx, dy), 1.5, dotPaint);
+      }
+    }
+
+    // Hand-drawn card with hard offset shadow
+    final cardRect = RRect.fromRectAndCorners(
       Rect.fromLTWH(outerPadding, cardTop, cardWidth, 1200),
-      const Radius.circular(42),
+      topLeft: const Radius.elliptical(80, 12),
+      topRight: const Radius.elliptical(12, 80),
+      bottomRight: const Radius.elliptical(80, 12),
+      bottomLeft: const Radius.elliptical(12, 80),
     );
-    canvas.drawShadow(Path()..addRRect(cardRect), Colors.black26, 18, false);
+    // Hard shadow (offset, no blur)
+    final shadowRect = cardRect.shift(const Offset(8, 8));
+    canvas.drawRRect(shadowRect, Paint()..color = AppTheme.textPrimary);
+    // Card fill
     canvas.drawRRect(cardRect, Paint()..color = Colors.white);
+    // Thick pencil border
+    canvas.drawRRect(
+      cardRect,
+      Paint()
+        ..color = AppTheme.border
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4,
+    );
 
     double y = cardTop + cardPadding;
     final double left = outerPadding + cardPadding;
     final double contentWidth = cardWidth - cardPadding * 2;
 
+    // Tape decoration at top center of card
+    final tapeRect = RRect.fromRectAndCorners(
+      Rect.fromCenter(
+        center: Offset(width / 2, cardTop),
+        width: 140,
+        height: 36,
+      ),
+      topLeft: const Radius.elliptical(8, 4),
+      topRight: const Radius.elliptical(4, 8),
+      bottomRight: const Radius.elliptical(8, 4),
+      bottomLeft: const Radius.elliptical(4, 8),
+    );
+    canvas.drawRRect(tapeRect, Paint()..color = AppTheme.muted.withAlpha(180));
+
+    // Wobbly accent circle
     canvas.drawCircle(
       Offset(left + 14, y + 14),
       14,
       Paint()..color = accentColor,
+    );
+    // Pencil border around accent circle
+    canvas.drawCircle(
+      Offset(left + 14, y + 14),
+      14,
+      Paint()
+        ..color = AppTheme.border
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5,
     );
 
     final typePainter = _textPainter(
@@ -168,6 +216,19 @@ class ShareCardUtil {
     }
 
     final footerTop = cardTop + 1200 - 110;
+
+    // Dashed line separator above footer
+    final dashPaint = Paint()
+      ..color = AppTheme.muted
+      ..strokeWidth = 2;
+    for (double dx = left; dx < left + contentWidth; dx += 16) {
+      canvas.drawLine(
+        Offset(dx, footerTop - 24),
+        Offset(dx + 8, footerTop - 24),
+        dashPaint,
+      );
+    }
+
     final appPainter = _textPainter(
       '来自小灵感',
       style: const TextStyle(

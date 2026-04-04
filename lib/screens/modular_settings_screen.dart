@@ -31,21 +31,17 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBackground,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppTheme.scaffoldBackground,
+        backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textSecondary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: const Text('模块设置',
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            )),
+        title: Text('模块设置',
+            style: AppTheme.headingStyleWith(fontSize: 18)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(12),
@@ -59,14 +55,10 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
                 )),
           ),
 
-          const Padding(
-            padding: EdgeInsets.only(bottom: 8),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
             child: Text('默认标签页',
-                style: TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                )),
+                style: AppTheme.headingStyleWith(fontSize: 14)),
           ),
           _buildLockedRow(Icons.today_outlined, '今日', '查看今日创作内容'),
           _buildLockedRow(Icons.description_outlined, '素材', '管理写作素材'),
@@ -76,14 +68,10 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
 
           const SizedBox(height: 16),
 
-          const Padding(
-            padding: EdgeInsets.only(bottom: 8),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
             child: Text('可选标签页',
-                style: TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                )),
+                style: AppTheme.headingStyleWith(fontSize: 14)),
           ),
           _buildToggleRow(
             Icons.text_fields_outlined,
@@ -103,8 +91,8 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(10),
+              color: AppTheme.muted,
+              borderRadius: AppTheme.wobblySmall,
             ),
             child: const Row(
               children: [
@@ -139,8 +127,8 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(8),
+            color: AppTheme.muted,
+            borderRadius: AppTheme.wobblySmall,
           ),
           child: Icon(icon, color: AppTheme.textSecondary, size: 16),
         ),
@@ -177,8 +165,8 @@ class _ModularSettingsScreenState extends State<ModularSettingsScreen> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(8),
+            color: AppTheme.muted,
+            borderRadius: AppTheme.wobblySmall,
           ),
           child: Icon(icon, color: AppTheme.textSecondary, size: 16),
         ),
